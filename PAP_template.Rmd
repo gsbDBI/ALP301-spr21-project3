@@ -1,6 +1,6 @@
 ---
 title: "PAP Template for Experiment Projects"
-author: "YOUR NAME"
+author: "Project 3"
 date: "April 2021"
 output: 
   html_document:
