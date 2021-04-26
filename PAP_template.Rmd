@@ -55,24 +55,18 @@ _Please explain the motivation for your project, its objectives, and potential i
 
 **Source: This can come from the project description, project packet, your discussion with the partners, or outside the class.**
 
-Example:
+Colorado’s unique election system is often referred to as the “gold standard for the nation" and has some of the highest voter turnout rates in the country. Since 2013, all registered voters in the state receive their ballot in the mail and have a variety of ways to return it (via mail, drop box, or in person). In 2017, Colorado became the first state to use a security feature, Risk-Limiting Audit (RLA), to check and verify electoral results.
 
-Alongside the outbreak of the novel coronavirus (SARS-CoV-2), much of the world’s
-population is also experiencing an “infodemic” – the spread of misinformation related
-to the virus. COVID-19 misinformation spreading on social media platforms covers a
-range of topics.
+While many academics, NGOs, and election officials view RLAs as an ideal way to confirm the integrity of the election and final vote count, the RLA process is often challenging to convey to the general public. Communicating the importance and security of RLAs is critical, particularly as other states are looking to implement RLAs in future elections.
 
 ...
 
-This project evaluates the effect of interventions designed to decrease sharing of false
-COVID-19 cures. Using Facebook advertisements to recruit social media users in Kenya
-and Nigeria, we deliver our interventions with a Facebook Messenger chatbot, allowing
-us to observe treatment effects in a realistic setting. We test the effectiveness of several interventions used by academics and social media platforms to stop the spread of online misinformation targeted at both the respondent level, such as tips for spotting fake news, a video training and nudges, as well as headline-level treatments, such as “false” tags and related articles. Our outcomes of interest focus on sharing intentions and behavior, rather than beliefs or attitudes. Individuals do not need to have a strong belief that a COVID-19 remedy works to try it themselves or share it with their friends.
+The partners for this project include the Colorado State government office and a cross-disciplinary group at Stanford, including researchers and policy experts at the Stanford Internet Observatory, that studies abuse of information technologies and develops a curriculum on trust and safety.
 
+The goal of this project is to learn about the effective means to communicate the RLA technology to the public, and improve public trust in the election process. To achieve this goal, the project team will design an experiment with experts on RLAs. This project would directly inform election policy across the country, enabling election officials to rebuild voter confidence in the integrity of elections. The group will test the effectivness of several interventions to increase confidence in using RLAs to verify election results, including different messages to convey why RLAs ensure integrity in the election from different credible messengers (e.g. teacher, judges). Our outcome of interest will be trust in the individual's State election results from learning about RLAs. Individuals do not need to understand or know about RLAs already.
 ...
 
-We believe that the insights gleaned from this experiment will both contribute to generalized knowledge about how to combat the spread of online misinformation and lay a path forward for further exploration of mechanisms. Specifically, ...
-
+We believe that the insights gleaned from this experiment will both contribute to generalized knowledge about how to increase confidence in elections, and RLAs in Colorado, and provide a path for other states besides Colorado to implement, and market, RLAs to their constituents.
 
 ---
 
@@ -84,10 +78,10 @@ _Present research questions that provide insights into the problem described in 
 
 Example: 
 
-What interventions are the most effective in reducing the intention to share online misinformation related to COVID-19 prevention and cure?
+* What are effective strategies to educate voters about how RLAs work?
 
-Do some interventions work better for some subgroups of people?
-
++ Specifically, what characteristics of RLAs are most effective in increasing voters’ confidence in the integrity of the election results? 
++ Do different strategies work better for different subgroups?
 ---
 
 ## Experimental Setup
@@ -96,12 +90,23 @@ _Describe how the research question can be answered with an experiment, comment 
 
 _This section should be a "how-to" guide for executing your experiment. In theory, someone should be able to execute your experiment after reading this section._
 
+The research question can be answered using an experiment to test the efficacy of different messages and messengers on increasing confidence in election systems. 
+
+The methodology for this experiment...
+we will use three different messages (?) with a pre- and post-test question to gauge the effect of the message.
+
+For Coloradans, we will include an additional question(s) about RLAs.
+*UPDATE*
 
 ### Sample recruitment
 
 _How, where and when will your participants be recruited? Who are your participants? Why is this an appropriate sample for studying the research problems above? How are the data going to be collected?_
 
 **Source: Please consult the project packet, the partners, or the teaching team to understand the opportunities and constraints.**
+
+Participants will be recruited through Lucid, which allows us to target a representative sample of US adults. Apart from Colorado, several other states have recently or are planning to use RLAs in the future and the goal of using a nationally representative sample is to gain generalizable insights about the potential benefits of well-communicated information about RLAs on voter confidence in the election.
+
+*Power calculation*
 
 Example:
 
@@ -174,6 +179,12 @@ participants’ ability to discern false from true headlines in the US and India
 _How will you measure and analyze both primary and secondary outcomes of interest? How do they help you address the research questions?_
 
 **Source: You can discuss with the partners to understand whether the outcomes are meaningful for them. **
+
+Primary:
+(1) Most effective messenger/messages for the US adult population on RLAs
+
+Secondary;
+(2) Most effective messenger/messages for Coloradans on RLAs
 
 Example:
 
@@ -341,6 +352,7 @@ pacman::p_load(reshape2)
 pacman::p_load(bindata)
 ```
 
+*UPDATE POWER CALCULATIONS*
 
 ```{r power}
 
@@ -351,6 +363,43 @@ pacman::p_load(bindata)
 
 # Please adjust the number of hypotheses, hypotheses type, effect size, and treatment-control split etc. in your simulation.
 
+power_calculator <- function(mu_1, # treatment mean 
+                             mu_0, # control mean
+                             sigma, # standard deviation
+                             alpha=0.05, # significance level
+                             N, # experiment size
+                             hypothesis = 'two.tailed' # type of hypothesis
+){ 
+  # The tails of our statistic's distribution
+  lowertail <- (abs(mu_1 - mu_0)*sqrt(N))/(2*sigma) # note that this is Z inside the power formula
+  uppertail <- -1*lowertail # upper tail matters if we are interested in testing if u1 < u0
+  if(hypothesis == 'two.tailed'){
+    # HA: \mu_1 \neq \mu_0
+    # qnorm(1-a) gives z_a; pnorm(x, lower.tail=TRUE) gives prob(X<=x); pnorm(z, lower.tail=FALSE) gives prob(X>x); 
+    pwr <- pnorm(lowertail - qnorm(1-alpha/2), lower.tail=TRUE) + 1- pnorm(uppertail- qnorm(1-alpha/2), lower.tail=FALSE) 
+  } else if(hypothesis == 'greater'){
+    # HA: \mu_1 > \mu_0
+    pwr <- pnorm(lowertail - qnorm(1-alpha), lower.tail=TRUE)
+  } else if(hypothesis == 'lower'){
+    # HA: \mu_1 < \mu_0
+    pwr <- 1 - pnorm(uppertail- qnorm(1-alpha), lower.tail=FALSE)     
+  }
+  return(pwr) 
+} 
+
+mu_1 = 0 # treatment mean
+mu_0 = 0 # control mean
+sigma = 0 # standard deviation
+hypothesis = 'greater'  # type of hypothesis
+
+# apply power calculator by plugging in the above parameters
+pwr <- power_calculator(mu_1 = mu_1, 
+                        mu_0 = mu_0, 
+                        sigma = sigma,
+                        alpha=0.05, 
+                        N = 100,
+                        hypothesis = hypothesis)
+
 ```
 
 ---
@@ -360,9 +409,10 @@ _Importantly, please include analysis scripts that can be directly applied to yo
 
 **Source: The experimental design tutorials contain code for analyzing a dataset, including coding up the outcome variables, treatment variables, covariates, checking balance in treatment assignment and analyzing using regression models. **
 
-```{r analysis}
 
-# Add your code for analysis
+```{r analysis}
+tibble::glimpse(df) # overview of variables in the data
+
 
 
 ```
