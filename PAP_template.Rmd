@@ -84,18 +84,19 @@ _This section should be a "how-to" guide for executing your experiment. In theor
 
 The research question can be answered using an experiment to test the efficacy of different messages on increasing confidence in election systems by providing information about RLAs.
 
-The methodology for this experiment...
-we will use three different messages (?) with a pre- and post-test question to gauge the effect of the message.
+We will use four different messages with a pre- and post-test question to gauge the effect of the message. We will have one control group and three different messages to use on different treatment groups. The control group will receive a message about election integrity, with no mention of RLAs. The three treatment groups will each receive a different message about RLAs of similar length and reading level.
 
-*UPDATE*
+Participants will first answer survey questions about partisanship and views on the integrity of the most recent elections for our pre-test data. Next, participants will answer a few questions where we can collect demographic information including age, gender, education. These will be useful covariates to analyze our data and measure the effect of messages for subgroups.
 
-### Sample recruitment
+Next, participants will receive the intervention (one of the four possible messages). Lastly, participants will receive the same set of questions as the pre-test. This design is a between-subject design, where interventions are implemented at the respondent level.
+
+### Sample recruitment *ADD POWER CALCULATION
 
 _How, where and when will your participants be recruited? Who are your participants? Why is this an appropriate sample for studying the research problems above? How are the data going to be collected?_
 
-Participants will be recruited through Lucid, which allows us to target a representative sample of US adults. Apart from Colorado, several other states have recently or are planning to use RLAs in the future and the goal of using a nationally representative sample is to gain generalizable insights about the potential benefits of well-communicated information about RLAs on voter confidence in the election.
+Participants will be recruited through Lucid during the first half of May 2021, which allows us to target a representative sample of US adults (18 years old and up). Our target sample size is *X* respondents for each treatment group, totaling *X* respondents across all 50 states.
 
-*Power calculation*
+Apart from Colorado, several other states have recently or are planning to use RLAs in the future and the goal of using a nationally representative sample is to gain generalizable insights about the potential benefits of well-communicated information about RLAs on voter confidence in the election.
 
 Example:
 
@@ -103,7 +104,7 @@ We will recruit respondents in Kenya and Nigeria using Facebook advertisements t
 to users 18 years and older living in these countries. To achieve balance on gender within
 our sample, we create separate ads targeting men and women in both countries. Our target sample size is 1,500 respondents in each country for our pilot. We anticipate that our sample will look similar to the overall Facebook population in these countries, which tends to be more male, more urban, and more educated than the overall population (Rosenzweig et al., 2020). We will analyze how our sample compares to both the Facebook population and the general population in Kenya and Nigeria using Facebook’s advertising API data and nationally representative Afrobarometer surveys conducted in both countries.
 
-When users click on the “Send Message” button on our advertisement, a Messenger conversation will open with our Facebook page, starting a conversation with a chatbot programmed to implement the survey. In contrast to sending users to an external survey platform such as Qualtrics, the benefit of the chatbot is that we keep users on the Facebook platform, with which they are likely more familiar, and maintain a realistic setting in which users might encounter online misinformation.
+*REMOVE* When users click on the “Send Message” button on our advertisement, a Messenger conversation will open with our Facebook page, starting a conversation with a chatbot programmed to implement the survey. In contrast to sending users to an external survey platform such as Qualtrics, the benefit of the chatbot is that we keep users on the Facebook platform, with which they are likely more familiar, and maintain a realistic setting in which users might encounter online misinformation.
 
 
 ### Treatment
@@ -133,38 +134,20 @@ one of the respondent-level treatments and one of the headline-level treatments.
 ** add 3 treatments and control group
 control respondent - treated with paragraph of similar length to treament effects on importance of elections
 
+*UDPATE PROMPTS*
+
 <center>
 **Table 1**
 </center>
 
 | Shorthand Name | Treatment Level | Treatment 
 |:----:|:----:|:----:|
-| 1. Facebook tips | Respondent |Facebook’s “Tips to Spot False News”|
-| 2. AfricaCheck tips | Respondent | Africacheck.org’s guide:
-“How to vet information during a pandemic”|
-| 3. Video training | Respondent | Videos (links) | 
-| 4. Emotion suppression | Respondent | Prompt: “As you view and read the headlines, if you have any feelings, please try your best not to let those feelings show. Read all of the headlines carefully, but try to behave so that someone watching you would not know that you are feeling anything at all” (Gross, 1998). | 
-| 5. Pledge | Respondent | Prompt: Respondents will be asked if they want to keep their family and friends safe from COVID-19, if they knew COVID-19 misinformation can be dangerous, and if they’re willing to take either a private or public pledge to help identify and call out COVID-19 misinformation online (see B.4.4). | 
-| 6. Accuracy nudge |  Respondent |  Placebo headline: “To the best of your knowledge, is this headline accurate?” (Pennycook et al., 2020, 2019). | 
-| 7. Deliberation nudge|  Respondent | Placebo headline: “In a few words, please say why you would ike to share or why you would not like to share this headline.” [open text response] | 
-| 8. Related articles | Headline | Facebook-style related stories: below story,
-show one other story which corrects a false news story | 
-| 9. Factcheck  | Headline  | Fact checking flag from third party PesaCheck or AfricaCheck | 
-| 10. More information |  Headline  | Provides a link to “Get the facts about COVID-19” | 
-| 11. Real information  | Headline |  Provides a true statement: “According to the WHO,
-there is currently no proven cure for COVID-19. | 
-| 12. Control  | N/A  | Control condition | 
+| 1. Bipartisan Auditors | Respondent | Prompt:  | 
+| 2. Risk Limit as a Percentage | Respondent | Prompt:  | 
+| 3. Emotional - Politicians are Bad Losers | Respondent | Prompt:  | 
+| 4. Control  | N/A  | Prompt:  | 
 
 <center>Table 1. Description of interventions included in the experiment</center>
-
-Treatments 1, 2, 3, 8, 9 and 10 are derived from interventions currently being used by
-social media platforms including Facebook, Twitter, and WhatsApp. For instance, Guess
-et al. (2020) find that reading Facebook’s tips for spotting untrustworthy news improved
-participants’ ability to discern false from true headlines in the US and India.
-
-
-
-
 
 ### Outcomes
 
@@ -178,12 +161,7 @@ Primary:
 Secondary;
 (2) Which messages about RLAs are the most salient? 
 
-Example:
-
-We are primarily interested in decreasing sharing of harmful false information about
-COVID-19 cures and treatments. However, we would simultaneously wish to constrain
-negative impacts on sharing of useful information about transmission and best practices
-from verified sources. Specifically, we are interested in three outcomes: 
+We are primarily interested in increasing awareness about RLAs as tools to verify election results. Simultaneously, we want to determine which message is the most effective to convey how RLAs work and why they are trustworthy. Specifically, we are interested in the following outcomes:
 
 Primary:
 
@@ -191,9 +169,9 @@ Primary:
 
 Secondary:
 
-(2) Most effective messages to build trust - logical, emotional.
+(2) Determining the most effective messages to build trust around RLAs - bipartisan, logical, or emotional appeals.
 
-(3) Are certain messages more effective for certain subgroups?
+(3) Gauging whether certain messages more effective at increasing trust in elections for certain subgroups.
 
 
 #### Primary Outcomes
@@ -206,9 +184,9 @@ _You should lay out the questions you use to measure your outcomes._
 
 *UPDATE - NATE TO SEND*
 
-We measure trust in elections from RLAs through two questions:
+We will measure trust in elections from RLAs through two questions:
 
-measure efefctiveness of treament comapred to control 
+measure effectiveness of treament compared to the control group
 
 * Would you like to share this post on your timeline?
 * Would you like to send this post to a friend on Messenger?
@@ -224,16 +202,7 @@ Because of random assignment, we expect to see no systematic differences in pre-
 
 _Secondary outcomes are things that you also wish to investigate in addition to the primary outcomes. Sometimes these outcomes can shed light on the mechanisms through which interventions work. Sometimes they help ensure that your intervention does not lead to unintended effects._
 
-compare all treatments to each other 
-
-see which message is more effective 
-run multiple hypothesis test between each treatment group
-
-Example: 
-
-Additionally, we measure secondary behavioral outcomes which allows us to further
-investigate the extent to which treatments may suppress the sharing of true information.
-
+In addition, we measure secondary outcomes by comparing the effectiveness of each treatment against each other to see which message is more effective. We will run a multiple hypothesis test between each treatment group to determine this marginal treatment effect. We will also examine the effect for particular sub-groups.
 
 
 ### Covariates
@@ -244,18 +213,12 @@ _Which covariates will you include in the experiment and why? This selection can
 
 control for people with strong/unwavering views to actually measure effect
 
-Example:
+The existing literature on election integrity focuses on voter confidence in specific elections (Atkeson et al., 2015), the role of partisanship (Sances et. al, 2015), and factors that can drastically affect voter experiences like poll workers (Hall et al., 2009). Our study contributes to the existing literature by exploring what messages are most effective at explaining RLAs and building trust and confidence in election systems. What messages are most salient with US adults to understand and trust that their vote was accurately counted? 
 
-The existing misinformation literature centered around studies conducted with respondents in North America and Europe, most often focuses on political ideology (Pennycook et al., 2019), cognition or inclination to deliberate (Bago et al., 2020), and media literacy (Guess et al., 2020). Our study expands this focus to explore heterogeneity with respect to additional respondent covariates. Outside of contexts where partisanship is a salient identity and lens through which individuals interpret news and information, what are the likely sources of heterogeneity in individuals’ receptivity to interventions to combat the spread of misinformation?
+In addition to the demographic covariates such as age, race, gender, and education, we also include specific questions regarding party affiliation, political ideology, and trust in state and federal government.
 
-In addition to the demographic covariates such as age, gender, education, we also
-include specific questions regarding knowledge of and concern about COVID-19, an index
-of scientific views, beliefs about government efficacy in the current coronavirus pandemic,
-religious behaviors and beliefs, locus of control, and digital literacy. These variables capture what might be sources of heterogeneity in responses
-to misinformation: age, analytical thinking (captured in our scientific beliefs index), and
-need for closure (captured in our concern regarding COVID-19 concern measurement and
-the beliefs about government efficacy measurement) (Wittenberg and Berinsky, 2020).
-
+These variables capture what might be sources of heterogeneity in responses
+to RLAs and election integrity: age, education, and political ideology, and trust in government.
 
 ---
 
@@ -269,12 +232,9 @@ _How do you plan to address the problem of multiple hypotheses testing? If you a
 
 **Source: The hypotheses should address your research/business goals.**
 
-Example:
-
 **Primary:**
 
-The primary hypotheses that we want to measure would be whether any of the treatments to communicate about RLAs is effective in increasing voter trust in election systems.
-
+The primary hypotheses that we want to measure would be whether any of the treatments to communicate about RLAs are effective in increasing voter trust in election systems.
 
 **Secondary (Hypotheses to inform industry practice)**
 
@@ -287,18 +247,19 @@ We select the below treatments because these are currently, or were previously, 
 
 Treatments:
 
-* Facebook tips (respondent)
-* AfricaCheck tips (respondent)
-* Factcheck (headline)
-* More information (headline)
-* Related articles (headline)
+* Bipartisan Auditors (respondent)
+* Risk Limit as a Percentage (respondent)
+* Emotional - Politicians are Bad Losers (respondent)
+* Control (respondent)
 
-Covariates:
+Covariates: *ADD TO*
 
 * Age
-* Male
+* Gender
+* Race
 * Education
 
+*UPDATE*
 We hypothesize that the three headline-level treatments listed above will perform better
 among more educated users, older people, and among women, compared to the less educated,
 younger and male respondents. We expect that the two respondent-level treatments
@@ -306,8 +267,6 @@ will reduce sharing of misinformation more among less-educated respondents than 
 with more education.
 
 We hypothesize that learning about RLAs will have at least a small positive effect on trust in election systems. 
-
-*UPDATE*
 
 ---
 
@@ -317,12 +276,13 @@ _Label and index your data: outcomes, treatments, covariates. Formally describe 
 
 **Source: Analysis should also follow your hypotheses. For each of your hypotheses, what analysis will allow you to test the hypotheses?**
 
-Look at pre-treatment, post-treatment. Take movement on scale to find the average treatment effect, compared averages across treatments.
+For the primary and secondary outcomes discussed above, we will examine and compare the average treatment effect as the movement on the scale between the pre- and post-treatment.
 
-one-sided t-test 
+To test our hypotheses, we will conduct a one-sided T-test to examine the average treatment effect as we believe the treatment will have a positive effect in one direction on the outcome variable. We will compare the average effect for each treatment to the control average, and then compare each treatment average to each other to determine which message is most effective.
 
-analyze by sub-groups 
-- we expect that...
+We will also analyze the effect of the treatments listed above by sub-groups. 
+
+We expect that...
 
 *UPDATE*
 
@@ -424,11 +384,35 @@ _Importantly, please include analysis scripts that can be directly applied to yo
 
 **Source: The experimental design tutorials contain code for analyzing a dataset, including coding up the outcome variables, treatment variables, covariates, checking balance in treatment assignment and analyzing using regression models. **
 
-Add t-test and code from tutorials - Anderson 
+Add t-test and code from tutorials - Anderson to add
+*UPDATE COVARIATES*
 
 ```{r analysis}
 tibble::glimpse(df) # overview of variables in the data
 
+# select covariates
+covariate_names <- c("age", "race", "educ", "state", "parent",
+                     "female", "trust_fed", "trust_state", "ballot_2016", "ballot_2020")
+
+# treatment
+treatment_name <- "treat_real"
+# outcome of interest
+outcome_variable1 <- "rla_state"
+outcome_variable2 <- "rla_fed"
+outcome_variable2 <- "rla_info"
+
+# create new dataset containing the covariates, treatment and outcome
+election_df <- df %>%
+  # select all the variables of interest
+  select(all_of(c(covariate_names, treatment_name, outcome_variable1, outcome_variable2, outcome_variable3))) %>% # all_of() is for strict selection: if any of the variables in the character vector is missing, an error is thrown.
+
+# Filtered dataframe with observations that have a phone number
+election_full_df <- election_df %>% 
+  # exclude missing `treat_real` observations
+  filter(!is.na(treat_real)) 
+
+# Remove the full data from memory
+rm(df)
 
 ```
 
