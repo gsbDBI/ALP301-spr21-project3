@@ -51,10 +51,6 @@ knitr::opts_chunk$set(
 
 ## Motivation
 
-_Please explain the motivation for your project, its objectives, and potential implications of the study._
-
-**Source: This can come from the project description, project packet, your discussion with the partners, or outside the class.**
-
 Colorado’s unique election system is often referred to as the “gold standard for the nation" and has some of the highest voter turnout rates in the country. Since 2013, all registered voters in the state receive their ballot in the mail and have a variety of ways to return it (via mail, drop box, or in person). In 2017, Colorado became the first state to use a security feature, Risk-Limiting Audit (RLA), to check and verify electoral results.
 
 While many academics, NGOs, and election officials view RLAs as an ideal way to confirm the integrity of the election and final vote count, the RLA process is often challenging to convey to the general public. Communicating the importance and security of RLAs is critical, particularly as other states are looking to implement RLAs in future elections.
@@ -72,16 +68,12 @@ We believe that the insights gleaned from this experiment will both contribute t
 
 ## Research Questions
 
-_Present research questions that provide insights into the problem described in the motivation. Argue how answering these questions helps understand the problem and inform policies to address it._
-
-**Source: This can come from the project description, project packet, your discussion with the partners, or outside the class.**
-
-Example: 
-
 * What are effective strategies to educate voters about how RLAs work?
 
-+ Specifically, what characteristics of RLAs are most effective in increasing voters’ confidence in the integrity of the election results? 
-+ Do different strategies work better for different subgroups?
+* Specifically, what characteristics of RLAs are most effective in increasing voters’ confidence in the integrity of the election results? 
+
+* Do different strategies work better for different subgroups?
+
 ---
 
 ## Experimental Setup
@@ -90,19 +82,16 @@ _Describe how the research question can be answered with an experiment, comment 
 
 _This section should be a "how-to" guide for executing your experiment. In theory, someone should be able to execute your experiment after reading this section._
 
-The research question can be answered using an experiment to test the efficacy of different messages and messengers on increasing confidence in election systems. 
+The research question can be answered using an experiment to test the efficacy of different messages on increasing confidence in election systems by providing information about RLAs.
 
 The methodology for this experiment...
 we will use three different messages (?) with a pre- and post-test question to gauge the effect of the message.
 
-For Coloradans, we will include an additional question(s) about RLAs.
 *UPDATE*
 
 ### Sample recruitment
 
 _How, where and when will your participants be recruited? Who are your participants? Why is this an appropriate sample for studying the research problems above? How are the data going to be collected?_
-
-**Source: Please consult the project packet, the partners, or the teaching team to understand the opportunities and constraints.**
 
 Participants will be recruited through Lucid, which allows us to target a representative sample of US adults. Apart from Colorado, several other states have recently or are planning to use RLAs in the future and the goal of using a nationally representative sample is to gain generalizable insights about the potential benefits of well-communicated information about RLAs on voter confidence in the election.
 
@@ -140,6 +129,9 @@ Respondent-level treatments and headline-level treatments are implemented as sep
 factors, each of which has an empty baseline level that is the control. So respondents may be
 assigned the pure control condition, one of the respondent-level treatments but no headline level treatment, one of the headline-level treatments but no respondent-level treatment, or
 one of the respondent-level treatments and one of the headline-level treatments.
+
+** add 3 treatments and control group
+control respondent - treated with paragraph of similar length to treament effects on importance of elections
 
 <center>
 **Table 1**
@@ -181,10 +173,10 @@ _How will you measure and analyze both primary and secondary outcomes of interes
 **Source: You can discuss with the partners to understand whether the outcomes are meaningful for them. **
 
 Primary:
-(1) Most effective messenger/messages for the US adult population on RLAs
+(1) Is communicating about RLAs an effective way to increase trust in election system for the US adult population?
 
 Secondary;
-(2) Most effective messenger/messages for Coloradans on RLAs
+(2) Which messages about RLAs are the most salient? 
 
 Example:
 
@@ -195,14 +187,13 @@ from verified sources. Specifically, we are interested in three outcomes:
 
 Primary:
 
-(1) Self-reported intention to share a given story, 
+(1) Increasing voters confidence for US adults that ballots are correctly counted in the state and national elections.
 
 Secondary:
 
-(2) Actual behavior with respect to sharing that story, 
+(2) Most effective messages to build trust - logical, emotional.
 
-(3) Willingness to share tips and information about misinformation more generally. 
-
+(3) Are certain messages more effective for certain subgroups?
 
 
 #### Primary Outcomes
@@ -213,7 +204,11 @@ Example:
 
 _You should lay out the questions you use to measure your outcomes._
 
-We measure interest in sharing information through two questions:
+*UPDATE - NATE TO SEND*
+
+We measure trust in elections from RLAs through two questions:
+
+measure efefctiveness of treament comapred to control 
 
 * Would you like to share this post on your timeline?
 * Would you like to send this post to a friend on Messenger?
@@ -229,6 +224,11 @@ Because of random assignment, we expect to see no systematic differences in pre-
 
 _Secondary outcomes are things that you also wish to investigate in addition to the primary outcomes. Sometimes these outcomes can shed light on the mechanisms through which interventions work. Sometimes they help ensure that your intervention does not lead to unintended effects._
 
+compare all treatments to each other 
+
+see which message is more effective 
+run multiple hypothesis test between each treatment group
+
 Example: 
 
 Additionally, we measure secondary behavioral outcomes which allows us to further
@@ -241,6 +241,8 @@ investigate the extent to which treatments may suppress the sharing of true info
 _Which covariates will you include in the experiment and why? This selection can for example depend on expected treatment heterogeneity. Some common covariates include age, partisanship, Internet usage, location, etc. Explain why the covariates are important in your context._
 
 **Source: You can check what are the most commonly used covariates in other experiments in the literature. Moreover, it would be helpful to think about what the main covariates are to collect in your experimental context.**
+
+control for people with strong/unwavering views to actually measure effect
 
 Example:
 
@@ -271,7 +273,8 @@ Example:
 
 **Primary:**
 
-The primary hypotheses that we want to measure would be whether any of the combinations of treatments was effective in reducing sharing of COVID-19 misinformation.
+The primary hypotheses that we want to measure would be whether any of the treatments to communicate about RLAs is effective in increasing voter trust in election systems.
+
 
 **Secondary (Hypotheses to inform industry practice)**
 
@@ -302,6 +305,9 @@ younger and male respondents. We expect that the two respondent-level treatments
 will reduce sharing of misinformation more among less-educated respondents than those
 with more education.
 
+We hypothesize that learning about RLAs will have at least a small positive effect on trust in election systems. 
+
+*UPDATE*
 
 ---
 
@@ -310,6 +316,15 @@ with more education.
 _Label and index your data: outcomes, treatments, covariates. Formally describe how you test the hypotheses described earlier._
 
 **Source: Analysis should also follow your hypotheses. For each of your hypotheses, what analysis will allow you to test the hypotheses?**
+
+Look at pre-treatment, post-treatment. Take movement on scale to find the average treatment effect, compared averages across treatments.
+
+one-sided t-test 
+
+analyze by sub-groups 
+- we expect that...
+
+*UPDATE*
 
 Example:
 
@@ -409,10 +424,10 @@ _Importantly, please include analysis scripts that can be directly applied to yo
 
 **Source: The experimental design tutorials contain code for analyzing a dataset, including coding up the outcome variables, treatment variables, covariates, checking balance in treatment assignment and analyzing using regression models. **
 
+Add t-test and code from tutorials - Anderson 
 
 ```{r analysis}
 tibble::glimpse(df) # overview of variables in the data
-
 
 
 ```
