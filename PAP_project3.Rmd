@@ -90,7 +90,11 @@ Participants will be recruited through Lucid during the first half of May 2021, 
 
 Apart from Colorado, several other states have recently or are planning to use RLAs in the future and the goal of using a nationally representative sample is to gain generalizable insights about the potential benefits of well-communicated information about RLAs on voter confidence in the election.
 
+<<<<<<< HEAD
 ### Treatment **NATE TO SEND**
+=======
+### Treatment (Nate is going to fill this in)
+>>>>>>> 62f1772b2cd4e4688acfa09a66daa0f2357092b9
 
 _Please explain your experimental interventions in detail here. Please include a flow chart/diagram that helps explain to readers your experimental setup and procedure._
 
