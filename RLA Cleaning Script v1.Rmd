@@ -11,5 +11,13 @@ knitr::opts_chunk$set(echo = TRUE)
 df = read.csv("RLA_0507.csv")
 ```
 
+```{r}
+# Remove the first row (repetitive)
+df = df[-1,]
+```
 
+```{r}
+# Remove the first column as a test
+df = df[,-1]
+```
 
