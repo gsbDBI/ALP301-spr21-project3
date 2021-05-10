@@ -1,0 +1,121 @@
+---
+title: "Data Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages}
+# # Ensure that pacman is installed for package management and loading.
+# if (!require("pacman")) install.packages("pacman")
+# # for data reading wrangling and visualization
+pacman::p_load(tidyverse) 
+# for working directories
+pacman::p_load(here) 
+# # for cross tabulation and data cleaning
+# pacman::p_load(janitor) 
+# for working with strings
+pacman::p_load(glue) 
+# For randomized inference, also loads randomizr and estimatr 
+pacman::p_load(ri2) 
+# for marginal effects from lineal regressions
+pacman::p_load(margins)
+# Tests for linear regression models
+pacman::p_load(lmtest)
+pacman::p_load(car)
+# Tables
+pacman::p_load(kableExtra)
+# for updated ggplot2 theme
+pacman::p_load(hrbrthemes)
+# for updated ggplot2 colorblind-friendly scheme
+pacman::p_load(ggthemes)
+# theme_set(hrbrthemes::theme_ipsum())
+pacman::p_load(reshape2)
+# for plotting of covariate balance
+pacman::p_load(cobalt)
+# for matching only
+# pacman::p_load(MatchIt)
+```
+
+```{r read_data}
+#download the data from GitHub
+data <-'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/RLA_0507.csv'
+df <- read.csv(data)
+rm(data) #remove data csv file
+```
+
+```{r glimpse_data}
+tibble::glimpse(df) # overview of variables in the data
+```
+
+```{r treat_real}
+#table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
+with(df, table(Treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+  knitr::kable() %>%                                            #kabel(x, format) generates tables 
+  # add in a header to label what we're cross-tabulating with
+  add_header_above(c('treat_group' = 2)) %>% #add_header_above(x, col_name=col_span)
+  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+
+```
+
+```{r select_vars}
+df2 <- df %>% 
+  filter(attentioncheck == "Red,Green")
+
+# select covariates
+covariate_names <- c("cov_trust_federal_1", "cov_trust_state_1", "cov_2016_accu", "cov_2020_accu", "dem_birthyear", "dem_gender", "dem_gender_6_TEXT", "dem_child","dem_state", "cov_voting_impt_1", "cov_vote_2020", "cov_vote_who_2020", "cov_vote_who_2020_5_TEXT", "dem_edu", "dem_party", "dem_party_4_TEXT", "dem_libcon", "dem_race", "dem_race_6_TEXT", "dem_income")
+
+# treatment
+treatment_names <- c("Post_state_conf_1","Post_national_conf_1", "SecEffect_1")
+
+# outcomes of interest
+outcome_variable1 <- "rla_state"
+outcome_variable2 <- "rla_fed"
+outcome_variable3 <- "rla_info"
+
+# create new dataset containing the covariates, treatment and outcome
+election_df <- df %>%
+  # select all the variables of interest
+  select(all_of(c(covariate_names, treatment_name, outcome_variable1, outcome_variable2, outcome_variable3))) %>% # all_of() is for strict selection: if any of the variables in the character vector is missing, an error is thrown.
+
+# Filtered dataframe with observations that have a phone number
+election_full_df <- election_df %>% 
+  # exclude missing `treat_real` observations
+  filter(!is.na(treat_real)) 
+
+# Remove the full data from memory
+rm(df)
+```
+
+```{r balance}
+N <- 1000 # experiment size
+K <- 7 # number of experimental conditions including the control
+
+mean_vals <- rep(0, K) # true means; rep(x, k) replicates the value in x by k times
+# outcome matrix of dimension N by K
+ymat <- mapply(rnorm, n = N, mean = mean_vals) #mapply(FUN, ...) applies function FUN; rnorm(n, mean, var) generates normal random variable
+
+# complete random assignment; ensure each condition gets balanced assignment
+w <- complete_ra(N, m_each = rep(N / 5, 5))
+levels(w) <- 0:6 # name the treatment levels
+table(w)
+
+# observe outcomes based on treatment assignment
+yobs <- ymat[cbind(1:N, as.numeric(w))] #[row, col] indexes the matrix elements
+
+```
+
+```{r Zstats}
+# means under each condition
+ybars <- aggregate(yobs, by = list(w), mean)$x # aggregate(x, by=list, FUN) applied function to x by group. In this case, we are taking the means by treatment arm
+sigma <- sqrt(sum((yobs - ybars[w])^2) / (N - K)) # calculation of standard deviation
+
+# difference in means estimates
+taus <- ybars[-1] - ybars[1] # subtracting the control outcome from each of the three treatment outcomes
+
+# Z-stat
+Z_stat <- taus / (sigma * sqrt(2 * K / N)) # calculation of Z stat according to formula above
+Z_stat
+```
