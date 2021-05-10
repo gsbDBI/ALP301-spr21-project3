@@ -17,7 +17,7 @@ df = df[-1,]
 ```
 
 ```{r}
-# Remove the first column as a test
-df = df[,-1]
+# Remove the second column as a test
+df = df[,-2]
 ```
 
