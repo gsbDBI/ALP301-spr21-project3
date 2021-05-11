@@ -133,10 +133,20 @@ colnames(df) = c("duration", "state", "dv_pre_stateconf", "dv_pre_nationalconf",
 
 # All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
 
+# Start with the columns that need to be numeric
 
 
 
 
+i = c("dv_pre_stateconf", "dv_pre_nationalconf", "bipart_intro_time", "bipart_time", "rla_intro_time", "rla_time", "handcount_intro_time", "handcount_time", "badloser_intro_time", "badloser_time", "soup_intro_time", "soup_time", "local_intro_time", "local_time", "control_time", "dv_post_stateconf", "dv_post_nationalconf")
+df[ , i] = apply(df[ , i], 2, function(x) as.numeric(x))
+
+# Now the columns that make sense to be structured as factors
+i = c("state", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "parenthood", "dv_secondary", "voting_importance", "vote_2020", "candidate_2020", "education", "political_party", "political_ideology", "race", "income", "treatment")
+df[ , i] = lapply(df[ , i], factor)
+
+# Before we go any further, let's decide how to work with missing data and where it exists
+summary(df)
 
 ```
 
