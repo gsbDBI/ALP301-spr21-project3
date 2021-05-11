@@ -135,9 +135,6 @@ colnames(df) = c("duration", "state", "dv_pre_stateconf", "dv_pre_nationalconf",
 
 # Start with the columns that need to be numeric
 
-
-
-
 i = c("dv_pre_stateconf", "dv_pre_nationalconf", "bipart_intro_time", "bipart_time", "rla_intro_time", "rla_time", "handcount_intro_time", "handcount_time", "badloser_intro_time", "badloser_time", "soup_intro_time", "soup_time", "local_intro_time", "local_time", "control_time", "dv_post_stateconf", "dv_post_nationalconf")
 df[ , i] = apply(df[ , i], 2, function(x) as.numeric(x))
 
@@ -148,6 +145,29 @@ df[ , i] = lapply(df[ , i], factor)
 # Before we go any further, let's decide how to work with missing data and where it exists
 summary(df)
 
+# At a minimum, I suggest we need to remove those values where the DV is not measured, both pre and post test
+df = df %>% drop_na("dv_pre_stateconf", "dv_post_stateconf", "dv_pre_nationalconf", "dv_post_nationalconf")
+
+
+# Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
+
+df$dv_state_treatement_diff = df$dv_post_stateconf - df$dv_pre_stateconf
+df$dv_national_treatment_diff = df$dv_post_nationalconf - df$dv_pre_nationalconf
+
+summary(df$dv_state_treatement_diff)
+summary(df$dv_national_treatment_diff)
+
+# Assign a treatment number to each treatment group, corresponding with their number as noted in Notion
+
+df$treatment_number = ifelse(df$treatment == "Control", 0, ifelse(df$treatment == "Bipartisan", 1, 
+                      ifelse(df$treatment == "RL_percentage", 2, ifelse(df$treatment == "Handcount", 3,
+                      ifelse(df$treatment == "Loser", 5, ifelse(df$treatment == "Soup", 6, 
+                      ifelse(df$treatment == "Local", 7, "error")))))))
+
+# Create binary variables for "always believers" and "never believers" from 2016 & 2020 accuracy questions
+
+df$always_believer = ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 == "Yes", 1, 0), 0)
+df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
 ```
 
 
