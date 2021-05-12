@@ -26,3 +26,7 @@ table(df$t_losers)
 table(df$t_soup)
 table(df$t_local)
 table(df$t_control)
+
+#Success! I'm on GitHub
+summary(df)
+
