@@ -144,31 +144,41 @@ names(df) <- # to remove white space and put all in lower case
   names(df) %>%  
   stringr::str_replace_all("\\s","_") %>% tolower
 
-#To-Do: pivot time spent to a new column ?
+# keep only the time columns with the total time spent  
+df <- df[-c(13, 15, 17, 19, 21, 23, 25)]
 
+#clean up column names
+names(df) <- gsub("_1", "", names(df))
+names(df) <- gsub("dem_", "", names(df))
 names(df) <- gsub("_page.submit", "", names(df))
+names(df) <- gsub("cov_", "", names(df))
+
+# to condense time spent to a new column
+df <- df %>%
+  unite("msg_time", bipartisan_time:local_time, sep= "")
+
+# create dummy variable for control vs. treated
 
 #new name = old name
 df <- df %>%
   rename(
     duration_sec = duration..in.seconds.,
-    state = dem_state,
-    dv_pre_stateconf = pre_state_conf_1,
-    dv_pre_nationalconf = pre_national_conf_1,
-    federal_trust = cov_trust_federal_1,
-    state_trust = cov_trust_state_1,
+    dv_pre_stateconf = pre_state_conf,
+    dv_pre_nationalconf = pre_national_conf,
+    federal_trust = cov_trust_federal,
+    state_trust = cov_trust_state,
     accuracy_2016 = cov_2016_accu,
     accuracy_2020 = cov_2020_accu,
-    birthyear = dem_birthyear,
-    gender = dem_gender,
-    gender_text = dem_gender_6_text,
-    parenthood = dem_child,
+    birthyear = birthyear,
+    gender_text = gender_6_text,
+    parenthood = child,
   )
-
 
 # Rename the columns
 #colnames(df) = c("duration", "state", "dv_pre_stateconf", "dv_pre_nationalconf", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "gender_text", "parenthood", "bipart_intro_time", "bipart_time", "rla_intro_time", "rla_time", "handcount_intro_time", "handcount_time", "badloser_intro_time", "badloser_time", "soup_intro_time", "soup_time", "local_intro_time", "local_time", "control_time", "dv_post_stateconf", "dv_post_nationalconf", "dv_secondary", "attention_check", "voting_importance", "vote_2020", "candidate_2020", "candidate_text_2020", "education", "political_party", "political_party_text", "political_ideology", "race", "race_text", "income", "lucid_political_party", "treatment")
+```
 
+```{r column types}
 # All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
 
 # Start with the columns that need to be numeric
