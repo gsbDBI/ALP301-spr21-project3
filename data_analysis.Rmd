@@ -50,6 +50,128 @@ rm(data) #remove data csv file
 tibble::glimpse(df) # overview of variables in the data
 ```
 
+```{r}
+# Raw Data Cleaning
+
+# First, let's view the data
+view(df)
+
+# Let's check to make sure the survey only reported participants that were 100% complete
+df$Progress = as.numeric(df$Progress)
+summary(df$Progress)
+
+# The summary statistics show that all of the values (minus one) for Progress are 100, so let's delete that too
+df = subset(df, select = -c(StartDate, EndDate, Status, IPAddress, Progress))
+
+# We can also get rid of the Response ID and Lat/Long and the Recorded Date
+df = subset(df, select = -c(ResponseId, LocationLatitude, LocationLongitude, RecordedDate))
+
+# In our conversation with Emma, we decided only those columns that read Page.Submit were useful for understanding the timing
+# of treatment groups. Let's get rid of all the other columns such as First.Click and Last.Click.
+
+# We'll start with the bipartisan treatment
+
+df = subset(df, select = -c(bipart_intro_time_First.Click, bipart_intro_time_Last.Click, bipart_intro_time_Click.Count,
+                           bipartisan_time_First.Click, bipartisan_time_Last.Click, bipartisan_time_Click.Count))
+
+# Next, the RLA as a Percentage treatment
+
+df = subset(df, select = -c(RL_perc_intro_time_First.Click, RL_perc_intro_time_Last.Click, RL_perc_intro_time_Click.Count,
+                             RL_perc_time_First.Click, RL_perc_time_Last.Click, RL_perc_time_Click.Count))
+
+
+# Next, the Handcount treatment
+
+df = subset(df, select = -c(Handcount_intro_time_First.Click, Handcount_intro_time_Last.Click, Handcount_intro_time_Click.Count,
+                             Handcount_time_First.Click, Handcount_time_Last.Click, Handcount_time_Click.Count))
+
+
+# Next, the Bad Loser treatment
+
+df = subset(df, select = -c(Loser_intro_time_First.Click, Loser_intro_time_Last.Click, Loser_intro_time_Click.Count,
+                             Loser_time_First.Click, Loser_time_Last.Click, Loser_time_Click.Count))
+
+# Next, the Soup treatment
+
+df = subset(df, select = -c(Soup_intro_time_First.Click, Soup_intro_time_Last.Click, Soup_intro_time_Click.Count,
+                             Soup_time_First.Click, Soup_time_Last.Click, Soup_time_Click.Count))
+
+# Next, the Local Officials treatment
+
+df = subset(df, select = -c(Local_intro_time_First.Click, Local_intro_time_Last.Click, Local_intro_time_Click.Count,
+                             Local_time_First.Click, Local_time_Last.Click, Local_time_Click.Count))
+
+# Finally, the Control group
+
+df = subset(df, select = -c(control_time_First.Click, control_time_Last.Click, control_time_Click.Count))
+
+# Though the comments are fun, let's get rid of those. Let's also get rid of all of the Lucid profile data except the political
+# party (Calli's idea but can't remember exactly why). We can also get rid of the column called rid
+
+df = subset(df, select = -c(comments, rid, age, gender, hhi, ethnicity, hispanic, education, region, zip))
+
+# The first row is also repetitive from the column names. Let's remove that.
+
+df = df[-1,]
+
+# Check to see if we can get rid of UserLanguage. If they are all EN, then let's remove and just annotate that all speakers were
+# English in nature. Further, let's do the same thing with consent.
+
+if(nrow(df) == sum(df$UserLanguage == "EN")) {
+  df = subset(df, select = -c(UserLanguage))
+}
+
+if(nrow(df) == sum(df$Consent == "YES")) {
+  df = subset(df, select = -Consent)
+}
+
+# ***NOTE: Since the following code has an if statement, we need to check the df to see if UserLanguage and Consent were deleted
+#before we run the next line of code. If they were deleted, we can run the code below with no issues. 
+
+# Rename the columns
+colnames(df) = c("duration", "state", "dv_pre_stateconf", "dv_pre_nationalconf", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "gender_text", "parenthood", "bipart_intro_time", "bipart_time", "rla_intro_time", "rla_time", "handcount_intro_time", "handcount_time", "badloser_intro_time", "badloser_time", "soup_intro_time", "soup_time", "local_intro_time", "local_time", "control_time", "dv_post_stateconf", "dv_post_nationalconf", "dv_secondary", "attention_check", "voting_importance", "vote_2020", "candidate_2020", "candidate_text_2020", "education", "political_party", "political_party_text", "political_ideology", "race", "race_text", "income", "lucid_political_party", "treatment")
+
+# All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
+
+# Start with the columns that need to be numeric
+
+i = c("dv_pre_stateconf", "dv_pre_nationalconf", "bipart_intro_time", "bipart_time", "rla_intro_time", "rla_time", "handcount_intro_time", "handcount_time", "badloser_intro_time", "badloser_time", "soup_intro_time", "soup_time", "local_intro_time", "local_time", "control_time", "dv_post_stateconf", "dv_post_nationalconf")
+df[ , i] = apply(df[ , i], 2, function(x) as.numeric(x))
+
+# Now the columns that make sense to be structured as factors
+i = c("state", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "parenthood", "dv_secondary", "voting_importance", "vote_2020", "candidate_2020", "education", "political_party", "political_ideology", "race", "income", "treatment")
+df[ , i] = lapply(df[ , i], factor)
+
+# Before we go any further, let's decide how to work with missing data and where it exists
+summary(df)
+
+# At a minimum, I suggest we need to remove those values where the DV is not measured, both pre and post test
+df = df %>% drop_na("dv_pre_stateconf", "dv_post_stateconf", "dv_pre_nationalconf", "dv_post_nationalconf")
+
+
+# Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
+
+df$dv_state_treatement_diff = df$dv_post_stateconf - df$dv_pre_stateconf
+df$dv_national_treatment_diff = df$dv_post_nationalconf - df$dv_pre_nationalconf
+
+summary(df$dv_state_treatement_diff)
+summary(df$dv_national_treatment_diff)
+
+# Assign a treatment number to each treatment group, corresponding with their number as noted in Notion
+
+df$treatment_number = ifelse(df$treatment == "Control", 0, ifelse(df$treatment == "Bipartisan", 1, 
+                      ifelse(df$treatment == "RL_percentage", 2, ifelse(df$treatment == "Handcount", 3,
+                      ifelse(df$treatment == "Loser", 5, ifelse(df$treatment == "Soup", 6, 
+                      ifelse(df$treatment == "Local", 7, "error")))))))
+
+# Create binary variables for "always believers" and "never believers" from 2016 & 2020 accuracy questions
+
+df$always_believer = ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 == "Yes", 1, 0), 0)
+df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
+```
+
+
+
 ```{r treat_real}
 #table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
 with(df, table(Treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
