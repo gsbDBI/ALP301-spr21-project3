@@ -144,12 +144,14 @@ names(df) <- # to remove white space and put all in lower case
   names(df) %>%  
   stringr::str_replace_all("\\s","_") %>% tolower
 
-#To-Do: pivot time spent to a new column 
+#To-Do: pivot time spent to a new column ?
+
+names(df) <- gsub("_page.submit", "", names(df))
 
 #new name = old name
 df <- df %>%
   rename(
-    duration = duration..in.seconds.,
+    duration_sec = duration..in.seconds.,
     state = dem_state,
     dv_pre_stateconf = pre_state_conf_1,
     dv_pre_nationalconf = pre_national_conf_1,
@@ -184,7 +186,6 @@ summary(df)
 # At a minimum, I suggest we need to remove those values where the DV is not measured, both pre and post test
 df <- df %>% drop_na("dv_pre_stateconf", "dv_post_stateconf", "dv_pre_nationalconf", "dv_post_nationalconf")
 
-
 # Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
 
 df$dv_state_treatement_diff = df$dv_post_stateconf - df$dv_pre_stateconf
@@ -193,7 +194,7 @@ df$dv_national_treatment_diff = df$dv_post_nationalconf - df$dv_pre_nationalconf
 summary(df$dv_state_treatement_diff)
 summary(df$dv_national_treatment_diff)
 
-# Assign a treatment number to each treatment group, corresponding with their number as noted in Notion - (Calli - I dont actually think we need this, will probably just add confusion.)
+# Assign a treatment number to each treatment group, corresponding with their number as noted in Notion - (Calli: I dont actually think we need this, will probably just add confusion.)
 
 # df$treatment_number = ifelse(df$treatment == "Control", 0, ifelse(df$treatment == "Bipartisan", 1, 
 #                       ifelse(df$treatment == "RL_percentage", 2, ifelse(df$treatment == "Handcount", 3,
@@ -208,7 +209,7 @@ df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == 
 
 ```{r treat_real}
 #table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
-with(df, table(Treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
   knitr::kable() %>%                                            #kabel(x, format) generates tables 
   # add in a header to label what we're cross-tabulating with
   add_header_above(c('treat_group' = 2)) %>% #add_header_above(x, col_name=col_span)
@@ -216,23 +217,18 @@ with(df, table(Treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA
 
 ```
 
-# Clean the Data
-
-```{r}
-df2 <- df[-c(2), ] %>% #remove second row with questions
+```{r attention check}
+df2 <- df %>% #remove second row with questions
   filter(attentioncheck == "Red,Green")
-
-df <- df[c()]
 
 ```
 
 ```{r select_vars}
-
 # select covariates
 covariate_names <- c("cov_trust_federal_1", "cov_trust_state_1", "cov_2016_accu", "cov_2020_accu", "dem_birthyear", "dem_gender", "dem_gender_6_TEXT", "dem_child","dem_state", "cov_voting_impt_1", "cov_vote_2020", "cov_vote_who_2020", "cov_vote_who_2020_5_TEXT", "dem_edu", "dem_party", "dem_party_4_TEXT", "dem_libcon", "dem_race", "dem_race_6_TEXT", "dem_income")
 
 # treatment
-treatment_names <- c("Post_state_conf_1","Post_national_conf_1", "SecEffect_1")
+#treatment_names <- c()
 
 # outcomes of interest
 outcome_variable1 <- "rla_state"
