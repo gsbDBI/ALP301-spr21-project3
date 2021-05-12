@@ -1,5 +1,5 @@
 ---
-title: "Data Analysis"
+title: "Data Cleaning and Analysis"
 output: html_document
 ---
 
@@ -60,9 +60,17 @@ with(df, table(Treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA
 
 ```
 
-```{r select_vars}
-df2 <- df %>% 
+# Clean the Data
+
+```{r}
+df2 <- df[-c(2), ] %>% #remove second row with questions
   filter(attentioncheck == "Red,Green")
+
+df <- df[c()]
+
+```
+
+```{r select_vars}
 
 # select covariates
 covariate_names <- c("cov_trust_federal_1", "cov_trust_state_1", "cov_2016_accu", "cov_2020_accu", "dem_birthyear", "dem_gender", "dem_gender_6_TEXT", "dem_child","dem_state", "cov_voting_impt_1", "cov_vote_2020", "cov_vote_who_2020", "cov_vote_who_2020_5_TEXT", "dem_edu", "dem_party", "dem_party_4_TEXT", "dem_libcon", "dem_race", "dem_race_6_TEXT", "dem_income")
@@ -106,6 +114,7 @@ table(w)
 yobs <- ymat[cbind(1:N, as.numeric(w))] #[row, col] indexes the matrix elements
 
 ```
+
 
 ```{r Zstats}
 # means under each condition
