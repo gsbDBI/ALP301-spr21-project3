@@ -228,8 +228,23 @@ with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA
 ```
 
 ```{r attention check}
+# QUESTION: should we throw these people out who failed?
+
 df2 <- df %>% #remove second row with questions
   filter(attentioncheck == "Red,Green")
+
+#see who is in the top 2.5% of least amount of time spent on the survey 
+df$duration..in.seconds. <- as.numeric(df$duration..in.seconds.)
+quantile(df$duration..in.seconds., c(0.025, 0.95, .975)) 
+# we see the duration is 88 seconds for the top 2.5% and 97.5% (those who spent the least amount)
+
+# QUESTION: should we throw these people out?
+
+# a quick density plot of the distribution of total time spent on the survey between 
+df %>%
+  filter( duration..in.seconds. < 1050, duration..in.seconds. > 88 ) %>%
+  ggplot( aes(x=duration..in.seconds.)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
 
 ```
 
