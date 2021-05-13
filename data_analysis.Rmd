@@ -140,12 +140,12 @@ if(nrow(df) == sum(df$Consent == "YES")) {
 # ***NOTE: Since the following code has an if statement, we need to check the df to see if UserLanguage and Consent were deleted
 #before we run the next line of code. If they were deleted, we can run the code below with no issues. 
 
+```
+
+```{r column names}
 names(df) <- # to remove white space and put all in lower case
   names(df) %>%  
   stringr::str_replace_all("\\s","_") %>% tolower
-
-# keep only the time columns with the total time spent  
-df <- df[-c(13, 15, 17, 19, 21, 23, 25)]
 
 #clean up column names
 names(df) <- gsub("_1", "", names(df))
@@ -155,7 +155,14 @@ names(df) <- gsub("cov_", "", names(df))
 
 # to condense time spent to a new column
 df <- df %>%
-  unite("msg_time", bipartisan_time:local_time, sep= "")
+  unite("msg_time", c(bipartisan_time, rl_perc_time, handcount_time, loser_time, soup_time, local_time, control_time), sep= "")
+
+df <- df %>% relocate("msg_time", .before = bipart_intro_time)
+
+df <- df %>% 
+  unite("intro_time", bipart_intro_time:local_intro_time, sep = "")
+
+#("intro_time", bipartisan_time:local_time, sep= "")
 
 # create dummy variable for control vs. treated
 
@@ -217,6 +224,8 @@ df$always_believer = ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 =
 df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
 ```
 
+# Save new CSV file as "clean"
+
 ```{r treat_real}
 #table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
 with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
@@ -228,8 +237,9 @@ with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA
 ```
 
 ```{r attention check}
-# QUESTION: should we throw these people out who failed?
+# people who did not fail attention check
 
+# turn into dummy variable instead
 df2 <- df %>% #remove second row with questions
   filter(attentioncheck == "Red,Green")
 
@@ -238,9 +248,7 @@ df$duration..in.seconds. <- as.numeric(df$duration..in.seconds.)
 quantile(df$duration..in.seconds., c(0.025, 0.95, .975)) 
 # we see the duration is 88 seconds for the top 2.5% and 97.5% (those who spent the least amount)
 
-# QUESTION: should we throw these people out?
-
-# a quick density plot of the distribution of total time spent on the survey between 
+# make a density plot of the distribution of total time spent on the survey between 
 df %>%
   filter( duration..in.seconds. < 1050, duration..in.seconds. > 88 ) %>%
   ggplot( aes(x=duration..in.seconds.)) +
