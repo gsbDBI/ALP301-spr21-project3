@@ -204,6 +204,8 @@ df[, c(1,3,4,13:15,16)] <- sapply(df[, c(1,3,4,13:15,16)], as.numeric)
 
 df[c(2,5:10,12,17,19:21,23,27,29,30)] <- lapply(df[c(2,5:10,12,17,19:21,23,27,29,30)], factor)
 
+df$treatment_group <- as.numeric(as.factor(df$treatment_group))
+
 # Before we go any further, let's decide how to work with missing data and where it exists
 summary(df)
 
