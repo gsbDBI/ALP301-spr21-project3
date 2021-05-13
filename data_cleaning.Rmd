@@ -1,0 +1,230 @@
+---
+title: "Data Cleaning and Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages}
+# # Ensure that pacman is installed for package management and loading.
+# if (!require("pacman")) install.packages("pacman")
+# # for data reading wrangling and visualization
+pacman::p_load(tidyverse) 
+# for working directories
+pacman::p_load(here) 
+# # for cross tabulation and data cleaning
+# pacman::p_load(janitor) 
+# for working with strings
+pacman::p_load(glue) 
+# For randomized inference, also loads randomizr and estimatr 
+pacman::p_load(ri2) 
+# for marginal effects from lineal regressions
+pacman::p_load(margins)
+# Tests for linear regression models
+pacman::p_load(lmtest)
+pacman::p_load(car)
+# Tables
+pacman::p_load(kableExtra)
+# for updated ggplot2 theme
+pacman::p_load(hrbrthemes)
+# for updated ggplot2 colorblind-friendly scheme
+pacman::p_load(ggthemes)
+# theme_set(hrbrthemes::theme_ipsum())
+pacman::p_load(reshape2)
+# for plotting of covariate balance
+pacman::p_load(cobalt)
+# for matching only
+# pacman::p_load(MatchIt)
+library('fastDummies')
+```
+
+```{r read_data}
+#download the data from GitHub
+data <-'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/RLA_0507.csv'
+df <- read.csv(data)
+rm(data) #remove data csv file
+```
+
+```{r glimpse_data}
+tibble::glimpse(df) # overview of variables in the data
+```
+
+```{r data cleaning 1}
+# Raw Data Cleaning
+
+# First, let's view the data
+view(df)
+
+# Let's check to make sure the survey only reported participants that were 100% complete
+df$Progress = as.numeric(df$Progress)
+summary(df$Progress)
+
+# The summary statistics show that all of the values (minus one) for Progress are 100, so let's delete that too
+# We can also get rid of the Response ID and Lat/Long and the Recorded Date
+df <- df %>%
+  subset(
+    select = -c(StartDate, EndDate, Status, IPAddress, Progress, ResponseId, LocationLatitude, LocationLongitude, RecordedDate)
+    )
+
+# In our conversation with Emma, we decided only those columns that read Page.Submit were useful for understanding the timing
+# of treatment groups. Let's get rid of all the other columns such as First.Click and Last.Click.
+
+# We'll start with the bipartisan treatment
+
+df <- df %>% 
+  subset(select = -c(bipart_intro_time_First.Click, bipart_intro_time_Last.Click, bipart_intro_time_Click.Count,
+                           bipartisan_time_First.Click, bipartisan_time_Last.Click, bipartisan_time_Click.Count))
+
+# Next, the RLA as a Percentage treatment
+
+df <- df %>% 
+  subset(select = -c(RL_perc_intro_time_First.Click, RL_perc_intro_time_Last.Click, RL_perc_intro_time_Click.Count,
+                             RL_perc_time_First.Click, RL_perc_time_Last.Click, RL_perc_time_Click.Count))
+
+
+# Next, the Handcount treatment
+
+df <- df %>% 
+  subset(select = -c(Handcount_intro_time_First.Click, Handcount_intro_time_Last.Click, Handcount_intro_time_Click.Count,
+                             Handcount_time_First.Click, Handcount_time_Last.Click, Handcount_time_Click.Count))
+
+
+# Next, the Bad Loser treatment
+
+df <- df %>% 
+  subset(select = -c(Loser_intro_time_First.Click, Loser_intro_time_Last.Click, Loser_intro_time_Click.Count,
+                             Loser_time_First.Click, Loser_time_Last.Click, Loser_time_Click.Count))
+
+# Next, the Soup treatment
+
+df <- df %>% 
+  subset(select = -c(Soup_intro_time_First.Click, Soup_intro_time_Last.Click, Soup_intro_time_Click.Count,
+                             Soup_time_First.Click, Soup_time_Last.Click, Soup_time_Click.Count))
+
+# Next, the Local Officials treatment
+
+df <- df %>% 
+  subset(select = -c(Local_intro_time_First.Click, Local_intro_time_Last.Click, Local_intro_time_Click.Count,
+                             Local_time_First.Click, Local_time_Last.Click, Local_time_Click.Count))
+
+# Finally, the Control group
+
+df <- df %>% 
+  subset(select = -c(control_time_First.Click, control_time_Last.Click, control_time_Click.Count))
+
+# Though the comments are fun, let's get rid of those. Let's also get rid of all of the Lucid profile data except the political
+# party (Calli's idea but can't remember exactly why). We can also get rid of the column called rid
+
+df <- df %>% 
+  subset(select = -c(comments, rid, age, gender, hhi, ethnicity, hispanic, education, region, zip))
+```
+
+```{r data cleaning 2}
+
+# The first row is also repetitive from the column names. Let's remove that.
+
+df = df[-1,]
+
+# Check to see if we can get rid of UserLanguage. If they are all EN, then let's remove and just annotate that all speakers were
+# English in nature. Further, let's do the same thing with consent.
+
+if(nrow(df) == sum(df$UserLanguage == "EN")) {
+  df = subset(df, select = -c(UserLanguage))
+}
+
+if(nrow(df) == sum(df$Consent == "YES")) {
+  df = subset(df, select = -Consent)
+}
+
+# ***NOTE: Since the following code has an if statement, we need to check the df to see if UserLanguage and Consent were deleted
+#before we run the next line of code. If they were deleted, we can run the code below with no issues. 
+
+```
+
+```{r column names}
+names(df) <- # to remove white space and put all in lower case
+  names(df) %>%  
+  stringr::str_replace_all("\\s","_") %>% tolower
+
+#clean up column names
+names(df) <- gsub("_1", "", names(df))
+names(df) <- gsub("dem_", "", names(df))
+names(df) <- gsub("_page.submit", "", names(df))
+names(df) <- gsub("cov_", "", names(df))
+
+# to condense message time spent to a new column
+df <- df %>%
+  unite("msg_time", c(bipartisan_time, rl_perc_time, handcount_time, loser_time, soup_time, local_time, control_time), sep= "")
+
+# rearrange columns for easier condensing
+df <- df %>% relocate("msg_time", .before = bipart_intro_time)
+
+# to condense intro time spent to a new column
+df <- df %>% 
+  unite("intro_time", bipart_intro_time:local_intro_time, sep = "")
+
+#new name = old name
+df <- df %>%
+  rename(
+    duration_sec = duration..in.seconds.,
+    dv_pre_state_conf = pre_state_conf,
+    dv_pre_national_conf = pre_national_conf,
+    accuracy_2016 = `2016_accu`,
+    accuracy_2020 = `2020_accu`,
+    gender_text = gender_6_text,
+    vote_who_2020_text = vote_who_2020_5_text,
+    party_text = party_4_text,
+    race_text = race_6_text,
+    parent = child,
+    dv_post_state_conf =  post_state_conf,
+    dv_post_national_conf = post_national_conf
+  )
+
+# create dummy variable for control vs. treated
+df$dummy_treat <- ifelse(df$treatment_group == "Control", 0, 1)
+
+# create dummy variable for failed attention check or no
+df$attention_pass <- ifelse(df$attentioncheck == "Red,Green", 1, 0)
+
+
+```
+
+```{r column types}
+# All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
+
+# Start with the columns that need to be numeric
+df[, c(1,3,4,13:15,16)] <- sapply(df[, c(1,3,4,13:15,16)], as.numeric)
+
+# Now the columns that make sense to be structured as factors
+
+# i = c("state", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "parenthood", "dv_secondary", "voting_importance", "vote_2020", "candidate_2020", "education", "political_party", "political_ideology", "race", "income", "treatment")
+# df[ , i] = lapply(df[ , i], factor)
+
+df[c(2,5:10,12,17,19:21,23,27,29,30)] <- lapply(df[c(2,5:10,12,17,19:21,23,27,29,30)], factor)
+
+# Before we go any further, let's decide how to work with missing data and where it exists
+summary(df)
+
+# At a minimum, I suggest we need to remove those values where the DV is not measured, both pre and post test
+df <- df %>% drop_na("dv_pre_state_conf", "dv_post_state_conf", "dv_pre_national_conf", "dv_post_national_conf")
+
+# Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
+
+df$dv_state_treatement_diff = df$dv_post_state_conf - df$dv_pre_state_conf
+df$dv_national_treatment_diff = df$dv_post_national_conf - df$dv_pre_national_conf
+
+summary(df$dv_state_treatement_diff)
+summary(df$dv_national_treatment_diff)
+
+# create variable for those who always trust or never trust election outcomes
+df$always_believer = ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 == "Yes", 1, 0), 0)
+df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
+
+# Save new CSV file as "clean"
+
+#write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
+```
+
+
