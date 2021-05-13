@@ -1,0 +1,144 @@
+---
+title: "data_analysis_v2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages}
+# # Ensure that pacman is installed for package management and loading.
+# if (!require("pacman")) install.packages("pacman")
+# # for data reading wrangling and visualization
+pacman::p_load(tidyverse) 
+# for working directories
+pacman::p_load(here) 
+# # for cross tabulation and data cleaning
+# pacman::p_load(janitor) 
+# for working with strings
+pacman::p_load(glue) 
+# For randomized inference, also loads randomizr and estimatr 
+pacman::p_load(ri2) 
+# for marginal effects from lineal regressions
+pacman::p_load(margins)
+# Tests for linear regression models
+pacman::p_load(lmtest)
+pacman::p_load(car)
+# Tables
+pacman::p_load(kableExtra)
+# for updated ggplot2 theme
+pacman::p_load(hrbrthemes)
+# for updated ggplot2 colorblind-friendly scheme
+pacman::p_load(ggthemes)
+# theme_set(hrbrthemes::theme_ipsum())
+pacman::p_load(reshape2)
+# for plotting of covariate balance
+pacman::p_load(cobalt)
+# for matching only
+# pacman::p_load(MatchIt)
+```
+
+```{r read_data}
+#download the data from GitHub
+data <-'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/rla_clean_5_12.csv'
+df <- read.csv(data, strip.white = TRUE)
+rm(data) #remove data csv file
+```
+
+```{r treatment table}
+#table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
+with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+  knitr::kable() %>%                                            #kabel(x, format) generates tables 
+  # add in a header to label what we're cross-tabulating with
+  add_header_above(c('treat_group' = 2)) %>% #add_header_above(x, col_name=col_span)
+  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+
+```
+
+```{r attention check}
+#see who is in the top 2.5% of least amount of time spent on the survey 
+quantile(df$duration_sec, c(0.025, 0.95, .975)) 
+# we see the duration is 88 seconds for the top 2.5% and 97.5% (those who spent the least amount)
+
+# make a density plot of the distribution of total time spent on the survey between 
+df %>%
+  filter( duration_sec < 1050, duration_sec > 88 ) %>%
+  ggplot( aes(x=duration_sec)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+
+```
+
+Another way of checking for balance is to run a multivariate regression of our treatment assignment variable on covariates. With this method, instead of a t-test, we use an F-test for the hypothesis that all coefficients (non-strata) are equal to zero. If a coefficient on a covariate is not close to zero, that would mean that assignment was not balanced on that covariate.
+
+```{r lm_ftest_balance}
+# regression of covariates on treatment assignment variable
+balance_lm <- lm(as.numeric(treatment_group) ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+
+# uncomment to report heteroskedasticity-robust standard errors
+# lmtest::coeftest(balance_lm,
+#   vcov = sandwich::vcovHC(balance_lm, type = "HC2")
+# )
+
+# Test whether all coefficients from the balancce_lm regression are equal to zero
+# using heteroskedasticity-robust standard errors, denoted by hc2
+car::linearHypothesis(balance_lm, c("age = 0", "persons = 0", "newreg = 0",
+                                    "vote00 = 0", "vote98 = 0",
+                                    "female = 0"),
+                      test = "F", white.adjust = "hc2")
+```
+
+If this F-test, if the p-value indicated by Pr(>F) is very small, for example, $<0.05$, we may reject the null and conclude that at least one of the coefficient is not equal to zero and treatment assignment was not balanced on that covariate. In our case, we again see that the p-value is quite large, meaning that there is no significantly different pre-experiment covariates that determine treatment status.
+
+
+
+```{r state distribution}
+# using the filtered dataset, check how many are assigned to each treatment group in each region
+with(df, table(treatment_group, state)) %>% 
+  knitr::kable() %>%   # table generator
+  add_header_above(c('treatment', 'state'=50)) %>%
+  kableExtra::kable_styling(bootstrap_options = "striped")
+```
+
+
+```{r select_vars}
+# select covariates
+covariate_names <- c("cov_trust_federal_1", "cov_trust_state_1", "cov_2016_accu", "cov_2020_accu", "dem_birthyear", "dem_gender", "dem_gender_6_TEXT", "dem_child","dem_state", "cov_voting_impt_1", "cov_vote_2020", "cov_vote_who_2020", "cov_vote_who_2020_5_TEXT", "dem_edu", "dem_party", "dem_party_4_TEXT", "dem_libcon", "dem_race", "dem_race_6_TEXT", "dem_income")
+
+# treatment
+#treatment_names <- c()
+
+# outcomes of interest
+outcome_variable1 <- "rla_state"
+outcome_variable2 <- "rla_fed"
+outcome_variable3 <- "rla_info"
+
+# create new dataset containing the covariates, treatment and outcome
+election_df <- df %>%
+  # select all the variables of interest
+  select(all_of(c(covariate_names, treatment_name, outcome_variable1, outcome_variable2, outcome_variable3))) %>% # all_of() is for strict selection: if any of the variables in the character vector is missing, an error is thrown.
+
+# Filtered dataframe with observations that have a phone number
+election_full_df <- election_df %>% 
+  # exclude missing `treat_real` observations
+  filter(!is.na(treat_real)) 
+
+# Remove the full data from memory
+rm(df)
+```
+
+
+
+```{r Zstats}
+# means under each condition
+ybars <- aggregate(yobs, by = list(w), mean)$x # aggregate(x, by=list, FUN) applied function to x by group. In this case, we are taking the means by treatment arm
+sigma <- sqrt(sum((yobs - ybars[w])^2) / (N - K)) # calculation of standard deviation
+
+# difference in means estimates
+taus <- ybars[-1] - ybars[1] # subtracting the control outcome from each of the three treatment outcomes
+
+# Z-stat
+Z_stat <- taus / (sigma * sqrt(2 * K / N)) # calculation of Z stat according to formula above
+Z_stat
+```
+
