@@ -153,12 +153,14 @@ names(df) <- gsub("dem_", "", names(df))
 names(df) <- gsub("_page.submit", "", names(df))
 names(df) <- gsub("cov_", "", names(df))
 
-# to condense time spent to a new column
+# to condense message time spent to a new column
 df <- df %>%
   unite("msg_time", c(bipartisan_time, rl_perc_time, handcount_time, loser_time, soup_time, local_time, control_time), sep= "")
 
+# rearrange columns for easier condensing
 df <- df %>% relocate("msg_time", .before = bipart_intro_time)
 
+# to condense intro time spent to a new column
 df <- df %>% 
   unite("intro_time", bipart_intro_time:local_intro_time, sep = "")
 
