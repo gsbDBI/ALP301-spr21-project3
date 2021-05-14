@@ -92,7 +92,7 @@ love.plot(treatment_group_num ~ birthyear + genderFemale + parentYes + state + i
 
 
 ```
-
+Interpretation: treatment-covariate correlations is very low.
 
 
 ```{r lm_ftest_balance}
