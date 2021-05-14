@@ -79,7 +79,7 @@ tibble::glimpse(df) # overview of variables in the data
 with(df, table(treatment_group, gender, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
   knitr::kable() %>%                                            #kabel(x, format) generates tables 
   # add in a header to label what we're cross-tabulating with
-  add_header_above(c('Treatment', 'Gender' = 6)) %>% #add_header_above(x, col_name=col_span)
+  add_header_above(c('Treatment', 'Gender' = 7)) %>% #add_header_above(x, col_name=col_span)
   kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
 ```
 
@@ -89,7 +89,7 @@ with(df, table(treatment_group, gender, useNA = 'ifany')) %>%  # "ifany" include
 with(df, table(treatment_group, party, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
   knitr::kable() %>%                                            #kabel(x, format) generates tables 
   # add in a header to label what we're cross-tabulating with
-  add_header_above(c('Treatment', 'Party' = 4)) %>% #add_header_above(x, col_name=col_span)
+  add_header_above(c('Treatment', 'Party' = 5)) %>% #add_header_above(x, col_name=col_span)
   kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
 ```
 
@@ -163,7 +163,7 @@ mobilize_listed_df %>%
 ```
 
 
-```{r_state_vs_national}
+```{r state_vs_national}
 
 # Confidence at the state level is higher than confidence at the national level
 mean(df$dv_pre_state_conf)
@@ -194,15 +194,122 @@ df %>%
 
 ```
 
+``` {r violin_pre_state}
+# Libraries
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+
+# Confidence at the state level is higher than confidence at the national level
+mean(df$dv_pre_state_conf)
+mean(df$dv_pre_national_conf)
+mean(df$dv_post_state_conf)
+mean(df$dv_post_national_conf)
+t.test(df$dv_pre_state_conf,df$dv_pre_national_conf)
+t.test(df$dv_post_state_conf,df$dv_post_national_conf)
+
+# create a dataset
+data <- df
+
+# sample size
+sample_size = data %>% group_by(treatment_group) %>% summarize(num=n())
+print("THIS IS PRETREAT STATE CONFIDENCE")
+# Plot
+data %>%
+  left_join(sample_size) %>%
+  mutate(myaxis = paste0(treatment_group, "\n", "n=", num)) %>%
+  ggplot( aes(x=myaxis, y=dv_pre_state_conf, fill=treatment_group)) +
+    geom_violin(width=1.4) +
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("State Confidence pretreament  ") +
+    xlab("")
+
+
+```
+
+``` {r violin_pre_national}
+# Libraries
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+
+
+# create a dataset
+data <- df
+
+# sample size
+sample_size = data %>% group_by(treatment_group) %>% summarize(num=n())
+print("THIS IS PRETREAT NATIONAL CONFIDENCE")
+
+# Plot
+data %>%
+  left_join(sample_size) %>%
+  mutate(myaxis = paste0(treatment_group, "\n", "n=", num)) %>%
+  ggplot( aes(x=myaxis, y=dv_pre_national_conf, fill=treatment_group)) +
+    geom_violin(width=1.4) +
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("National Confidence pretreament  ") +
+    xlab("")
+
+```
+``` {r violin_exp}
+
+data <- 'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/violin_overall.csv'
+df_violin <- read.csv(data)
+rm(data) #remove data csv file
+
+df_violin$Treatment.Group <- as.factor(df_violin$Treatment.Group)
+df_violin$Stage <- as.factor(df_violin$Stage)
+df_violin$Confidence <- as.numeric(df_violin$Confidence)
+
+library(ggplot2)
+library(plotly)
+library(gapminder)
+
+options(repr.plot.width = 250, repr.plot.height = 150)
+p <-  ggplot(df_violin, aes(Treatment.Group, Confidence, fill= Stage)) + 
+  geom_violin() + geom_boxplot() + coord_flip()
+
+#For interactive look at R Grpahs or Plotly 
+p
+
+ggsave(plot = p, width = 10, height = 10, dpi = 300, filename = "Violin_Overview.pdf")
+
+#Next thing to try, should be easy but I am going to bed: https://www.r-graph-gallery.com/violin_and_boxplot_ggplot2.html
+
+
+```
+
 ``` {r always_believers}
 
 # Trust in elections is polarized by who won.
 # Always believers are subjects that in both the 2016 and the 2020 presidential elections votes were counted accurately. 
 
-# 50% believe both elections were fair
-table(df$always_believer)/sum(table(df$always_believer))
-# 13% believe only one election was fair
-table(df$never_believer)/sum(table(df$never_believer))
+
+always_table <- table(df$always_believer)/sum(table(df$always_believer))
+print(always_table[2]*100)
+print("^percent believe both elections were fair")
+
+#CHANGED LOGIC FROM CLEANING CODE: df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
+
+never_table <- table(df$never_believer)/sum(table(df$never_believer))
+print(never_table[2]*100)
+print("^percent believe no elections were fair")
+
 
 ```
 
