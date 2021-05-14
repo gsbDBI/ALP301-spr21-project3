@@ -73,7 +73,8 @@ Another way of checking for balance is to run a multivariate regression of our t
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(treatment_group ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group_num ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+
 
 # uncomment to report heteroskedasticity-robust standard errors
 # lmtest::coeftest(balance_lm,
@@ -82,22 +83,29 @@ balance_lm <- lm(treatment_group ~ birthyear + gender + parent + state + trust_f
 
 # Test whether all coefficients from the balancce_lm regression are equal to zero
 # using heteroskedasticity-robust standard errors, denoted by hc2
-car::linearHypothesis(balance_lm, c("age = 0", "persons = 0", "newreg = 0",
-                                    "vote00 = 0", "vote98 = 0",
-                                    "female = 0"),
-                      test = "F", white.adjust = "hc2")
+car::linearHypothesis(balance_lm, c("birthyear = 0", "gender = 0", "parent = 0",
+                                    "state = 0", "trust_federal = 0",
+                                    "trust_state = 0", "accuracy_2016 = 0", "accuracy_2020 = 0", "income = 0", "race = 0", "edu = 0", "libcon = 0", "party = 0"),
+                      test = "F", white.adjust = "hc2", singular.ok = TRUE)
 ```
 
 If this F-test, if the p-value indicated by Pr(>F) is very small, for example, $<0.05$, we may reject the null and conclude that at least one of the coefficient is not equal to zero and treatment assignment was not balanced on that covariate. In our case, we again see that the p-value is quite large, meaning that there is no significantly different pre-experiment covariates that determine treatment status.
 
+```{r distribution and correlation plots}
+library(ggcorrplot)
 
 
-```{r state distribution}
-# using the filtered dataset, check how many are assigned to each treatment group in each region
-with(df, table(treatment_group, state)) %>% 
-  knitr::kable() %>%   # table generator
-  add_header_above(c('treatment', 'state'=50)) %>%
-  kableExtra::kable_styling(bootstrap_options = "striped")
+```
+
+```{r naive regression}
+# run the regression for state confidence level 
+reg1 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
+
+# run the regression for national confidence level
+reg2 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf, data = df)
+
+# run the regression 
+reg3 <- lm(dv_post_national_conf ~ factor(treatment_group) + dv_pre_national_conf, data = df)
 ```
 
 
