@@ -105,3 +105,22 @@ table(df$never_believer)/sum(table(df$never_believer))
 ```
 
 
+``` {r democrats_vs_republicans}
+
+# Democrats are more confident that Republicans for all DVs
+
+tapply(df$dv_pre_state_conf,df$party,mean,na.rm=TRUE) 
+# Pre-test. State mean confidence: Democrats = 8.54 vs. Republicans = 6.81.
+
+tapply(df$dv_pre_national_conf,df$party,mean,na.rm=TRUE)
+# Pre-state. National mean confidence: Democrats = 8.06 vs. Republicans = 5.65
+
+tapply(df$dv_post_state_conf,df$party,mean,na.rm=TRUE) 
+# Pre-test. State mean confidence: Democrats = 8.48 vs. Republicans = 6.72.
+
+tapply(df$dv_post_national_conf,df$party,mean,na.rm=TRUE)
+# Pre-state. National mean confidence: Democrats = 8.15 vs. Republicans = 5.96
+
+```
+
+
