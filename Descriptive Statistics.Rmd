@@ -61,6 +61,108 @@ with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA
 
 ```
 
+```{r extra_data_cleaning}
+
+#Extra data cleaning
+df$birthyear = as.numeric(df$birthyear)
+
+#Auxiliar variables for graphs
+df$gender_number = ifelse(df$gender == "Female",1,ifelse(df$gender=="Male",2,0))
+df$party_number = ifelse(df$party == "Democrat",1,ifelse(df$party == "Republican",2,ifelse(df$party == "Independent",3,0)))
+
+tibble::glimpse(df) # overview of variables in the data
+```
+
+```{r gender_table}
+#Coding variables for analysis
+#table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
+with(df, table(treatment_group, gender, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+  knitr::kable() %>%                                            #kabel(x, format) generates tables 
+  # add in a header to label what we're cross-tabulating with
+  add_header_above(c('Treatment', 'Gender' = 6)) %>% #add_header_above(x, col_name=col_span)
+  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+```
+
+```{r party_table}
+#Coding variables for analysis
+#table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
+with(df, table(treatment_group, party, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+  knitr::kable() %>%                                            #kabel(x, format) generates tables 
+  # add in a header to label what we're cross-tabulating with
+  add_header_above(c('Treatment', 'Party' = 4)) %>% #add_header_above(x, col_name=col_span)
+  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+```
+
+```{r data_for_graphs}
+# select covariates
+covariate_names <- c("state", "birthyear", "gender", "parent", "edu","party", "race", "income", "gender_number","party_number")
+# treatment
+treatment_name <- "treatment_group"
+# outcome of interest
+outcome_variable <- "dv_state_treatement_diff"
+# create new dataset containing the covariates, treatment and outcome
+mobilize_df <- df %>%
+  # select all the variables of interest
+  select(all_of(c(covariate_names, treatment_name, outcome_variable))) # all_of() is for strict selection: if any of the variables in the character vector is missing, an error is thrown.
+
+# Filtered dataframe with observations that have a phone number
+mobilize_listed_df <- mobilize_df %>% 
+  # exclude missing `treat_real` observations
+  filter(!is.na(treatment_name)) 
+```
+
+```{r gender_dist_graph}
+mobilize_listed_df %>% 
+  # encode treat_real as a factor for plotting
+  mutate(treatment_group = as.factor(treatment_group)) %>%  # mutate(.data) adds new variables and preserves existing ones
+  ggplot(aes(x = gender_number, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+             color = treatment_group,
+             fill = treatment_group
+  )
+  ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
+```
+
+```{r birthyear_dist_graph}
+mobilize_listed_df %>% 
+  # encode treat_real as a factor for plotting
+  mutate(treatment_group = as.factor(treatment_group)) %>%  # mutate(.data) adds new variables and preserves existing ones
+  ggplot(aes(x = birthyear, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+             color = treatment_group,
+             fill = treatment_group
+  )
+  ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
+```
+
+```{r party_dist_graph}
+mobilize_listed_df %>% 
+  # encode treat_real as a factor for plotting
+  mutate(treatment_group = as.factor(treatment_group)) %>%  # mutate(.data) adds new variables and preserves existing ones
+  ggplot(aes(x = party_number, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+             color = treatment_group,
+             fill = treatment_group
+  )
+  ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
+```
+
+
 ```{r_state_vs_national}
 
 # Confidence at the state level is higher than confidence at the national level
@@ -141,5 +243,21 @@ p2
 
 ```
 
+```{r map}
 
+library(zipcode)
+library(tidyverse)
+library(maps)
+library(viridis)
+library(ggthemes)
+library(albersusa) #installed via github
+#data
+fm<-Export <- read_csv("~/Downloads/Export (1).csv")#the file we just downloaded
+data(zipcode)
+fm$zip<- clean.zipcodes(fm$zip)
+#size by zip
+fm.zip<-aggregate(data.frame(count=fm$FMID),list(zip=fm$zip,county=fm$County),length)
+fm<- merge(fm.zip, zipcode, by='zip')
+
+```
 
