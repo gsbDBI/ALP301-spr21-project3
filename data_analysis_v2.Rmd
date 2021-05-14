@@ -99,7 +99,7 @@ Interpretation: treatment-covariate correlations is very low.
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party + dv_pre_state_conf + dv_post_national_conf, data = df) # factor(region) encodes the string variable as a factor for analysis
 
 
 # Test whether all coefficients from the balancce_lm regression are equal to zero
@@ -144,10 +144,18 @@ reg1 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
 # run the regression for national confidence level
 reg2 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf, data = df)
 
-#reg3 <- lm(dv_post_state_conf ~ factor(treatment_group) + dv_pre_state_conf + factor(gender), data = df)
+# run the regression with controls for state level
+reg3 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+
+# run the regression with controls for national level
+reg4 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
 
 library(stargazer)
-stargazer(reg1, reg2, title = "Basic Regression Results Control vs. Treated")
+stargazer(reg1, reg2, reg3, reg4, 
+          dep.var.labels = "Trust in government (scale 1-10)",
+          omit = "state",
+          column.labels=c("state","national", "state with controls", "national with controls"),
+          title = "Basic Regression Results for Treatment Effect")
 
 ```
 
