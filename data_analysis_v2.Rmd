@@ -73,7 +73,8 @@ Another way of checking for balance is to run a multivariate regression of our t
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(as.numeric(treatment_group) ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group_num ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+
 
 # uncomment to report heteroskedasticity-robust standard errors
 # lmtest::coeftest(balance_lm,
@@ -82,52 +83,61 @@ balance_lm <- lm(as.numeric(treatment_group) ~ birthyear + gender + parent + sta
 
 # Test whether all coefficients from the balancce_lm regression are equal to zero
 # using heteroskedasticity-robust standard errors, denoted by hc2
-car::linearHypothesis(balance_lm, c("age = 0", "persons = 0", "newreg = 0",
-                                    "vote00 = 0", "vote98 = 0",
-                                    "female = 0"),
-                      test = "F", white.adjust = "hc2")
+car::linearHypothesis(balance_lm, c("birthyear = 0", "gender = 0", "parent = 0",
+                                    "state = 0", "trust_federal = 0",
+                                    "trust_state = 0", "accuracy_2016 = 0", "accuracy_2020 = 0", "income = 0", "race = 0", "edu = 0", "libcon = 0", "party = 0"),
+                      test = "F", white.adjust = "hc2", singular.ok = TRUE)
 ```
 
 If this F-test, if the p-value indicated by Pr(>F) is very small, for example, $<0.05$, we may reject the null and conclude that at least one of the coefficient is not equal to zero and treatment assignment was not balanced on that covariate. In our case, we again see that the p-value is quite large, meaning that there is no significantly different pre-experiment covariates that determine treatment status.
 
+```{r distribution and correlation plots}
+library(ggcorrplot)
 
 
-```{r state distribution}
-# using the filtered dataset, check how many are assigned to each treatment group in each region
-with(df, table(treatment_group, state)) %>% 
-  knitr::kable() %>%   # table generator
-  add_header_above(c('treatment', 'state'=50)) %>%
-  kableExtra::kable_styling(bootstrap_options = "striped")
 ```
 
+```{r naive regression}
+# run the regression for state confidence level 
+reg1 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
 
-```{r select_vars}
-# select covariates
-covariate_names <- c("cov_trust_federal_1", "cov_trust_state_1", "cov_2016_accu", "cov_2020_accu", "dem_birthyear", "dem_gender", "dem_gender_6_TEXT", "dem_child","dem_state", "cov_voting_impt_1", "cov_vote_2020", "cov_vote_who_2020", "cov_vote_who_2020_5_TEXT", "dem_edu", "dem_party", "dem_party_4_TEXT", "dem_libcon", "dem_race", "dem_race_6_TEXT", "dem_income")
+# run the regression for national confidence level
+reg2 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf, data = df)
 
-# treatment
-#treatment_names <- c()
 
-# outcomes of interest
-outcome_variable1 <- "rla_state"
-outcome_variable2 <- "rla_fed"
-outcome_variable3 <- "rla_info"
-
-# create new dataset containing the covariates, treatment and outcome
-election_df <- df %>%
-  # select all the variables of interest
-  select(all_of(c(covariate_names, treatment_name, outcome_variable1, outcome_variable2, outcome_variable3))) %>% # all_of() is for strict selection: if any of the variables in the character vector is missing, an error is thrown.
-
-# Filtered dataframe with observations that have a phone number
-election_full_df <- election_df %>% 
-  # exclude missing `treat_real` observations
-  filter(!is.na(treat_real)) 
-
-# Remove the full data from memory
-rm(df)
 ```
 
+```{r compare_age_dist}
+df %>% 
+  ggplot(aes(x = birthyear, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+            color = treatment_group,
+            fill = treatment_group
+             )
+         ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
 
+```
+
+```{r compare_gender_dist}
+df %>% 
+  ggplot(aes(x = gender, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+            color = treatment_group,
+            fill = treatment_group
+             )
+         ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
+
+```
 
 ```{r Zstats}
 # means under each condition
