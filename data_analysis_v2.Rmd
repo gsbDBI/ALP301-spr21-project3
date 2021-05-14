@@ -71,25 +71,38 @@ df %>%
 
 Another way of checking for balance is to run a multivariate regression of our treatment assignment variable on covariates. With this method, instead of a t-test, we use an F-test for the hypothesis that all coefficients (non-strata) are equal to zero. If a coefficient on a covariate is not close to zero, that would mean that assignment was not balanced on that covariate.
 
-```{r lm_ftest_balance}
-# regression of covariates on treatment assignment variable
-balance_lm <- lm(treatment_group_num ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+```{r cov_redefine}
 
+df$genderFemale <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
 
-# uncomment to report heteroskedasticity-robust standard errors
-# lmtest::coeftest(balance_lm,
-#   vcov = sandwich::vcovHC(balance_lm, type = "HC2")
-# )
+df$parentYes <- ifelse(df$parent == "Yes", 1, 0)
 
-# Test whether all coefficients from the balancce_lm regression are equal to zero
-# using heteroskedasticity-robust standard errors, denoted by hc2
-car::linearHypothesis(balance_lm, c("birthyear = 0", "gender = 0", "parent = 0",
-                                    "state = 0", "trust_federal = 0",
-                                    "trust_state = 0", "accuracy_2016 = 0", "accuracy_2020 = 0", "income = 0", "race = 0", "edu = 0", "libcon = 0", "party = 0"),
-                      test = "F", white.adjust = "hc2", singular.ok = TRUE)
+df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
+
+df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
+df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
+
 ```
 
-If this F-test, if the p-value indicated by Pr(>F) is very small, for example, $<0.05$, we may reject the null and conclude that at least one of the coefficient is not equal to zero and treatment assignment was not balanced on that covariate. In our case, we again see that the p-value is quite large, meaning that there is no significantly different pre-experiment covariates that determine treatment status.
+
+```{r balance_plots}
+
+love.plot(treatment_group_num ~ birthyear + genderFemale + parentYes + state + income + hispanic + edu_4college + edu_hs + party,
+                 data = df, binary = "std", thresholds = c(m = .1)) # threshold determines the dotted lines on the graph
+
+
+```
+
+
+
+```{r lm_ftest_balance}
+# regression of covariates on treatment assignment variable
+balance_lm <- lm(treatment_group_num ~ birthyear + genderFemale + parentYes + state + income + hispanic + edu_4college + edu_hs + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+
+summary(balance_lm)
+```
+
+None of the coefficients is significant, meaning that there is no significantly different pre-experiment covariates that determine treatment status.
 
 ```{r distribution and correlation plots}
 library(ggcorrplot)
