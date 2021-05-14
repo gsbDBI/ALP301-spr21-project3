@@ -37,6 +37,7 @@ pacman::p_load(reshape2)
 pacman::p_load(cobalt)
 # for matching only
 # pacman::p_load(MatchIt)
+library('fastDummies')
 ```
 
 ```{r read_data}
@@ -164,154 +165,68 @@ df <- df %>% relocate("msg_time", .before = bipart_intro_time)
 df <- df %>% 
   unite("intro_time", bipart_intro_time:local_intro_time, sep = "")
 
-#("intro_time", bipartisan_time:local_time, sep= "")
-
-# create dummy variable for control vs. treated
-
 #new name = old name
 df <- df %>%
   rename(
     duration_sec = duration..in.seconds.,
-    dv_pre_stateconf = pre_state_conf,
-    dv_pre_nationalconf = pre_national_conf,
-    federal_trust = cov_trust_federal,
-    state_trust = cov_trust_state,
-    accuracy_2016 = cov_2016_accu,
-    accuracy_2020 = cov_2020_accu,
-    birthyear = birthyear,
+    dv_pre_state_conf = pre_state_conf,
+    dv_pre_national_conf = pre_national_conf,
+    accuracy_2016 = `2016_accu`,
+    accuracy_2020 = `2020_accu`,
     gender_text = gender_6_text,
-    parenthood = child,
+    vote_who_2020_text = vote_who_2020_5_text,
+    party_text = party_4_text,
+    race_text = race_6_text,
+    parent = child,
+    dv_post_state_conf =  post_state_conf,
+    dv_post_national_conf = post_national_conf
   )
 
-# Rename the columns
-#colnames(df) = c("duration", "state", "dv_pre_stateconf", "dv_pre_nationalconf", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "gender_text", "parenthood", "bipart_intro_time", "bipart_time", "rla_intro_time", "rla_time", "handcount_intro_time", "handcount_time", "badloser_intro_time", "badloser_time", "soup_intro_time", "soup_time", "local_intro_time", "local_time", "control_time", "dv_post_stateconf", "dv_post_nationalconf", "dv_secondary", "attention_check", "voting_importance", "vote_2020", "candidate_2020", "candidate_text_2020", "education", "political_party", "political_party_text", "political_ideology", "race", "race_text", "income", "lucid_political_party", "treatment")
+# create dummy variable for control vs. treated
+df$dummy_treat <- ifelse(df$treatment_group == "Control", 0, 1)
+
+# create dummy variable for failed attention check or no
+df$attention_pass <- ifelse(df$attentioncheck == "Red,Green", 1, 0)
+
+
 ```
 
 ```{r column types}
 # All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
 
 # Start with the columns that need to be numeric
-
-i = c("dv_pre_stateconf", "dv_pre_nationalconf", "bipart_intro_time", "bipart_time", "rla_intro_time", "rla_time", "handcount_intro_time", "handcount_time", "badloser_intro_time", "badloser_time", "soup_intro_time", "soup_time", "local_intro_time", "local_time", "control_time", "dv_post_stateconf", "dv_post_nationalconf")
-df[ , i] = apply(df[ , i], 2, function(x) as.numeric(x))
+df[, c(1,3,4,13:15,16)] <- sapply(df[, c(1,3,4,13:15,16)], as.numeric)
 
 # Now the columns that make sense to be structured as factors
-i = c("state", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "parenthood", "dv_secondary", "voting_importance", "vote_2020", "candidate_2020", "education", "political_party", "political_ideology", "race", "income", "treatment")
-df[ , i] = lapply(df[ , i], factor)
+
+# i = c("state", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "parenthood", "dv_secondary", "voting_importance", "vote_2020", "candidate_2020", "education", "political_party", "political_ideology", "race", "income", "treatment")
+# df[ , i] = lapply(df[ , i], factor)
+
+df[c(2,5:10,12,17,19:21,23,27,29,30)] <- lapply(df[c(2,5:10,12,17,19:21,23,27,29,30)], factor)
+
+df$treatment_group_num <- as.numeric(as.factor(df$treatment_group))
 
 # Before we go any further, let's decide how to work with missing data and where it exists
 summary(df)
 
 # At a minimum, I suggest we need to remove those values where the DV is not measured, both pre and post test
-df <- df %>% drop_na("dv_pre_stateconf", "dv_post_stateconf", "dv_pre_nationalconf", "dv_post_nationalconf")
+df <- df %>% drop_na("dv_pre_state_conf", "dv_post_state_conf", "dv_pre_national_conf", "dv_post_national_conf")
 
 # Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
 
-df$dv_state_treatement_diff = df$dv_post_stateconf - df$dv_pre_stateconf
-df$dv_national_treatment_diff = df$dv_post_nationalconf - df$dv_pre_nationalconf
+df$dv_state_treatement_diff = df$dv_post_state_conf - df$dv_pre_state_conf
+df$dv_national_treatment_diff = df$dv_post_national_conf - df$dv_pre_national_conf
 
 summary(df$dv_state_treatement_diff)
 summary(df$dv_national_treatment_diff)
 
-# Assign a treatment number to each treatment group, corresponding with their number as noted in Notion - (Calli: I dont actually think we need this, will probably just add confusion.)
-
-# df$treatment_number = ifelse(df$treatment == "Control", 0, ifelse(df$treatment == "Bipartisan", 1, 
-#                       ifelse(df$treatment == "RL_percentage", 2, ifelse(df$treatment == "Handcount", 3,
-#                       ifelse(df$treatment == "Loser", 5, ifelse(df$treatment == "Soup", 6, 
-#                       ifelse(df$treatment == "Local", 7, "error")))))))
-# 
-# Create binary variables for "always believers" and "never believers" from 2016 & 2020 accuracy questions
-
+# create variable for those who always trust or never trust election outcomes
 df$always_believer = ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 == "Yes", 1, 0), 0)
 df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
-```
 
 # Save new CSV file as "clean"
 
-```{r treat_real}
-#table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
-with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
-  knitr::kable() %>%                                            #kabel(x, format) generates tables 
-  # add in a header to label what we're cross-tabulating with
-  add_header_above(c('treat_group' = 2)) %>% #add_header_above(x, col_name=col_span)
-  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
-
-```
-
-```{r attention check}
-# people who did not fail attention check
-
-# turn into dummy variable instead
-df2 <- df %>% #remove second row with questions
-  filter(attentioncheck == "Red,Green")
-
-#see who is in the top 2.5% of least amount of time spent on the survey 
-df$duration..in.seconds. <- as.numeric(df$duration..in.seconds.)
-quantile(df$duration..in.seconds., c(0.025, 0.95, .975)) 
-# we see the duration is 88 seconds for the top 2.5% and 97.5% (those who spent the least amount)
-
-# make a density plot of the distribution of total time spent on the survey between 
-df %>%
-  filter( duration..in.seconds. < 1050, duration..in.seconds. > 88 ) %>%
-  ggplot( aes(x=duration..in.seconds.)) +
-    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
-
-```
-
-```{r select_vars}
-# select covariates
-covariate_names <- c("cov_trust_federal_1", "cov_trust_state_1", "cov_2016_accu", "cov_2020_accu", "dem_birthyear", "dem_gender", "dem_gender_6_TEXT", "dem_child","dem_state", "cov_voting_impt_1", "cov_vote_2020", "cov_vote_who_2020", "cov_vote_who_2020_5_TEXT", "dem_edu", "dem_party", "dem_party_4_TEXT", "dem_libcon", "dem_race", "dem_race_6_TEXT", "dem_income")
-
-# treatment
-#treatment_names <- c()
-
-# outcomes of interest
-outcome_variable1 <- "rla_state"
-outcome_variable2 <- "rla_fed"
-outcome_variable3 <- "rla_info"
-
-# create new dataset containing the covariates, treatment and outcome
-election_df <- df %>%
-  # select all the variables of interest
-  select(all_of(c(covariate_names, treatment_name, outcome_variable1, outcome_variable2, outcome_variable3))) %>% # all_of() is for strict selection: if any of the variables in the character vector is missing, an error is thrown.
-
-# Filtered dataframe with observations that have a phone number
-election_full_df <- election_df %>% 
-  # exclude missing `treat_real` observations
-  filter(!is.na(treat_real)) 
-
-# Remove the full data from memory
-rm(df)
-```
-
-```{r balance}
-N <- 1000 # experiment size
-K <- 7 # number of experimental conditions including the control
-
-mean_vals <- rep(0, K) # true means; rep(x, k) replicates the value in x by k times
-# outcome matrix of dimension N by K
-ymat <- mapply(rnorm, n = N, mean = mean_vals) #mapply(FUN, ...) applies function FUN; rnorm(n, mean, var) generates normal random variable
-
-# complete random assignment; ensure each condition gets balanced assignment
-w <- complete_ra(N, m_each = rep(N / 5, 5))
-levels(w) <- 0:6 # name the treatment levels
-table(w)
-
-# observe outcomes based on treatment assignment
-yobs <- ymat[cbind(1:N, as.numeric(w))] #[row, col] indexes the matrix elements
-
+write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
 ```
 
 
-```{r Zstats}
-# means under each condition
-ybars <- aggregate(yobs, by = list(w), mean)$x # aggregate(x, by=list, FUN) applied function to x by group. In this case, we are taking the means by treatment arm
-sigma <- sqrt(sum((yobs - ybars[w])^2) / (N - K)) # calculation of standard deviation
-
-# difference in means estimates
-taus <- ybars[-1] - ybars[1] # subtracting the control outcome from each of the three treatment outcomes
-
-# Z-stat
-Z_stat <- taus / (sigma * sqrt(2 * K / N)) # calculation of Z stat according to formula above
-Z_stat
-```
