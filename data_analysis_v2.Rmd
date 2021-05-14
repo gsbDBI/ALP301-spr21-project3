@@ -113,6 +113,7 @@ with(repubs, table(accuracy_2020, useNA = 'ifany')) %>%  # "ifany" includes the 
   add_header_above(c('2020 accuracy' = 2)) %>% #add_header_above(x, col_name=col_span)
   kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
 
+
 ```
 
 ```{r naive regression, echo=FALSE, message=TRUE, warning=FALSE, results='asis'}
