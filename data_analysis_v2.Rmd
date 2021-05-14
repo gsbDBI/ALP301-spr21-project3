@@ -75,9 +75,9 @@ Another way of checking for balance is to run a multivariate regression of our t
 
 ```{r cov_redefine}
 
-df$genderFemale <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
+df$gender_female <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
 
-df$parentYes <- ifelse(df$parent == "Yes", 1, 0)
+df$parent_yes <- ifelse(df$parent == "Yes", 1, 0)
 
 df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
 
@@ -89,7 +89,7 @@ df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equi
 
 ```{r balance_plots}
 
-love.plot(treatment_group_num ~ birthyear + genderFemale + parentYes + state + income + hispanic + edu_4college + edu_hs + party,
+love.plot(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party,
                  data = df, binary = "std", thresholds = c(m = .1)) # threshold determines the dotted lines on the graph
 
 
@@ -99,18 +99,17 @@ Interpretation: treatment-covariate correlations is very low.
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(treatment_group_num ~ birthyear + genderFemale + parentYes + state + income + hispanic + edu_4college + edu_hs + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df) # factor(region) encodes the string variable as a factor for analysis
 
-<<<<<<< HEAD
+
 # Test whether all coefficients from the balancce_lm regression are equal to zero
 # using heteroskedasticity-robust standard errors, denoted by hc2
 # car::linearHypothesis(balance_lm, c("birthyear = 0", "gender = 0", "parent = 0",
 #                                     "state = 0", "trust_federal = 0",
 #                                     "trust_state = 0", "accuracy_2016 = 0", "accuracy_2020 = 0", "income = 0", "race = 0", "edu = 0", "libcon = 0", "party = 0"),
 #                       test = "F", white.adjust = "hc2", singular.ok = TRUE)
-=======
+
 summary(balance_lm)
->>>>>>> 0116d379b3d77d97fbc078b646ac97314c6d132a
 ```
 
 None of the coefficients is significant, meaning that there is no significantly different pre-experiment covariates that determine treatment status.
