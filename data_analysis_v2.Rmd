@@ -73,7 +73,7 @@ Another way of checking for balance is to run a multivariate regression of our t
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(as.numeric(treatment_group) ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group ~ birthyear + gender + parent + state + trust_federal + trust_state + accuracy_2016 + accuracy_2020 + income + race + edu + libcon + party, data = df) # factor(region) encodes the string variable as a factor for analysis
 
 # uncomment to report heteroskedasticity-robust standard errors
 # lmtest::coeftest(balance_lm,
