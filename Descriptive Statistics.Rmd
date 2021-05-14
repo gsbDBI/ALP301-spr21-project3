@@ -27,9 +27,9 @@ pacman::p_load(lmtest)
 pacman::p_load(car)
 # Tables
 pacman::p_load(kableExtra)
-# for updated ggplot2 theme
+# for updated  theme
 pacman::p_load(hrbrthemes)
-# for updated ggplot2 colorblind-friendly scheme
+# for updated  colorblind-friendly scheme
 pacman::p_load(ggthemes)
 # theme_set(hrbrthemes::theme_ipsum())
 pacman::p_load(reshape2)
@@ -61,9 +61,46 @@ with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA
 
 ```
 
-```{r}
+```{r_state_vs_national}
+
+# Confidence at the state level is higher than confidence at the national level
+mean(df$dv_pre_state_conf)
+mean(df$dv_pre_national_conf)
+mean(df$dv_post_state_conf)
+mean(df$dv_post_national_conf)
+t.test(df$dv_pre_state_conf,df$dv_pre_national_conf)
+t.test(df$dv_post_state_conf,df$dv_post_national_conf)
+
+# Is it possible to overlay these four graphs?
+df %>%
+  ggplot( aes(x=dv_pre_state_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+    geom_vline(aes(xintercept=mean(dv_pre_state_conf)),
+            color="blue", linetype="dashed", size=1)
+df %>%
+  ggplot( aes(x=dv_pre_national_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+df %>%
+  ggplot( aes(x=dv_post_state_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+df %>%
+  ggplot( aes(x=dv_post_national_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+
+# Is it possible to show the means in each of these graphs?
 
 
+```
+
+``` {r always_believers}
+
+# Trust in elections is polarized by who won.
+# Always believers are subjects that in both the 2016 and the 2020 presidential elections votes were counted accurately. 
+
+# 50% believe both elections were fair
+table(df$always_believer)/sum(table(df$always_believer))
+# 13% believe only one election was fair
+table(df$never_believer)/sum(table(df$never_believer))
 
 ```
 
