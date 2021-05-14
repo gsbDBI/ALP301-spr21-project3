@@ -266,11 +266,15 @@ data %>%
     xlab("")
 
 ```
-``` {r violin_exp}
+``` {r violin_experiment fig.width=20, fig.height=10, echo=FALSE}
 
 data <- 'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/violin_overall.csv'
 df_violin <- read.csv(data)
+
 rm(data) #remove data csv file
+
+options(repr.plot.width = 4, repr.plot.height = 4)
+#knitr::opts_chunk$set(echo T=TRUE,fig.width = 12,fig.height = 4)
 
 df_violin$Treatment.Group <- as.factor(df_violin$Treatment.Group)
 df_violin$Stage <- as.factor(df_violin$Stage)
@@ -280,9 +284,9 @@ library(ggplot2)
 library(plotly)
 library(gapminder)
 
-options(repr.plot.width = 250, repr.plot.height = 150)
-p <-  ggplot(df_violin, aes(Treatment.Group, Confidence, fill= Stage)) + 
-  geom_violin() + geom_boxplot() + coord_flip()
+p <-  ggplot(df_violin, aes(x = Treatment.Group, y= Confidence, fill= Stage)) + geom_boxplot() + coord_flip() +  
+  
+  facet_wrap(~Treatment.Group, scale="free_y")
 
 #For interactive look at R Grpahs or Plotly 
 p
