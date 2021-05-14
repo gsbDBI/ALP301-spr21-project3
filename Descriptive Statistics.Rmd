@@ -124,3 +124,22 @@ tapply(df$dv_post_national_conf,df$party,mean,na.rm=TRUE)
 ```
 
 
+``` {R}
+
+# Libraries
+library(ggplot2)
+library(hrbrthemes)
+library(dplyr)
+library(tidyr)
+library(viridis)
+library(viridisLite)
+
+# With transparency (right)
+p2 <- ggplot(data=df, aes(x=birthyear, group=treatment_group, fill=treatment_group)) +
+    geom_density(adjust=1.5, alpha=.4)
+p2
+
+```
+
+
+
