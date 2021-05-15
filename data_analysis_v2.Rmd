@@ -39,6 +39,7 @@ pacman::p_load(reshape2)
 pacman::p_load(cobalt)
 # for matching only
 # pacman::p_load(MatchIt)
+library(stargazer)
 ```
 
 ```{r read_data}
@@ -69,14 +70,23 @@ df %>%
   ggplot( aes(x=duration_sec)) +
     geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
 
+# make bar graph of income
+p2 <- ggplot(df, aes(income)) + 
+  geom_bar(binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+  ggtitle("Income of respondents") +
+theme(
+  plot.background = element_rect(fill = "white"),
+  panel.background = element_rect(fill = "white"),
+  axis.line.x = element_line(color = "grey")
+  ) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(size=10))
+
+
+#ggsave("income.png", plot = p2)
+
 ```
 
 Another way of checking for balance is to run a multivariate regression of our treatment assignment variable on covariates. With this method, instead of a t-test, we use an F-test for the hypothesis that all coefficients (non-strata) are equal to zero. If a coefficient on a covariate is not close to zero, that would mean that assignment was not balanced on that covariate.
-
-```{r summary statistics}
-stargazer(df)
-
-```
 
 ```{r cov_redefine}
 
@@ -88,6 +98,61 @@ df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
 
 df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
 df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
+
+```
+
+```{r map of respondents}
+library(usmap) 
+library(ggplot2)  
+library(maps)  
+#install.packages("mapproj") 
+library(mapproj)
+#install.packages("viridis")
+library(viridis)
+library(dplyr)
+library(ggthemes) 
+
+# load US state map data
+us_states <- map_data("state")  
+head(us_states)  
+
+# aggregate number of respondents per state from your survey data
+bystate <- df %>% 
+  group_by(state) %>% 
+  dplyr::summarise(
+    numbperstate = n()
+  )
+
+# merge RLA data w/maps data
+
+bystate$state <- tolower(bystate$state)
+
+# fix errors
+bystate[bystate$state=="new hampshir",]$state <- "new hampshire"
+bystate[bystate$state=="minnesotta",]$state <- "minnesota"
+bystate[bystate$state=="west virgina",]$state <- "west virginia"
+
+us_states_df <- us_states %>% 
+  left_join(bystate, by = c("region" = "state"))
+
+p <- ggplot(data = us_states_df,
+             mapping = aes(x = long, y = lat,
+                           group = group, fill = numbperstate))+
+  geom_polygon(color = "gray90", size = 0.1) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  scale_fill_continuous(type = "viridis", name = "Number of respondents \n per state") +
+  theme_map() +
+  theme(legend.position="bottom",
+        axis.line=element_blank(),
+        axis.text=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title=element_blank(),
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid=element_blank(),
+        text = element_text(size=14))
+
+#ggsave("map.png", plot = p)
 
 ```
 
@@ -142,7 +207,7 @@ with(repubs, table(accuracy_2020, useNA = 'ifany')) %>%  # "ifany" includes the 
 
 ```
 
-```{r naive regression, echo=FALSE, message=TRUE, warning=FALSE, results='asis'}
+```{r naive regression}
 # run the regression for state confidence level 
 reg1 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
 
@@ -163,8 +228,9 @@ reg5 <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + birthyear 
 
 # national with treatment groups
 reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+```
 
-library(stargazer)
+```{r reg table, echo=FALSE, message=TRUE, warning=FALSE, results='asis'}
 stargazer(reg3, reg4, 
           omit = "state", "income",
           column.labels=c("state","national", "state with controls", "national with controls"),
@@ -189,6 +255,7 @@ plot_coefs(
   model.names = c("State", "National"),
   x.label = "Estimate",
   scale = TRUE)
+
 ```
 
 ```{r compare_age_dist}
