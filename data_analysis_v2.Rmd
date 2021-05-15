@@ -73,6 +73,11 @@ df %>%
 
 Another way of checking for balance is to run a multivariate regression of our treatment assignment variable on covariates. With this method, instead of a t-test, we use an F-test for the hypothesis that all coefficients (non-strata) are equal to zero. If a coefficient on a covariate is not close to zero, that would mean that assignment was not balanced on that covariate.
 
+```{r summary statistics}
+stargazer(df)
+
+```
+
 ```{r cov_redefine}
 
 df$gender_female <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
@@ -99,7 +104,7 @@ Interpretation: treatment-covariate correlations is very low.
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party + dv_pre_state_conf + dv_post_national_conf, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party + dv_pre_state_conf + dv_pre_national_conf, data = df) # factor(region) encodes the string variable as a factor for analysis
 
 
 # Test whether all coefficients from the balancce_lm regression are equal to zero
@@ -150,13 +155,40 @@ reg3 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + birthyear + ge
 # run the regression with controls for national level
 reg4 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
 
+# run the regression with treatment groups
+df$treatment_group <- relevel(factor(df$treatment_group), ref = "Control")
+
+#state level with treatment groups
+reg5 <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+
+# national with treatment groups
+reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+
 library(stargazer)
-stargazer(reg1, reg2, reg3, reg4, 
-          dep.var.labels = "Trust in government (scale 1-10)",
-          omit = "state",
+stargazer(reg3, reg4, 
+          omit = "state", "income",
           column.labels=c("state","national", "state with controls", "national with controls"),
           title = "Basic Regression Results for Treatment Effect")
 
+```
+
+```{r coefficient plot control vs treated}
+library(jtools)
+plot_coefs(
+  reg1, reg2, reg3, reg4, 
+  coefs = c("Treatment Effect \n vs. Control \n (95% C.I.)" = "dummy_treat"),
+  ci_level = 0.95,
+  model.names = c("State", "National", "State w/ controls", "National w/ controls"),
+  scale = TRUE)
+```
+```{r coefficient plot of treatment effects}
+plot_coefs(
+  reg5, reg6, 
+  coefs = c("Bipartisan Auditors" = "treatment_groupBipartisan", "Handcount" = "treatment_groupHandcount", "Local Officials" = "treatment_groupLocal", "Loser" = "treatment_groupLoser", "RLA percentage" = "treatment_groupRL_percentage", "Soup \n 95% C.I." = "treatment_groupSoup"),
+  ci_level = 0.95,
+  model.names = c("State", "National"),
+  x.label = "Estimate",
+  scale = TRUE)
 ```
 
 ```{r compare_age_dist}
