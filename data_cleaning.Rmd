@@ -226,7 +226,7 @@ df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == 
 
 # Save new CSV file as "clean"
 
-write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
+#write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
 ```
 
 

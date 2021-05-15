@@ -40,6 +40,15 @@ pacman::p_load(cobalt)
 # for matching only
 # pacman::p_load(MatchIt)
 library(stargazer)
+library(usmap) 
+library(ggplot2)  
+library(maps)  
+#install.packages("mapproj") 
+library(mapproj)
+#install.packages("viridis")
+library(viridis)
+library(dplyr)
+library(ggthemes) 
 ```
 
 ```{r read_data}
@@ -69,10 +78,12 @@ df %>%
   filter( duration_sec < 1050, duration_sec > 88 ) %>%
   ggplot( aes(x=duration_sec)) +
     geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+```
 
+```{r graph of income}
 # make bar graph of income
-p2 <- ggplot(df, aes(income)) + 
-  geom_bar(binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+p2 <- ggplot(data = subset(df, income != ""), aes(income)) + 
+  geom_bar(binwidth=3, fill="#1c3ca8cf", color="#e9ecef", alpha=0.9) +
   ggtitle("Income of respondents") +
 theme(
   plot.background = element_rect(fill = "white"),
@@ -81,12 +92,21 @@ theme(
   ) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(size=10))
 
-
 #ggsave("income.png", plot = p2)
 
-```
+p3 <- ggplot(data = df, aes(treatment_group)) +
+  geom_bar(binwidth=3, fill="#1c3ca8cf", color="#e9ecef", alpha=0.9) +
+  ggtitle("Treatment groups of respondents") +
+theme(
+  plot.background = element_rect(fill = "white"),
+  panel.background = element_rect(fill = "white"),
+  axis.line.x = element_line(color = "grey")
+  ) +
+  xlab("Treatment Group") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(size=10))
 
-Another way of checking for balance is to run a multivariate regression of our treatment assignment variable on covariates. With this method, instead of a t-test, we use an F-test for the hypothesis that all coefficients (non-strata) are equal to zero. If a coefficient on a covariate is not close to zero, that would mean that assignment was not balanced on that covariate.
+#ggsave("treatment_group.png", plot = p3)
+```
 
 ```{r cov_redefine}
 
@@ -102,16 +122,6 @@ df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equi
 ```
 
 ```{r map of respondents}
-library(usmap) 
-library(ggplot2)  
-library(maps)  
-#install.packages("mapproj") 
-library(mapproj)
-#install.packages("viridis")
-library(viridis)
-library(dplyr)
-library(ggthemes) 
-
 # load US state map data
 us_states <- map_data("state")  
 head(us_states)  
@@ -181,22 +191,17 @@ Interpretation: treatment-covariate correlations is very low.
 # ~ indicates the regression equation: dependent variable ~ independent variables
 estimatr::lm_robust(dummy_treat ~ state - 1, data = df) 
 ```
-Similarly, we can check whether demographics vary by region.
 
-```{r region_covariates}
-# Similarly, check whether age vary by region by using regression
-estimatr::lm_robust(birthyear ~ state - 1, data = df)
-```
+Another way of checking for balance is to run a multivariate regression of our treatment assignment variable on covariates. With this method, instead of a t-test, we use an F-test for the hypothesis that all coefficients (non-strata) are equal to zero. If a coefficient on a covariate is not close to zero, that would mean that assignment was not balanced on that covariate.
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party + dv_pre_state_conf + dv_pre_national_conf, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party + birthyear + dv_pre_state_conf + dv_pre_national_conf, data = df) # factor(region) encodes the string variable as a factor for analysis
 
 
 # Test whether all coefficients from the balancce_lm regression are equal to zero
 # using heteroskedasticity-robust standard errors, denoted by hc2
-car::linearHypothesis(balance_lm, c(
-  "birthyear = 0", "gender_female = 0", "parent_yes = 0", "hispanic = 0", "edu_hs = 0", "dv_pre_state_conf = 0", "dv_pre_national_conf = 0"),
+car::linearHypothesis(balance_lm, c("gender_female = 0", "parent_yes = 0", "hispanic = 0", "edu_hs = 0", "dv_pre_state_conf = 0", "dv_pre_national_conf = 0"),
   test = "F", white.adjust = "hc2", singular.ok = TRUE)
 
 summary(balance_lm)
@@ -204,30 +209,97 @@ summary(balance_lm)
 
 None of the coefficients is significant, meaning that there is no significantly different pre-experiment covariates that determine treatment status.
 
-```{r dem vs repub trust}
-# of those who identify as democrats how trust 2016 and 2020 
-dems <- df %>% 
-  filter(party == "Democrat")
+```{r balance_table}
+# Define a function to generate a balance check table using two-sample t-test 
+# Parameters: "cov_list" includes covariates, "treat" indicates the treatment, "alpha" is the significance level
+t_table <- function(data, cov_list, treat,
+                    alpha = 0.05) {
+  # for each covariate in cov_list, apply a function to conduct the t-test
+  out <- lapply(cov_list, function(x) {
+      tres <- t.test(data[[x]] ~ data[[treat]]) # t-test result between control and treatment groups' covariate x
+    # capture the group means for both control and treatment, and the p-value
+    c(mean_control = as.numeric(tres$estimate[1]), mean_treat = as.numeric(tres$estimate[2]), p_value = tres$p.value)    
+  })
+  
+  # save results by binding the results for all above covariates in cov_list by row (rbind)
+  out <- as.data.frame(do.call(rbind, out))
+  # combine covaraite names and results by column (cbind)
+  out <- cbind(covariate = cov_list, out)
+  # get ride of non-important strings in the names
+  names(out) <- gsub("[^0-9A-Za-z_]", "", names(out)) # gsub(pattern, replacement, x) replaces pattern in x with replacement
+  
+  # code presentation of p-value according to whether they are below a threshold, for e.g., 0.001
+  out$p_value <- ifelse(out$p_value < 0.001,
+    "<0.001",
+    round(out$p_value, 3) # rounding of p values to 3 decimal places
+  )
+  return(out)
+}
 
-repubs <- df %>% 
-  filter(party == "Republican")
+# Apply above t-t_table function to our dataset and selected covariates
+balance_table <- t_table(
+  data = df,
+  c("gender_female", "parent_yes", "hispanic", "edu_hs", "trust_federal", "trust_state"),
+  "dummy_treat"
+)
 
-with(repubs, table(accuracy_2016, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
-  knitr::kable() %>%                                            #kabel(x, format) generates tables 
-  # add in a header to label what we're cross-tabulating with
-  add_header_above(c('2016 accuracy' = 2)) %>% #add_header_above(x, col_name=col_span)
-  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+# output the balance table
+balance_table %>% 
+  knitr::kable() %>%
+  kableExtra::kable_styling(bootstrap_options = "striped")
+```
 
-with(repubs, table(accuracy_2020, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
-  knitr::kable() %>%                                            #kabel(x, format) generates tables 
-  # add in a header to label what we're cross-tabulating with
-  add_header_above(c('2020 accuracy' = 2)) %>% #add_header_above(x, col_name=col_span)
-  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+We see that we reject the null hypothesis of equal means for all of the covariates, as all the P-values are > 0.01.
+
+```{r region_balance}
+# balance table for Democrats
+balance_dems <- t_table(
+  data = subset(df, party=="Democrat"), # subsetting data to those with "party" equal to "Democrat"
+  c("gender_female", "parent_yes", "hispanic", "edu_hs", "trust_federal", "trust_state"),
+  "dummy_treat"
+)
+
+# balance table for Republicans
+balance_repubs <- t_table(
+  data = subset(df, party=="Republican"), # subsetting data to those with "party" equal to "Republican"
+  c("gender_female", "parent_yes", "hispanic", "edu_hs", "trust_federal", "trust_state"),
+  "dummy_treat"
+)
+
+balance_indpt_other <- t_table(
+  data = subset(df, party=="Independent" | party == "Other Party"), # subsetting data to those with "party" equal to "Republican"
+  c("gender_female", "parent_yes", "hispanic", "edu_hs", "trust_federal", "trust_state"),
+  "dummy_treat"
+)
+
+# combine the 4 t-tables, excluding first column of covariate names for the latter 3, so that only one covariate name column is there
+balance_party = cbind(balance_dems, balance_repubs %>% select(2:4), balance_indpt_other %>% select(2:4))
+
+# Format: adding in headers
+x <- knitr::kable(balance_party, digits = 2) %>% kable_styling()
+# add in a header to label what we're cross-tabulating with
+add_header_above(x, c('', 'Democrats'=3, 'Republicans'=3, 'Other and Independent'=3))
 
 
 ```
 
-```{r naive regression}
+```{r dem vs repub trust}
+# of those who identify as democrats how trust 2016 and 2020 
+
+# p4 <- ggplot(data = df, aes(accuracy_2016)) +
+#   geom_bar(binwidth=3, fill="#1c3ca8cf", color="#e9ecef", alpha=0.9) +
+#   ggtitle("Treatment groups of respondents") +
+# theme(
+#   plot.background = element_rect(fill = "white"),
+#   panel.background = element_rect(fill = "white"),
+#   axis.line.x = element_line(color = "grey")
+#   ) +
+#   xlab("2016 accuracy") +
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(size=10))
+
+```
+
+```{r basic regression}
 # run the regression for state confidence level 
 reg1 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
 
