@@ -159,13 +159,34 @@ p <- ggplot(data = us_states_df,
 
 ```{r balance_plots}
 
-love.plot(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party,
-                 data = df, binary = "std", thresholds = c(m = .1)) # threshold determines the dotted lines on the graph
+love.plot(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
+                 data = df, 
+          binary = "std", 
+          limits = c(-.5, .5),
+          thresholds = c(m = .1)) # threshold determines the dotted lines on the graph
 
-
+library(MatchIt)
+m.out <- matchit(dummy_treat ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
+                 data = df, 
+                method = "nearest", replace = TRUE) # perform matching
+# plot covariate balance with and without matching
+love.plot(m.out, binary = "std", thresholds = c(m = .1))
 ```
 Interpretation: treatment-covariate correlations is very low.
 
+```{r region_probs}
+# Check whether treatment assignment probabilities vary by region
+# lm_robust performs linear regression with robust standard errors
+# including a -1 in the regression model drops the intercept
+# ~ indicates the regression equation: dependent variable ~ independent variables
+estimatr::lm_robust(dummy_treat ~ state - 1, data = df) 
+```
+Similarly, we can check whether demographics vary by region.
+
+```{r region_covariates}
+# Similarly, check whether age vary by region by using regression
+estimatr::lm_robust(birthyear ~ state - 1, data = df)
+```
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
@@ -174,10 +195,9 @@ balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + 
 
 # Test whether all coefficients from the balancce_lm regression are equal to zero
 # using heteroskedasticity-robust standard errors, denoted by hc2
-# car::linearHypothesis(balance_lm, c("birthyear = 0", "gender = 0", "parent = 0",
-#                                     "state = 0", "trust_federal = 0",
-#                                     "trust_state = 0", "accuracy_2016 = 0", "accuracy_2020 = 0", "income = 0", "race = 0", "edu = 0", "libcon = 0", "party = 0"),
-#                       test = "F", white.adjust = "hc2", singular.ok = TRUE)
+car::linearHypothesis(balance_lm, c(
+  "birthyear = 0", "gender_female = 0", "parent_yes = 0", "hispanic = 0", "edu_hs = 0", "dv_pre_state_conf = 0", "dv_pre_national_conf = 0"),
+  test = "F", white.adjust = "hc2", singular.ok = TRUE)
 
 summary(balance_lm)
 ```
@@ -247,6 +267,7 @@ plot_coefs(
   model.names = c("State", "National", "State w/ controls", "National w/ controls"),
   scale = TRUE)
 ```
+
 ```{r coefficient plot of treatment effects}
 plot_coefs(
   reg5, reg6, 
@@ -318,6 +339,22 @@ df %>%
   scale_color_colorblind() +
   scale_fill_colorblind() +
   theme(legend.position = "top") # legend position
+```
+
+```{r difference_in_means_simple}
+# simple difference in means for those voted in 2002
+with(df, mean(dv_post_state_conf[dummy_treat == 1]) - mean(dv_post_state_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
+
+with(df, mean(dv_post_national_conf[dummy_treat == 1]) - mean(dv_post_national_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
+```
+
+```{r difference_in_means}
+# Use the estimatr package for difference in means estimates
+estimatr::difference_in_means(dv_post_state_conf ~ dummy_treat, data = df) 
+# difference_in_means(y ~ x, data) computes mean(y when x==1) - mean(y when x==0) in data, along with standard errors and p-values from two-sided t-tests
+
+estimatr::difference_in_means(dv_post_national_conf ~ dummy_treat, data = df) 
+
 ```
 
 ```{r Zstats}
