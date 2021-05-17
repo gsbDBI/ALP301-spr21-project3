@@ -38,7 +38,7 @@ pacman::p_load(reshape2)
 # for plotting of covariate balance
 pacman::p_load(cobalt)
 # for matching only
-# pacman::p_load(MatchIt)
+pacman::p_load(MatchIt)
 library(stargazer)
 library(usmap) 
 library(ggplot2)  
@@ -49,6 +49,7 @@ library(mapproj)
 library(viridis)
 library(dplyr)
 library(ggthemes) 
+
 ```
 
 ```{r read_data}
@@ -175,7 +176,6 @@ love.plot(treatment_group_num ~ birthyear + gender_female + parent_yes + state +
           limits = c(-.5, .5),
           thresholds = c(m = .1)) # threshold determines the dotted lines on the graph
 
-library(MatchIt)
 m.out <- matchit(dummy_treat ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
                  data = df, 
                 method = "nearest", replace = TRUE) # perform matching
