@@ -55,7 +55,7 @@ tibble::glimpse(df) # overview of variables in the data
 # Raw Data Cleaning
 
 # First, let's view the data
-view(df)
+#view(df)
 
 # Let's check to make sure the survey only reported participants that were 100% complete
 df$Progress = as.numeric(df$Progress)
@@ -195,14 +195,10 @@ df$attention_pass <- ifelse(df$attentioncheck == "Red,Green", 1, 0)
 # All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
 
 # Start with the columns that need to be numeric
-df[, c(1,3,4,13:15,16)] <- sapply(df[, c(1,3,4,13:15,16)], as.numeric)
+df[, c(1,4,5,16,17,14,15)] <- sapply(df[, c(1,4,5,16,17,14,15)], as.numeric)
 
 # Now the columns that make sense to be structured as factors
-
-# i = c("state", "federal_trust", "state_trust", "accuracy_2016", "accuracy_2020", "birthyear", "gender", "parenthood", "dv_secondary", "voting_importance", "vote_2020", "candidate_2020", "education", "political_party", "political_ideology", "race", "income", "treatment")
-# df[ , i] = lapply(df[ , i], factor)
-
-df[c(2,5:10,12,17,19:21,23,27,29,30)] <- lapply(df[c(2,5:10,12,17,19:21,23,27,29,30)], factor)
+df[c(2,6:10,12,19:21,23,27,29,30)] <- lapply(df[c(2,6:10,12,19:21,23,27,29,30)], factor)
 
 df$treatment_group_num <- as.numeric(as.factor(df$treatment_group))
 
@@ -214,8 +210,8 @@ df <- df %>% drop_na("dv_pre_state_conf", "dv_post_state_conf", "dv_pre_national
 
 # Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
 
-df$dv_state_treatement_diff = df$dv_post_state_conf - df$dv_pre_state_conf
-df$dv_national_treatment_diff = df$dv_post_national_conf - df$dv_pre_national_conf
+df$dv_state_treatement_diff <- df$dv_post_state_conf - df$dv_pre_state_conf
+df$dv_national_treatment_diff <- df$dv_post_national_conf - df$dv_pre_national_conf
 
 summary(df$dv_state_treatement_diff)
 summary(df$dv_national_treatment_diff)
@@ -223,6 +219,46 @@ summary(df$dv_national_treatment_diff)
 # create variable for those who always trust or never trust election outcomes
 df$always_believer = ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 == "Yes", 1, 0), 0)
 df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
+
+#create binary variables for covariates
+df$gender_female <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
+
+df$parent_yes <- ifelse(df$parent == "Yes", 1, 0)
+
+df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
+
+df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
+df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
+
+#fix age and income variables
+df$birthyear <- as.numeric(as.character(df$birthyear))
+
+#change birthyear to age (approx)
+df <- df %>% 
+  mutate(
+    age = 2021 - birthyear
+         )
+
+#change income variable
+df$income2 <- as.character(df$income)
+# 
+df$income2 <- ifelse(df$income2 == "Less than $10,000", "$0-$10,000", df$income2)
+df$income2 <- ifelse(df$income2 == "Prefer not to say", NA, df$income2)
+df$income2 <- ifelse(df$income2 == "$150,000 or more", "$150,000", df$income2)
+
+df$income2 <- ifelse(df$income2 == "", NA, df$income2) #make ppl who didnt provide income == NA
+
+df$income3 <- factor(df$income2, levels = c("$0-$10,000","$10,000-$19,999","$20,000-$29,999","$30,000-$39,999","$40,000-$49,999","$50,000-$74,999","$75,000-$99,999","$100,000-$149,999","$150,000"))
+
+df$income_num <- as.numeric(df$income3)
+
+df <- df %>% 
+  rename(
+    income_clean = income3
+  )
+
+df <- df %>% 
+  select(-c("income2"))
 
 # Save new CSV file as "clean"
 
