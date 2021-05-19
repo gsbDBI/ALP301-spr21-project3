@@ -110,15 +110,15 @@ theme(
 ```
 
 ```{r cov_redefine}
-
-df$gender_female <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
-
-df$parent_yes <- ifelse(df$parent == "Yes", 1, 0)
-
-df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
-
-df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
-df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
+#included in cleaning script
+# df$gender_female <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
+# 
+# df$parent_yes <- ifelse(df$parent == "Yes", 1, 0)
+# 
+# df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
+# 
+# df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
+# df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
 
 ```
 
@@ -414,11 +414,13 @@ df %>%
 ```
 
 ```{r difference_in_means_simple}
-# simple difference in means for those voted in 2002
+# simple difference in means for those treated with a message
 with(df, mean(dv_post_state_conf[dummy_treat == 1]) - mean(dv_post_state_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
 
 with(df, mean(dv_post_national_conf[dummy_treat == 1]) - mean(dv_post_national_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
 ```
+
+We use this `difference_in_means` function because it allows us to subset data, and conveniently provides the standard error and other statistics for the estimate. 
 
 ```{r difference_in_means}
 # Use the estimatr package for difference in means estimates
@@ -427,6 +429,20 @@ estimatr::difference_in_means(dv_post_state_conf ~ dummy_treat, data = df)
 
 estimatr::difference_in_means(dv_post_national_conf ~ dummy_treat, data = df) 
 
+```
+
+#difference in means by gender
+
+```{r difference_in_meansIA_A}
+# difference in means for Iowa non-competitive stratum
+estimatr::difference_in_means(dv_post_state_conf ~ treatment_group, data = df, subset = region == "Iowa A")
+```
+
+#use lm robust for heterosked errors
+
+```{r lm_robust}
+# Use the lm_robust function from the estimatr package
+estimatr::lm_robust(vote02 ~ treat_real, data = mobilize_listed_df)
 ```
 
 ```{r Zstats}
