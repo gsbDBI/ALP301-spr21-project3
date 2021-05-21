@@ -1,0 +1,457 @@
+---
+title: "Descriptive Statistics"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages}
+# # Ensure that pacman is installed for package management and loading.
+# if (!require("pacman")) install.packages("pacman")
+# # for data reading wrangling and visualization
+pacman::p_load(tidyverse) 
+# for working directories
+pacman::p_load(here) 
+# # for cross tabulation and data cleaning
+# pacman::p_load(janitor) 
+# for working with strings
+pacman::p_load(glue) 
+# For randomized inference, also loads randomizr and estimatr 
+pacman::p_load(ri2) 
+# for marginal effects from lineal regressions
+pacman::p_load(margins)
+# Tests for linear regression models
+pacman::p_load(lmtest)
+pacman::p_load(car)
+# Tables
+pacman::p_load(kableExtra)
+# for updated  theme
+pacman::p_load(hrbrthemes)
+# for updated  colorblind-friendly scheme
+pacman::p_load(ggthemes)
+# theme_set(hrbrthemes::theme_ipsum())
+pacman::p_load(reshape2)
+# for plotting of covariate balance
+pacman::p_load(cobalt)
+# for matching only
+# pacman::p_load(MatchIt)
+```
+
+```{r read_data}
+#download the data from GitHub
+data <-'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/rla_clean_5_12.csv'
+df <- read.csv(data)
+rm(data) #remove data csv file
+```
+
+```{r glimpse_data}
+tibble::glimpse(df) # overview of variables in the data
+```
+
+```{r treatment table}
+
+#table() creates a contingency table of observations in each treatment condition
+with(df, table(treatment_group, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+  knitr::kable() %>%                                            #kabel(x, format) generates tables 
+  # add in a header to label what we're cross-tabulating with
+  add_header_above(c('treatment_group' = 2)) %>% #add_header_above(x, col_name=col_span)
+  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+
+```
+
+```{r extra_data_cleaning}
+
+#Extra data cleaning
+df$birthyear = as.numeric(df$birthyear)
+
+#Auxiliar variables for graphs
+df$gender_number = ifelse(df$gender == "Female",1,ifelse(df$gender=="Male",2,0))
+df$party_number = ifelse(df$party == "Democrat",1,ifelse(df$party == "Republican",2,ifelse(df$party == "Independent",3,0)))
+
+tibble::glimpse(df) # overview of variables in the data
+```
+
+```{r gender_table}
+#Coding variables for analysis
+#table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
+with(df, table(treatment_group, gender, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+  knitr::kable() %>%                                            #kabel(x, format) generates tables 
+  # add in a header to label what we're cross-tabulating with
+  add_header_above(c('Treatment', 'Gender' = 7)) %>% #add_header_above(x, col_name=col_span)
+  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+```
+
+```{r party_table}
+#Coding variables for analysis
+#table() creates a contingency table of counts of observations at each combination of treat_pseudo and treat_real
+with(df, table(treatment_group, party, useNA = 'ifany')) %>%  # "ifany" includes the NA values in the table
+  knitr::kable() %>%                                            #kabel(x, format) generates tables 
+  # add in a header to label what we're cross-tabulating with
+  add_header_above(c('Treatment', 'Party' = 5)) %>% #add_header_above(x, col_name=col_span)
+  kableExtra::kable_styling(bootstrap_options = "striped") #additional styling options
+```
+
+```{r data_for_graphs}
+# select covariates
+covariate_names <- c("state", "birthyear", "gender", "parent", "edu","party", "race", "income", "gender_number","party_number")
+# treatment
+treatment_name <- "treatment_group"
+# outcome of interest
+outcome_variable1 <- "dv_state_treatement_diff"
+outcome_variable2 <- "dv_national_treatment_diff"
+# create new dataset containing the covariates, treatment and outcome
+mobilize_df <- df %>%
+  # select all the variables of interest
+  select(all_of(c(covariate_names, treatment_name, outcome_variable1, outcome_variable2))) # all_of() is for strict selection: if any of the variables in the character vector is missing, an error is thrown.
+
+# Filtered dataframe with observations that have a phone number
+mobilize_listed_df <- mobilize_df %>% 
+  # exclude missing `treat_real` observations
+  filter(!is.na(treatment_name)) 
+
+mobilize_df$treatment = ifelse(mobilize_df$treatment_group=="Control",0,1)
+view(mobilize_df)
+```
+
+```{r gender_dist_graph}
+mobilize_listed_df %>% 
+  # encode treat_real as a factor for plotting
+  mutate(treatment_group = as.factor(treatment_group)) %>%  # mutate(.data) adds new variables and preserves existing ones
+  ggplot(aes(x = gender_number, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+             color = treatment_group,
+             fill = treatment_group
+  )
+  ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
+```
+
+```{r birthyear_dist_graph}
+mobilize_listed_df %>% 
+  # encode treat_real as a factor for plotting
+  mutate(treatment_group = as.factor(treatment_group)) %>%  # mutate(.data) adds new variables and preserves existing ones
+  ggplot(aes(x = birthyear, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+             color = treatment_group,
+             fill = treatment_group
+  )
+  ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
+```
+
+```{r party_dist_graph}
+mobilize_listed_df %>% 
+  # encode treat_real as a factor for plotting
+  mutate(treatment_group = as.factor(treatment_group)) %>%  # mutate(.data) adds new variables and preserves existing ones
+  ggplot(aes(x = party_number, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+             color = treatment_group,
+             fill = treatment_group
+  )
+  ) +
+  # Density plot
+  geom_density(alpha = 0.3) +    # alpha controls the transparency
+  # use a colorblind friendly color palette
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme(legend.position = "top") # legend position
+```
+
+
+```{r state_vs_national}
+
+# Confidence at the state level is higher than confidence at the national level
+mean(df$dv_pre_state_conf)
+mean(df$dv_pre_national_conf)
+mean(df$dv_post_state_conf)
+mean(df$dv_post_national_conf)
+t.test(df$dv_pre_state_conf,df$dv_pre_national_conf)
+t.test(df$dv_post_state_conf,df$dv_post_national_conf)
+
+# Is it possible to overlay these four graphs?
+df %>%
+  ggplot( aes(x=dv_pre_state_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+    geom_vline(aes(xintercept=mean(dv_pre_state_conf)),
+            color="blue", linetype="dashed", size=1)
+df %>%
+  ggplot( aes(x=dv_pre_national_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+df %>%
+  ggplot( aes(x=dv_post_state_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+df %>%
+  ggplot( aes(x=dv_post_national_conf)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+
+# Is it possible to show the means in each of these graphs?
+
+
+```
+
+``` {r violin_pre_state}
+# Libraries
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+
+# Confidence at the state level is higher than confidence at the national level
+mean(df$dv_pre_state_conf)
+mean(df$dv_pre_national_conf)
+mean(df$dv_post_state_conf)
+mean(df$dv_post_national_conf)
+t.test(df$dv_pre_state_conf,df$dv_pre_national_conf)
+t.test(df$dv_post_state_conf,df$dv_post_national_conf)
+
+# create a dataset
+data <- df
+
+# sample size
+sample_size = data %>% group_by(treatment_group) %>% summarize(num=n())
+print("THIS IS PRETREAT STATE CONFIDENCE")
+# Plot
+data %>%
+  left_join(sample_size) %>%
+  mutate(myaxis = paste0(treatment_group, "\n", "n=", num)) %>%
+  ggplot( aes(x=myaxis, y=dv_pre_state_conf, fill=treatment_group)) +
+    geom_violin(width=1.4) +
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("State Confidence pretreament  ") +
+    xlab("")
+
+
+```
+
+``` {r violin_pre_national}
+# Libraries
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+
+
+# create a dataset
+data <- df
+
+# sample size
+sample_size = data %>% group_by(treatment_group) %>% summarize(num=n())
+print("THIS IS PRETREAT NATIONAL CONFIDENCE")
+
+# Plot
+data %>%
+  left_join(sample_size) %>%
+  mutate(myaxis = paste0(treatment_group, "\n", "n=", num)) %>%
+  ggplot( aes(x=myaxis, y=dv_pre_national_conf, fill=treatment_group)) +
+    geom_violin(width=1.4) +
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("National Confidence pretreament  ") +
+    xlab("")
+
+```
+``` {r violin_experiment fig.width=20, fig.height=10, echo=FALSE}
+
+data <- 'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/violin_overall.csv'
+df_violin <- read.csv(data)
+
+rm(data) #remove data csv file
+
+options(repr.plot.width = 4, repr.plot.height = 4)
+#knitr::opts_chunk$set(echo T=TRUE,fig.width = 12,fig.height = 4)
+
+df_violin$Treatment.Group <- as.factor(df_violin$Treatment.Group)
+df_violin$Stage <- as.factor(df_violin$Stage)
+df_violin$Confidence <- as.numeric(df_violin$Confidence)
+
+library(ggplot2)
+library(plotly)
+library(gapminder)
+
+p <-  ggplot(df_violin, aes(x = Treatment.Group, y= Confidence, fill= Stage)) + geom_boxplot() + coord_flip() +  
+  
+  facet_wrap(~Treatment.Group, scale="free_y")
+
+#For interactive look at R Grpahs or Plotly 
+p
+
+ggsave(plot = p, width = 10, height = 10, dpi = 300, filename = "Violin_Overview.pdf")
+
+#Next thing to try, should be easy but I am going to bed: https://www.r-graph-gallery.com/violin_and_boxplot_ggplot2.html
+
+
+```
+
+``` {r always_believers}
+
+# Trust in elections is polarized by who won.
+# Always believers are subjects that in both the 2016 and the 2020 presidential elections votes were counted accurately. 
+
+
+always_table <- table(df$always_believer)/sum(table(df$always_believer))
+print(always_table[2]*100)
+print("^percent believe both elections were fair")
+
+#CHANGED LOGIC FROM CLEANING CODE: df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
+
+never_table <- table(df$never_believer)/sum(table(df$never_believer))
+print(never_table[2]*100)
+print("^percent believe no elections were fair")
+
+
+```
+
+
+``` {r democrats_vs_republicans}
+
+# Democrats are more confident that Republicans for all DVs
+
+tapply(df$dv_pre_state_conf,df$party,mean,na.rm=TRUE) 
+# Pre-test. State mean confidence: Democrats = 8.54 vs. Republicans = 6.81.
+
+tapply(df$dv_pre_national_conf,df$party,mean,na.rm=TRUE)
+# Pre-state. National mean confidence: Democrats = 8.06 vs. Republicans = 5.65
+
+tapply(df$dv_post_state_conf,df$party,mean,na.rm=TRUE) 
+# Pre-test. State mean confidence: Democrats = 8.48 vs. Republicans = 6.72.
+
+tapply(df$dv_post_national_conf,df$party,mean,na.rm=TRUE)
+# Pre-state. National mean confidence: Democrats = 8.15 vs. Republicans = 5.96
+
+```
+
+
+``` {R}
+
+# Libraries
+library(ggplot2)
+library(hrbrthemes)
+library(dplyr)
+library(tidyr)
+library(viridis)
+library(viridisLite)
+
+# With transparency (right)
+p2 <- ggplot(data=df, aes(x=birthyear, group=treatment_group, fill=treatment_group)) +
+    geom_density(adjust=1.5, alpha=.4)
+p2
+
+```
+
+```{r map}
+
+library(zipcode)
+library(tidyverse)
+library(maps)
+library(viridis)
+library(ggthemes)
+library(albersusa) #installed via github
+#data
+fm<-Export <- read_csv("~/Downloads/Export (1).csv")#the file we just downloaded
+data(zipcode)
+fm$zip<- clean.zipcodes(fm$zip)
+#size by zip
+fm.zip<-aggregate(data.frame(count=fm$FMID),list(zip=fm$zip,county=fm$County),length)
+fm<- merge(fm.zip, zipcode, by='zip')
+
+```
+
+
+```{r preparing_data_for_difference_in_means}
+view(mobilize_df)
+table(mobilize_df$treatment_group)
+
+#creat columns that indicate if row is treatment x or control
+mobilize_df$bipartisan = ifelse(mobilize_df$treatment_group == "Control",1,0) + ifelse(mobilize_df$treatment_group == "Bipartisan",1,0)
+mobilize_df$handcount = ifelse(mobilize_df$treatment_group == "Control",1,0) + ifelse(mobilize_df$treatment_group == "Handcount",1,0)
+mobilize_df$local = ifelse(mobilize_df$treatment_group == "Control",1,0) + ifelse(mobilize_df$treatment_group == "Local",1,0)
+mobilize_df$loser = ifelse(mobilize_df$treatment_group == "Control",1,0) + ifelse(mobilize_df$treatment_group == "Loser",1,0)
+mobilize_df$rl_percentage = ifelse(mobilize_df$treatment_group == "Control",1,0) + ifelse(mobilize_df$treatment_group == "RL_percentage",1,0)
+mobilize_df$soup = ifelse(mobilize_df$treatment_group == "Control",1,0) + ifelse(mobilize_df$treatment_group == "Soup",1,0)
+
+#create subset of data for each message with the control group
+data_bipartisan = subset(mobilize_df, mobilize_df$bipartisan == 1)
+data_handcount = subset(mobilize_df, mobilize_df$handcount == 1)
+data_local = subset(mobilize_df, mobilize_df$local == 1)
+data_loser = subset(mobilize_df, mobilize_df$loser == 1)
+data_rl_percentage = subset(mobilize_df, mobilize_df$rl_percentage == 1)
+data_soup = subset(mobilize_df, mobilize_df$bipartisan == 1)
+```
+
+```{r}
+# simple difference in means for DV (state and national level) post-pre difference
+
+#Bipartisan
+with(data_bipartisan, mean(dv_state_treatement_diff[treatment == 1]) - mean(dv_state_treatement_diff[treatment == 0])) 
+with(data_bipartisan, mean(dv_national_treatment_diff[treatment == 1]) - mean(dv_national_treatment_diff[treatment == 0])) 
+
+#Handcount
+with(data_handcount, mean(dv_state_treatement_diff[treatment == 1]) - mean(dv_state_treatement_diff[treatment == 0])) 
+with(data_handcount, mean(dv_national_treatment_diff[treatment == 1]) - mean(dv_national_treatment_diff[treatment == 0]))
+
+#Local
+with(data_local, mean(dv_state_treatement_diff[treatment == 1]) - mean(dv_state_treatement_diff[treatment == 0])) 
+with(data_local, mean(dv_national_treatment_diff[treatment == 1]) - mean(dv_national_treatment_diff[treatment == 0]))
+
+#Loser
+with(data_loser, mean(dv_state_treatement_diff[treatment == 1]) - mean(dv_state_treatement_diff[treatment == 0])) 
+with(data_loser, mean(dv_national_treatment_diff[treatment == 1]) - mean(dv_national_treatment_diff[treatment == 0]))
+
+#RL_percentage
+with(data_rl_percentage, mean(dv_state_treatement_diff[treatment == 1]) - mean(dv_state_treatement_diff[treatment == 0])) 
+with(data_rl_percentage, mean(dv_national_treatment_diff[treatment == 1]) - mean(dv_national_treatment_diff[treatment == 0]))
+
+#Soup
+with(data_soup, mean(dv_state_treatement_diff[treatment == 1]) - mean(dv_state_treatement_diff[treatment == 0])) 
+with(data_soup, mean(dv_national_treatment_diff[treatment == 1]) - mean(dv_national_treatment_diff[treatment == 0]))
+```
+
+```{r}
+
+# Use the estimatr package for difference in means estimates
+
+#Bipartisan
+estimatr::difference_in_means(dv_state_treatement_diff ~ treatment, data = data_bipartisan)
+estimatr::difference_in_means(dv_national_treatment_diff ~ treatment, data = data_bipartisan)
+
+#Handcount
+estimatr::difference_in_means(dv_state_treatement_diff ~ treatment, data = data_handcount)
+estimatr::difference_in_means(dv_national_treatment_diff ~ treatment, data = data_handcount)
+
+#Local
+estimatr::difference_in_means(dv_state_treatement_diff ~ treatment, data = data_local)
+estimatr::difference_in_means(dv_national_treatment_diff ~ treatment, data = data_local)
+
+#Loser
+estimatr::difference_in_means(dv_state_treatement_diff ~ treatment, data = data_loser)
+estimatr::difference_in_means(dv_national_treatment_diff ~ treatment, data = data_loser)
+
+#RL_percentage
+estimatr::difference_in_means(dv_state_treatement_diff ~ treatment, data = data_rl_percentage)
+estimatr::difference_in_means(dv_national_treatment_diff ~ treatment, data = data_rl_percentage)
+
+#Soup
+estimatr::difference_in_means(dv_state_treatement_diff ~ treatment, data = data_soup)
+estimatr::difference_in_means(dv_national_treatment_diff ~ treatment, data = data_soup)
+```
+
