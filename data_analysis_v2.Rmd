@@ -528,7 +528,7 @@ estimatr::lm_robust(dv_post_state_conf ~ dummy_treat, data = df)
 
 ```{r gender interaction}
 # GENDER
-df$gender_female <- to_factor(df$gender_female)
+#df$gender_female <- to_factor(df$gender_female)
 
 #state level interaction for gender
 reg_state_fem <- lm(dv_post_state_conf ~ treatment_group:gender_female + dv_pre_state_conf + age + parent_yes + state + factor(income_clean) + hispanic + edu_4college + edu_hs + party, data = df)
@@ -561,7 +561,7 @@ plot_model(reg_natl_age, type = "pred", terms = c("treatment_group", "age"))
 
 ```{r educ interaction}
 # education
-df$edu_4college <- to_factor(df$edu_4college)
+#df$edu_4college <- to_factor(df$edu_4college)
 
 # state only HS 
 reg_state_edu_hs <- lm(dv_post_state_conf ~ treatment_group:edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + factor(income_clean) + hispanic  + party, data = df)
@@ -590,7 +590,7 @@ plot_model(reg_natl_edu, type = "pred", terms = c("edu_4college","treatment_grou
 ```
 
 ```{r income}
-df$income_clean <- to_factor(df$income_clean)
+#df$income_clean <- to_factor(df$income_clean)
 
 # income - figure out better way to visualize
 
@@ -609,8 +609,8 @@ plot_model(reg_natl_inc, type = "pred", terms = c("income_clean", "treatment_gro
 
 ```{r always_never believer and political party}
 # always vs never believer
-df$always_believer <- to_factor(df$always_believer)
-df$never_believer <- to_factor(df$never_believer)
+# df$always_believer <- to_factor(df$always_believer)
+# df$never_believer <- to_factor(df$never_believer)
 # state never believer
 reg_state_never <- lm(dv_post_state_conf ~ treatment_group:never_believer + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + hispanic  + party, data = df)
 
@@ -638,7 +638,7 @@ plot_model(reg_natl_always, type = "pred", terms = c("always_believer", "treatme
 # political party 
 
 # state level
-df$party <- to_factor(df$party)
+#df$party <- to_factor(df$party)
 
 reg_state_party <- lm(dv_post_state_conf ~ treatment_group:party + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + hispanic, data = df)
 
@@ -651,28 +651,29 @@ reg_natl_party <- lm(dv_post_national_conf ~ treatment_group:party + income_clea
 plot_model(reg_natl_party, type = "int", terms = c("treatment_group", "party"))
 plot_model(reg_natl_party, type = "pred", terms = c("party", "treatment_group"))
 
-# race 
+# race (hispanic) do we want to look at other races?
 
-# state level
+# state level hispanic Y/N
+#df$hispanic <- to_factor(df$hispanic)
 
-reg_state_race <- lm(dv_post_state_conf ~ treatment_group:party + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + hispanic  + party, data = df)
+reg_state_race <- lm(dv_post_state_conf ~ treatment_group:hispanic + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state  + party, data = df)
 
-plot_model(reg_state_party, type = "int", terms = c("treatment_group", "party"))
-plot_model(reg_state_party, type = "pred", terms = c("party", "treatment_group"))
+plot_model(reg_state_race, type = "int", terms = c("treatment_group", "hispanic"))
+plot_model(reg_state_race, type = "pred", terms = c("hispanic", "treatment_group"))
+
+# national level hispanic Y/N
+reg_natl_race <- lm(dv_post_national_conf ~ treatment_group:hispanic + party + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + hispanic, data = df)
+
+plot_model(reg_natl_race, type = "int", terms = c("treatment_group", "hispanic"))
+plot_model(reg_natl_race, type = "pred", terms = c("hispanic", "treatment_group"))
+
 
 ```
 
-```{r Zstats}
-# means under each condition
-# ybars <- aggregate(yobs, by = list(w), mean)$x # aggregate(x, by=list, FUN) applied function to x by group. In this case, we are taking the means by treatment arm
-# sigma <- sqrt(sum((yobs - ybars[w])^2) / (N - K)) # calculation of standard deviation
-# 
-# # difference in means estimates
-# taus <- ybars[-1] - ybars[1] # subtracting the control outcome from each of the three treatment outcomes
-# 
-# # Z-stat
-# Z_stat <- taus / (sigma * sqrt(2 * K / N)) # calculation of Z stat according to formula above
-# Z_stat
-```
+```{r filter out extreme views pre test}
+reg_middle_views <- lm(dv_post_state_conf ~ treatment_group + hispanic + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state  + party, data = df, subset = (dv_pre_state_conf < 10 & dv_pre_state_conf > 1))
 
+plot_model(reg_middle_views, type = "pred", terms = c("treatment_group"))
+
+```
 
