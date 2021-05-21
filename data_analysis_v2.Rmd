@@ -49,6 +49,8 @@ library(mapproj)
 library(viridis)
 library(dplyr)
 library(ggthemes) 
+library(sjPlot)
+library(sjmisc)
 
 ```
 
@@ -57,6 +59,7 @@ library(ggthemes)
 data <-'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/rla_clean_5_12.csv'
 df <- read.csv(data, strip.white = TRUE)
 rm(data) #remove data csv file
+
 ```
 
 ```{r treatment table}
@@ -117,7 +120,7 @@ theme(
 # 
 # df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
 # 
-# df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
+df$edu_4college <- ifelse(df$edu == "4-year college degree" | df$edu == "Postgraduate degree (MA, MBA, JD, PhD, etc.)", 1, 0)
 # df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
 
 ```
@@ -169,20 +172,53 @@ p <- ggplot(data = us_states_df,
 
 
 ```{r balance_plots}
+df$age <- as.numeric(df$age)
+# exclude data with missing covariates
+no_na_df <- df %>% drop_na('age', 'state', 'income', 'party', 'gender_female', 'parent_yes', 'hispanic', 'edu_4college', 'edu_hs')
 
-love.plot(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
-                 data = df, 
+love.plot(treatment_group_num ~ age + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
+                 data = no_na_df, 
           binary = "std", 
           limits = c(-.5, .5),
           thresholds = c(m = .1)) # threshold determines the dotted lines on the graph
 
-m.out <- matchit(dummy_treat ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
-                 data = df, 
+m.out <- matchit(dummy_treat ~ age + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
+                 data = no_na_df, 
                 method = "nearest", replace = TRUE) # perform matching
 # plot covariate balance with and without matching
 love.plot(m.out, binary = "std", thresholds = c(m = .1))
+
 ```
 Interpretation: treatment-covariate correlations is very low.
+
+```{r compare tests with attention check failures and 2SD of duration}
+# people within 2 SD of duration
+sd2 = sd(df$duration_sec)*2
+
+duration_sd2_df <- no_na_df %>% 
+  filter(abs(duration_sec - mean(duration_sec)) < sd2)
+
+# only removes 15 people so would not sig affect results
+rm(duration_sd2_df)
+
+# people who passed attention check
+atten_check_df <- no_na_df %>% 
+  filter(attention_pass == 1)
+
+love.plot(treatment_group_num ~ age + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
+                 data = atten_check_df, 
+          binary = "std", 
+          limits = c(-.5, .5),
+          thresholds = c(m = .1)) # threshold determines the dotted lines on the graph
+
+m.out <- matchit(dummy_treat ~ age + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + dv_pre_state_conf + dv_pre_national_conf + party,
+                 data = atten_check_df, 
+                method = "nearest", replace = TRUE) # perform matching
+# plot covariate balance with and without matching
+love.plot(m.out, binary = "std", thresholds = c(m = .1))
+
+# results look pretty similar for those who failed and did not fail the attention check
+```
 
 ```{r region_probs}
 # Check whether treatment assignment probabilities vary by region
@@ -196,12 +232,12 @@ Another way of checking for balance is to run a multivariate regression of our t
 
 ```{r lm_ftest_balance}
 # regression of covariates on treatment assignment variable
-balance_lm <- lm(treatment_group_num ~ birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party + birthyear + dv_pre_state_conf + dv_pre_national_conf, data = df) # factor(region) encodes the string variable as a factor for analysis
+balance_lm <- lm(treatment_group_num ~ age + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party + dv_pre_state_conf + dv_pre_national_conf, data = no_na_df) # factor(region) encodes the string variable as a factor for analysis
 
 
 # Test whether all coefficients from the balancce_lm regression are equal to zero
 # using heteroskedasticity-robust standard errors, denoted by hc2
-car::linearHypothesis(balance_lm, c("gender_female = 0", "parent_yes = 0", "hispanic = 0", "edu_hs = 0", "dv_pre_state_conf = 0", "dv_pre_national_conf = 0"),
+car::linearHypothesis(balance_lm, c("gender_female = 0", "age = 0", "parent_yes = 0", "hispanic = 0", "edu_hs = 0", "dv_pre_state_conf = 0", "dv_pre_national_conf = 0"),
   test = "F", white.adjust = "hc2", singular.ok = TRUE)
 
 summary(balance_lm)
@@ -299,31 +335,53 @@ add_header_above(x, c('', 'Democrats'=3, 'Republicans'=3, 'Other and Independent
 
 ```
 
-```{r basic regression}
+```{r basic regression with dummy treat}
+# run regressions to estimate treatment effect with robust standard errors
+
 # run the regression for state confidence level 
-reg1 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
+reg1 <- lm_robust(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
 
 # run the regression for national confidence level
-reg2 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf, data = df)
+reg2 <- lm_robust(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf, data = df)
 
 # run the regression with controls for state level
-reg3 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+reg3 <- lm_robust(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + factor(income) + hispanic + edu_4college + edu_hs + party, data = df)
 
 # run the regression with controls for national level
-reg4 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+reg4 <- lm_robust(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + factor(income) + hispanic + edu_4college + edu_hs + party, data = df)
 
+```
+
+```{r regression with treatment groups}
 # run the regression with treatment groups
 df$treatment_group <- relevel(factor(df$treatment_group), ref = "Control")
 
 #state level with treatment groups
-reg5 <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+reg5 <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + factor(income) + hispanic + edu_4college + edu_hs + party, data = df)
 
 # national with treatment groups
-reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + birthyear + gender_female + parent_yes + state + income + hispanic + edu_4college + edu_hs + party, data = df)
+reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + factor(income) + hispanic + edu_4college, data = df)
+
+# transform estimates to dataframe and drop unnecessary rows
+# lm_treatment1_te <- bind_rows(list(tidy(reg5))) %>% 
+#   mutate(term = gsub('treatment_group', '', term)) %>%
+#   filter((term %in% c("(Intercept)", "dv_pre_state_conf", "Income", "edu", "state")))
+# 
+# # plot treatment effect
+# ggplot(lm_treatment1_te, aes(x = term,y =estimate)) +
+#   geom_point(position=position_dodge(width=0.5)) +
+#   geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5), color = "firebrick") + 
+#   xlab('Treatment') +
+#   ylab('Estimate') +
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
+#   geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
+#   coord_cartesian(ylim=c(-.5, 0.5)) + 
+#   ggtitle('Treatment1 Post-Test Treatment Effect (conditioned on pre-test)')
 ```
 
-```{r reg table, echo=FALSE, message=TRUE, warning=FALSE, results='asis'}
-stargazer(reg3, reg4, 
+```{r regression table, echo=FALSE, message=TRUE, warning=FALSE, results='asis'}
+stargazer(reg1, reg2, reg3, reg4, 
           omit = "state", "income",
           column.labels=c("state","national", "state with controls", "national with controls"),
           title = "Basic Regression Results for Treatment Effect")
@@ -341,19 +399,19 @@ plot_coefs(
 ```
 
 ```{r coefficient plot of treatment effects}
-plot_coefs(
-  reg5, reg6, 
-  coefs = c("Bipartisan Auditors" = "treatment_groupBipartisan", "Handcount" = "treatment_groupHandcount", "Local Officials" = "treatment_groupLocal", "Loser" = "treatment_groupLoser", "RLA percentage" = "treatment_groupRL_percentage", "Soup \n 95% C.I." = "treatment_groupSoup"),
-  ci_level = 0.95,
-  model.names = c("State", "National"),
-  x.label = "Estimate",
-  scale = TRUE)
+# plot_coefs(
+#   reg5, reg6, 
+#   coefs = c("Bipartisan Auditors" = "treatment_groupBipartisan", "Handcount" = "treatment_groupHandcount", "Local Officials" = "treatment_groupLocal", "Loser" = "treatment_groupLoser", "RLA percentage" = "treatment_groupRL_percentage", "Soup \n 95% C.I." = "treatment_groupSoup"),
+#   ci_level = 0.95,
+#   model.names = c("State", "National"),
+#   x.label = "Estimate",
+#   scale = TRUE)
 
 ```
 
 ```{r compare_age_dist}
 df %>% 
-  ggplot(aes(x = birthyear, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+  ggplot(aes(x = age, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
             color = treatment_group,
             fill = treatment_group
              )
@@ -368,18 +426,18 @@ df %>%
 ```
 
 ```{r compare_gender_dist}
-df %>% 
-  ggplot(aes(x = gender, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
-            color = treatment_group,
-            fill = treatment_group
-             )
-         ) +
-  # Density plot
-  geom_density(alpha = 0.3) +    # alpha controls the transparency
-  # use a colorblind friendly color palette
-  scale_color_colorblind() +
-  scale_fill_colorblind() +
-  theme(legend.position = "top") # legend position
+# df %>% 
+#   ggplot(aes(x = gender, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+#             color = treatment_group,
+#             fill = treatment_group
+#              )
+#          ) +
+#   # Density plot
+#   geom_density(alpha = 0.3) +    # alpha controls the transparency
+#   # use a colorblind friendly color palette
+#   scale_color_colorblind() +
+#   scale_fill_colorblind() +
+#   theme(legend.position = "top") # legend position
 
 ```
 
@@ -424,37 +482,198 @@ We use this `difference_in_means` function because it allows us to subset data, 
 
 ```{r difference_in_means}
 # Use the estimatr package for difference in means estimates
-estimatr::difference_in_means(dv_post_state_conf ~ dummy_treat, data = df) 
+estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df) 
 # difference_in_means(y ~ x, data) computes mean(y when x==1) - mean(y when x==0) in data, along with standard errors and p-values from two-sided t-tests
 
-estimatr::difference_in_means(dv_post_national_conf ~ dummy_treat, data = df) 
+estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = df) 
 
 ```
 
-#difference in means by gender
+```{r difference_in_means_subsample}
+# difference in means for women at state level
+estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df, subset = gender_female == "1")
 
-```{r difference_in_meansIA_A}
-# difference in means for Iowa non-competitive stratum
-estimatr::difference_in_means(dv_post_state_conf ~ treatment_group, data = df, subset = region == "Iowa A")
+# difference in means for women at national level
+estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = df, subset = gender_female == "1")
+
+# difference in means for age at state level
+# age < 40
+estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df, subset = age < 40)
+# age > 40
+estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df, subset = age > 40)
+
+# difference in means for age at national level
+# age > 40
+estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = df, subset = age > 40)
+
+# difference in means for HS education at state level
+estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df, subset = edu_hs == "1")
+
+# difference in means for HS education at national level
+estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = df, subset = edu_hs== "1")
+
+# difference in means for college education at state level
+estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df, subset = edu_4college == "1")
+
+# difference in means for college education at national level
+estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = df, subset = edu_4college == "1")
+
 ```
 
-#use lm robust for heterosked errors
 
 ```{r lm_robust}
-# Use the lm_robust function from the estimatr package
-estimatr::lm_robust(vote02 ~ treat_real, data = mobilize_listed_df)
+# Use the lm_robust function from the estimatr package for robust s.e.
+estimatr::lm_robust(dv_post_state_conf ~ dummy_treat, data = df)
 ```
 
-```{r Zstats}
-# means under each condition
-# ybars <- aggregate(yobs, by = list(w), mean)$x # aggregate(x, by=list, FUN) applied function to x by group. In this case, we are taking the means by treatment arm
-# sigma <- sqrt(sum((yobs - ybars[w])^2) / (N - K)) # calculation of standard deviation
-# 
-# # difference in means estimates
-# taus <- ybars[-1] - ybars[1] # subtracting the control outcome from each of the three treatment outcomes
-# 
-# # Z-stat
-# Z_stat <- taus / (sigma * sqrt(2 * K / N)) # calculation of Z stat according to formula above
-# Z_stat
+```{r gender interaction}
+# GENDER
+#df$gender_female <- to_factor(df$gender_female)
+
+#state level interaction for gender
+reg_state_fem <- lm(dv_post_state_conf ~ treatment_group:gender_female + dv_pre_state_conf + age + parent_yes + state + factor(income_clean) + hispanic + edu_4college + edu_hs + party, data = df)
+
+plot_model(reg_state_fem, type = "pred", terms = c("gender_female","treatment_group"))
+plot_model(reg_state_fem, type = "int", terms = c("gender_female","treatment_group"))
+
+# national level interaction for gender
+reg_natl_fem <- lm(dv_post_national_conf ~ treatment_group:gender_female + dv_pre_national_conf + age + parent_yes + state + factor(income_clean) + hispanic + edu_4college, data = df)
+
+plot_model(reg_natl_fem, type = "pred", terms = c("gender_female", "treatment_group"))
+plot_model(reg_natl_fem, type = "int", terms = c("treatment_group", "gender_female"))
+```
+
+```{r age interaction}
+# AGE 
+
+#state level 
+reg_state_age <- lm(dv_post_state_conf ~ treatment_group:age + gender_female + dv_pre_state_conf + parent_yes + state + factor(income_clean) + hispanic + edu_4college + edu_hs + party, data = df)
+
+plot_model(reg_state_age, type = "int", terms = c("treatment_group", "age"))
+
+plot_model(reg_state_age, type = "pred", terms = c("treatment_group", "age"))
+
+# national level 
+reg_natl_age <- lm(dv_post_national_conf ~ treatment_group:gender_female + dv_pre_national_conf + age + parent_yes + state + factor(income) + hispanic + edu_4college, data = df)
+
+plot_model(reg_natl_age, type = "pred", terms = c("treatment_group", "age"))
+```
+
+```{r educ interaction}
+# education
+#df$edu_4college <- to_factor(df$edu_4college)
+
+# state only HS 
+reg_state_edu_hs <- lm(dv_post_state_conf ~ treatment_group:edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + factor(income_clean) + hispanic  + party, data = df)
+
+plot_model(reg_state_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
+plot_model(reg_state_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
+
+# national only HS
+reg_natl_edu_hs <- lm(dv_post_national_conf ~ treatment_group:edu_hs + edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + factor(income_clean) + hispanic  + party, data = df)
+
+plot_model(reg_natl_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
+plot_model(reg_natl_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
+
+# state college or above
+reg_state_edu <- lm(dv_post_state_conf ~ treatment_group:edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + factor(income_clean) + hispanic + edu_hs + party, data = df)
+
+plot_model(reg_state_edu, type = "int", terms = c("treatment_group", "edu_4college"))
+plot_model(reg_state_edu, type = "pred", terms = c("edu_4college","treatment_group"))
+
+# national college or above
+reg_natl_edu <- lm(dv_post_national_conf ~ treatment_group:edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + factor(income_clean) + hispanic + edu_hs + party, data = df)
+
+plot_model(reg_natl_edu, type = "int", terms = c("treatment_group", "edu_4college"))
+plot_model(reg_natl_edu, type = "pred", terms = c("edu_4college","treatment_group"))
+
+```
+
+```{r income}
+#df$income_clean <- to_factor(df$income_clean)
+
+# income - figure out better way to visualize
+
+# state 
+reg_state_inc <- lm(dv_post_state_conf ~ treatment_group:income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + hispanic  + party, data = df)
+
+plot_model(reg_state_inc, type = "int", terms = c("treatment_group", "income_clean"))
+plot_model(reg_state_inc, type = "pred", terms = c("income_clean", "treatment_group"))
+
+# national
+reg_natl_inc <- lm(dv_post_national_conf ~ treatment_group:income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + hispanic  + party, data = df)
+
+plot_model(reg_natl_inc, type = "int", terms = c("treatment_group", "income_clean"))
+plot_model(reg_natl_inc, type = "pred", terms = c("income_clean", "treatment_group"))
+```
+
+```{r always_never believer and political party}
+# always vs never believer
+# df$always_believer <- to_factor(df$always_believer)
+# df$never_believer <- to_factor(df$never_believer)
+# state never believer
+reg_state_never <- lm(dv_post_state_conf ~ treatment_group:never_believer + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + hispanic  + party, data = df)
+
+plot_model(reg_state_never, type = "int", terms = c("treatment_group", "never_believer"))
+plot_model(reg_state_never, type = "pred", terms = c("never_believer", "treatment_group"))
+
+# national never believer
+reg_natl_never <- lm(dv_post_national_conf ~ treatment_group:never_believer + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + hispanic  + party, data = df)
+
+plot_model(reg_natl_never, type = "int", terms = c("treatment_group", "never_believer"))
+plot_model(reg_natl_never, type = "pred", terms = c("treatment_group", "never_believer"))
+
+# state always believer
+reg_state_always <- lm(dv_post_state_conf ~ treatment_group:always_believer + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + hispanic  + party, data = df)
+
+plot_model(reg_state_always, type = "int", terms = c("treatment_group", "always_believer"))
+plot_model(reg_state_always, type = "pred", terms = c("always_believer", "treatment_group"))
+
+# national always believer
+reg_natl_always <- lm(dv_post_national_conf ~ treatment_group:always_believer + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + hispanic  + party, data = df)
+
+plot_model(reg_natl_always, type = "int", terms = c("treatment_group", "always_believer"))
+plot_model(reg_natl_always, type = "pred", terms = c("always_believer", "treatment_group"))
+
+# political party 
+
+# state level
+#df$party <- to_factor(df$party)
+
+reg_state_party <- lm(dv_post_state_conf ~ treatment_group:party + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state + hispanic, data = df)
+
+plot_model(reg_state_party, type = "int", terms = c("treatment_group", "party"))
+plot_model(reg_state_party, type = "pred", terms = c("party", "treatment_group"))
+
+# national level
+reg_natl_party <- lm(dv_post_national_conf ~ treatment_group:party + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + hispanic, data = df)
+
+plot_model(reg_natl_party, type = "int", terms = c("treatment_group", "party"))
+plot_model(reg_natl_party, type = "pred", terms = c("party", "treatment_group"))
+
+# race (hispanic) do we want to look at other races?
+
+# state level hispanic Y/N
+#df$hispanic <- to_factor(df$hispanic)
+
+reg_state_race <- lm(dv_post_state_conf ~ treatment_group:hispanic + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state  + party, data = df)
+
+plot_model(reg_state_race, type = "int", terms = c("treatment_group", "hispanic"))
+plot_model(reg_state_race, type = "pred", terms = c("hispanic", "treatment_group"))
+
+# national level hispanic Y/N
+reg_natl_race <- lm(dv_post_national_conf ~ treatment_group:hispanic + party + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_national_conf + parent_yes + state + hispanic, data = df)
+
+plot_model(reg_natl_race, type = "int", terms = c("treatment_group", "hispanic"))
+plot_model(reg_natl_race, type = "pred", terms = c("hispanic", "treatment_group"))
+
+
+```
+
+```{r filter out extreme views pre test}
+reg_middle_views <- lm(dv_post_state_conf ~ treatment_group + hispanic + income_clean + edu_hs + edu_4college + age + gender_female + dv_pre_state_conf + parent_yes + state  + party, data = df, subset = (dv_pre_state_conf < 10 & dv_pre_state_conf > 1))
+
+plot_model(reg_middle_views, type = "pred", terms = c("treatment_group"))
+
 ```
 
