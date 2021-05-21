@@ -188,47 +188,25 @@ df$dummy_treat <- ifelse(df$treatment_group == "Control", 0, 1)
 # create dummy variable for failed attention check or no
 df$attention_pass <- ifelse(df$attentioncheck == "Red,Green", 1, 0)
 
-
 ```
 
-```{r column types}
-# All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
-
-# Start with the columns that need to be numeric
-df[, c(1,4,5,16,17,14,15)] <- sapply(df[, c(1,4,5,16,17,14,15)], as.numeric)
-
-# Now the columns that make sense to be structured as factors
-df[c(2,6:10,12,19:21,23,27,29,30)] <- lapply(df[c(2,6:10,12,19:21,23,27,29,30)], factor)
-
-df$treatment_group_num <- as.numeric(as.factor(df$treatment_group))
-
-# Before we go any further, let's decide how to work with missing data and where it exists
-summary(df)
-
-# At a minimum, I suggest we need to remove those values where the DV is not measured, both pre and post test
-df <- df %>% drop_na("dv_pre_state_conf", "dv_post_state_conf", "dv_pre_national_conf", "dv_post_national_conf")
-
-# Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
-
-df$dv_state_treatment_diff <- df$dv_post_state_conf - df$dv_pre_state_conf
-df$dv_national_treatment_diff <- df$dv_post_national_conf - df$dv_pre_national_conf
-
-summary(df$dv_state_treatment_diff)
-summary(df$dv_national_treatment_diff)
-
-# create variable for those who always trust or never trust election outcomes
-df$always_believer = ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 == "Yes", 1, 0), 0)
-df$never_believer = ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0)
-
+```{r fix covariate variables}
 #create binary variables for covariates
 df$gender_female <- ifelse(df$gender == "Female" | df$gender == "Transgender Female", 1, 0)
 
 df$parent_yes <- ifelse(df$parent == "Yes", 1, 0)
 
-df$hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
+df$race_hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
 
 df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
+
 df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
+
+df$race_white = ifelse(grepl("White", df$race), 1, 0)
+
+df$race_black= if_else(grepl("Black or African American", df$race), 1, 0)
+
+df$race_asian= if_else(grepl("Asian", df$race), 1,0)
 
 #fix age and income variables
 df$birthyear <- as.numeric(as.character(df$birthyear))
@@ -255,14 +233,44 @@ df$income_num <- as.numeric(df$income3)
 df <- df %>% 
   rename(
     income_clean = income3
-  )
-
-df <- df %>% 
+  ) %>% 
   select(-c("income2"))
+         
+```
+
+```{r column types}
+# All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
+
+# Start with the columns that need to be numeric
+df[, c(1,4,5,16,17,14,15)] <- sapply(df[, c(1,4,5,16,17,14,15)], as.numeric)
+
+# Now the columns that make sense to be structured as factors
+df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)] <- lapply(df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)], factor)
+
+df$treatment_group_num <- as.numeric(as.factor(df$treatment_group))
+
+# Before we go any further, let's decide how to work with missing data and where it exists
+summary(df)
+
+# At a minimum, I suggest we need to remove those values where the DV is not measured, both pre and post test
+df <- df %>% drop_na("dv_pre_state_conf", "dv_post_state_conf", "dv_pre_national_conf", "dv_post_national_conf")
+
+# Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
+
+df$dv_state_treatment_diff <- df$dv_post_state_conf - df$dv_pre_state_conf
+df$dv_national_treatment_diff <- df$dv_post_national_conf - df$dv_pre_national_conf
+
+summary(df$dv_state_treatment_diff)
+summary(df$dv_national_treatment_diff)
+
+# create variable for those who always trust or never trust election outcomes
+df$always_believer <- to_factor(ifelse(df$accuracy_2016 == "Yes", ifelse(df$accuracy_2020 == "Yes", 1, 0), 0))
+df$never_believer <-  to_factor(ifelse(df$accuracy_2016 == "No", ifelse(df$accuracy_2020 == "No", 1, 0), 0))
+
 
 # Save new CSV file as "clean"
 
-#write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
+write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
 ```
 
 
