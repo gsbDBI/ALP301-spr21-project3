@@ -210,10 +210,10 @@ df <- df %>% drop_na("dv_pre_state_conf", "dv_post_state_conf", "dv_pre_national
 
 # Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
 
-df$dv_state_treatement_diff <- df$dv_post_state_conf - df$dv_pre_state_conf
+df$dv_state_treatment_diff <- df$dv_post_state_conf - df$dv_pre_state_conf
 df$dv_national_treatment_diff <- df$dv_post_national_conf - df$dv_pre_national_conf
 
-summary(df$dv_state_treatement_diff)
+summary(df$dv_state_treatment_diff)
 summary(df$dv_national_treatment_diff)
 
 # create variable for those who always trust or never trust election outcomes
@@ -262,7 +262,7 @@ df <- df %>%
 
 # Save new CSV file as "clean"
 
-#giwrite.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
+#write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
 ```
 
 
