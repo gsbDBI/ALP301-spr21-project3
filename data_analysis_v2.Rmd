@@ -338,6 +338,8 @@ add_header_above(x, c('', 'Democrats'=3, 'Republicans'=3, 'Other and Independent
 ```{r basic regression with dummy treat}
 df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)] <- lapply(df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)], factor)
 
+atten_check_df$treatment_group <- relevel(factor(atten_check_df$treatment_group), ref = "Control")
+
 # run regressions to estimate treatment effect with robust standard errors
 
 # run the regression for state confidence level 
@@ -398,7 +400,7 @@ reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age 
 
 reg5_att <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = atten_check_df)
 
-# results are different for those did and did not fail the attention check at state level
+# results are not different for those did and did not fail the attention check at state level 
 
 reg6_att <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
 
@@ -416,22 +418,45 @@ reg6_att_con <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_con
 
 # looks the same at the national level
 
-# transform estimates to dataframe and drop unnecessary rows
-# lm_treatment1_te <- bind_rows(list(tidy(reg5))) %>% 
-#   mutate(term = gsub('treatment_group', '', term)) %>%
-#   filter((term %in% c("(Intercept)", "dv_pre_state_conf", "Income", "edu", "state")))
-# 
-# # plot treatment effect
-# ggplot(lm_treatment1_te, aes(x = term,y =estimate)) +
-#   geom_point(position=position_dodge(width=0.5)) +
-#   geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5), color = "firebrick") + 
-#   xlab('Treatment') +
-#   ylab('Estimate') +
-#   theme(plot.title = element_text(hjust = 0.5),
-#         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
-#   geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
-#   coord_cartesian(ylim=c(-.5, 0.5)) + 
-#   ggtitle('Treatment1 Post-Test Treatment Effect (conditioned on pre-test)')
+# we can get rid of the extra regressions now
+rm(reg1_att, reg1_att_con,reg2_att, reg2_att_con,reg3_att, reg3_att_con, reg4_att, reg4_att_con,reg5_att, reg5_att_con,reg6_att, reg6_att_con)
+rm(atten_check_df)
+
+```
+
+```{r treatment plot }
+lm_state <- bind_rows(list(tidy(reg5))) %>% 
+  filter((term %in% c("treatment_groupControl", "treatment_groupBipartisan", "treatment_groupHandcount", "treatment_groupLocal", "treatment_groupLoser", "treatment_groupRL_percentage", "treatment_groupSoup"))) 
+
+p4 <- ggplot(lm_state, aes(x = term,y =estimate)) +
+  geom_point(position=position_dodge(width=0.5)) +
+  geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5), color = "steelblue2") + 
+  xlab('Treatment') +
+  ylab('Estimate') +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) +
+  geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) + 
+  ggtitle('Post-Test State Outcome (conditioned on pre-test)')
+
+# for the national level
+
+lm_national <- bind_rows(list(tidy(reg6))) %>% 
+  filter((term %in% c("treatment_groupControl", "treatment_groupBipartisan", "treatment_groupHandcount", "treatment_groupLocal", "treatment_groupLoser", "treatment_groupRL_percentage", "treatment_groupSoup"))) 
+
+# plot treatment effect
+p5 <- ggplot(lm_national, aes(x = term,y =estimate)) +
+  geom_point(position=position_dodge(width=0.5)) +
+  geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5), color = "firebrick") + 
+  xlab('Treatment') +
+  ylab('Estimate') +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
+  geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
+  coord_cartesian(ylim=c(-.75, .75)) + 
+  ggtitle('Post-Test National Outcome (conditioned on pre-test)')
+
+# ggsave("state_treat.png", plot = p4)
+# ggsave("national_treat.png", plot = p5)
 ```
 
 ```{r regression table, echo=FALSE, message=TRUE, warning=FALSE, results='asis'}
@@ -446,89 +471,6 @@ stargazer(reg5, reg6,
           title = "Basic Regression Results for Treatment Effect")
 ```
 
-```{r coefficient plot control vs treated}
-library(jtools)
-
-plot_coefs(
-  reg1, reg2, reg3, reg4, 
-  coefs = c("Treatment Effect \n vs. Control \n (95% C.I.)" = "dummy_treat"),
-  ci_level = 0.95,
-  model.names = c("State", "National", "State w/ controls", "National w/ controls"),
-  scale = TRUE)
-```
-
-```{r coefficient plot of treatment effects}
-plot_coefs(
-  reg5, reg6,
-  coefs = c("Bipartisan Auditors" = "treatment_groupBipartisan", "Handcount" = "treatment_groupHandcount", "Local Officials" = "treatment_groupLocal", "Loser" = "treatment_groupLoser", "RLA percentage" = "treatment_groupRL_percentage", "Soup \n 95% C.I." = "treatment_groupSoup"),
-  ci_level = 0.95,
-  model.names = c("State", "National"),
-  x.label = "Estimate",
-  scale = TRUE)
-
-```
-
-```{r compare_age_dist}
-# df %>% 
-#   ggplot(aes(x = age, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
-#             color = treatment_group,
-#             fill = treatment_group
-#              )
-#          ) +
-#   # Density plot
-#   geom_density(alpha = 0.3) +    # alpha controls the transparency
-#   # use a colorblind friendly color palette
-#   scale_color_colorblind() +
-#   scale_fill_colorblind() +
-#   theme(legend.position = "top") # legend position
-
-```
-
-```{r compare_gender_dist}
-# df %>% 
-#   ggplot(aes(x = gender, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
-#             color = treatment_group,
-#             fill = treatment_group
-#              )
-#          ) +
-#   # Density plot
-#   geom_density(alpha = 0.3) +    # alpha controls the transparency
-#   # use a colorblind friendly color palette
-#   scale_color_colorblind() +
-#   scale_fill_colorblind() +
-#   theme(legend.position = "top") # legend position
-
-```
-
-```{r compare trust in government}
-# plot trust in federal government
-# df %>% 
-#   ggplot(aes(x = trust_federal, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
-#             color = treatment_group,
-#             fill = treatment_group
-#              )
-#          ) +
-#   # Density plot
-#   geom_density(alpha = 0.3) +    # alpha controls the transparency
-#   # use a colorblind friendly color palette
-#   scale_color_colorblind() +
-#   scale_fill_colorblind() +
-#   theme(legend.position = "top") # legend position
-# 
-# # trust in state government
-# df %>% 
-#   ggplot(aes(x = trust_state, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
-#             color = treatment_group,
-#             fill = treatment_group
-#              )
-#          ) +
-#   # Density plot
-#   geom_density(alpha = 0.3) +    # alpha controls the transparency
-#   # use a colorblind friendly color palette
-#   scale_color_colorblind() +
-#   scale_fill_colorblind() +
-#   theme(legend.position = "top") # legend position
-```
 
 ```{r difference_in_means_simple}
 # simple difference in means for those treated with a message
@@ -611,11 +553,11 @@ reg_natl_age <- lm(dv_post_national_conf ~ treatment_group*age + gender_female +
 
 summary(reg_natl_age)
 
-plot_model(reg_natl_age, type = "pred", terms = "age")
-plot_model(reg_natl_age, type = "pred", terms = c("age", "party"))
+plot_model(reg_state_age, type = "pred", terms = c("age", "treatment_group [Bipartisan]"))
+plot_model(reg_natl_age, type = "pred", terms = c("age", "treatment_group [Bipartisan]"))
 
-plot_model(reg_natl_age, type = "int", terms = c("treatment_group", "age"))
-plot_model(reg_natl_age, type = "pred", terms = c("treatment_group", "age"))
+# plot_model(reg_natl_age, type = "int", terms = c("treatment_group", "age"))
+# plot_model(reg_natl_age, type = "pred", terms = c("treatment_group", "age"))
 ```
 
 ```{r educ interaction}
@@ -795,9 +737,88 @@ summary(reg_middle_views_natl)
 
 ```
 
-```{r plot control vs. treatment results}
-df$treatment_group <- relevel(factor(df$treatment_group), ref = "Control")
+### plots we made but are not using 
 
+```{r coefficient plot control vs treated}
+# library(jtools)
+# 
+# plot_coefs(
+#   reg1, reg2, reg3, reg4, 
+#   coefs = c("Treatment Effect \n vs. Control \n (95% C.I.)" = "dummy_treat"),
+#   ci_level = 0.95,
+#   model.names = c("State", "National", "State w/ controls", "National w/ controls"),
+#   scale = TRUE)
+```
+
+```{r coefficient plot of treatment effects}
+# plot_coefs(
+#   reg5, reg6,
+#   coefs = c("Bipartisan Auditors" = "treatment_groupBipartisan", "Handcount" = "treatment_groupHandcount", "Local Officials" = "treatment_groupLocal", "Loser" = "treatment_groupLoser", "RLA percentage" = "treatment_groupRL_percentage", "Soup \n 95% C.I." = "treatment_groupSoup"),
+#   ci_level = 0.95,
+#   model.names = c("State", "National"),
+#   x.label = "Estimate",
+#   scale = TRUE)
 
 ```
 
+```{r compare_age_dist}
+# df %>% 
+#   ggplot(aes(x = age, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+#             color = treatment_group,
+#             fill = treatment_group
+#              )
+#          ) +
+#   # Density plot
+#   geom_density(alpha = 0.3) +    # alpha controls the transparency
+#   # use a colorblind friendly color palette
+#   scale_color_colorblind() +
+#   scale_fill_colorblind() +
+#   theme(legend.position = "top") # legend position
+
+```
+
+```{r compare_gender_dist}
+# df %>% 
+#   ggplot(aes(x = gender, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+#             color = treatment_group,
+#             fill = treatment_group
+#              )
+#          ) +
+#   # Density plot
+#   geom_density(alpha = 0.3) +    # alpha controls the transparency
+#   # use a colorblind friendly color palette
+#   scale_color_colorblind() +
+#   scale_fill_colorblind() +
+#   theme(legend.position = "top") # legend position
+
+```
+
+```{r compare trust in government}
+# plot trust in federal government
+# df %>% 
+#   ggplot(aes(x = trust_federal, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+#             color = treatment_group,
+#             fill = treatment_group
+#              )
+#          ) +
+#   # Density plot
+#   geom_density(alpha = 0.3) +    # alpha controls the transparency
+#   # use a colorblind friendly color palette
+#   scale_color_colorblind() +
+#   scale_fill_colorblind() +
+#   theme(legend.position = "top") # legend position
+# 
+# # trust in state government
+# df %>% 
+#   ggplot(aes(x = trust_state, # aes(x, y, ...) defines how variables are mapped into the aesthetics of the plot 
+#             color = treatment_group,
+#             fill = treatment_group
+#              )
+#          ) +
+#   # Density plot
+#   geom_density(alpha = 0.3) +    # alpha controls the transparency
+#   # use a colorblind friendly color palette
+#   scale_color_colorblind() +
+#   scale_fill_colorblind() +
+#   theme(legend.position = "top") # legend position
+```
