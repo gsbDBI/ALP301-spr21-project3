@@ -566,26 +566,26 @@ plot_model(reg_natl_age, type = "pred", terms = c("age", "treatment_group [Bipar
 # state only HS 
 reg_state_edu_hs <- lm(dv_post_state_conf ~ treatment_group*edu_hs + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + party, data = df)
 
-plot_model(reg_state_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
-plot_model(reg_state_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
+# plot_model(reg_state_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
+# plot_model(reg_state_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
 
 # national only HS
 reg_natl_edu_hs <- lm(dv_post_national_conf ~ treatment_group*edu_hs + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + party, data = df)
 
-plot_model(reg_natl_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
-plot_model(reg_natl_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
+# plot_model(reg_natl_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
+# plot_model(reg_natl_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
 
 # state college or above
 reg_state_edu <- lm(dv_post_state_conf ~ treatment_group*edu_4college + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_hs + party, data = df)
 
-plot_model(reg_state_edu, type = "int", terms = c("treatment_group", "edu_4college"))
-plot_model(reg_state_edu, type = "pred", terms = c("edu_4college","treatment_group"))
+# plot_model(reg_state_edu, type = "int", terms = c("treatment_group", "edu_4college"))
+# plot_model(reg_state_edu, type = "pred", terms = c("edu_4college","treatment_group"))
 
 # national college or above
 reg_natl_edu <- lm(dv_post_national_conf ~ treatment_group*edu_4college + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_hs + party, data = df)
 
-plot_model(reg_natl_edu, type = "int", terms = c("treatment_group", "edu_4college"))
-plot_model(reg_natl_edu, type = "pred", terms = c("edu_4college","treatment_group"))
+# plot_model(reg_natl_edu, type = "int", terms = c("treatment_group", "edu_4college"))
+# plot_model(reg_natl_edu, type = "pred", terms = c("edu_4college","treatment_group"))
 
 ```
 
@@ -660,7 +660,7 @@ df$never_believer <- to_factor(df$never_believer)
 # state never believer
 reg_state_never <- lm(dv_post_state_conf ~ treatment_group*never_believer + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
 
-#summary(reg_state_never)
+summary(reg_state_never)
 
 plot_model(reg_state_never, type = "int", terms = c("treatment_group", "never_believer"))
 plot_model(reg_state_never, type = "pred", terms = c("never_believer", "treatment_group"))
@@ -668,7 +668,7 @@ plot_model(reg_state_never, type = "pred", terms = c("never_believer", "treatmen
 # national never believer
 reg_natl_never <- lm(dv_post_national_conf ~ treatment_group*never_believer + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
 
-#summary(reg_natl_never)
+summary(reg_natl_never)
 
 plot_model(reg_natl_never, type = "int", terms = c("treatment_group", "never_believer"))
 plot_model(reg_natl_never, type = "pred", terms = c("treatment_group", "never_believer"))
