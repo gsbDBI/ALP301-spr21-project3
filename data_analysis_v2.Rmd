@@ -424,7 +424,44 @@ rm(atten_check_df)
 
 ```
 
-```{r treatment plot }
+```{r treatment plot dummy_treat}
+# for the state level no controls
+lm_state_dummy1 <- bind_rows(list(tidy(reg1))) %>% 
+  filter((term %in% c("dummy_treat"))) 
+
+lm_natl_dummy1 <- bind_rows(list(tidy(reg2))) %>% 
+  filter((term %in% c("dummy_treat"))) 
+
+lm_state_dummy2 <- bind_rows(list(tidy(reg3))) %>% 
+  filter((term %in% c("dummy_treat"))) 
+
+lm_natl_dummy2 <- bind_rows(list(tidy(reg4))) %>% 
+  filter((term %in% c("dummy_treat"))) 
+
+combined_te <- bind_rows(lm_state_dummy1, lm_natl_dummy1, lm_state_dummy2, lm_natl_dummy2)
+
+combined_te$intervention <- c("State Effect", "National Effect", "State Effect w/controls", "National effects w/controls")
+
+ggplot(combined_te, aes(x = term,y =estimate)) +
+  facet_grid(cols = vars(intervention), scales = 'free_x', space = 'free_x') + # transform into facet grid by intervention
+  geom_point(position=position_dodge(width=0.5)) +
+  geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5)) + 
+  xlab('Treatment Effect') +
+  ylab('Estimate') +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
+  geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
+  coord_cartesian(ylim=c(-0.5, 0.5)) + 
+  ggtitle('Post-Test Treatment Effect (conditioned on pre-test)') +
+  theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.text.x = element_blank())
+
+```
+
+```{r treatment plot treatment_group}
+
+# for the state level with controls
 lm_state <- bind_rows(list(tidy(reg5))) %>% 
   filter((term %in% c("treatment_groupControl", "treatment_groupBipartisan", "treatment_groupHandcount", "treatment_groupLocal", "treatment_groupLoser", "treatment_groupRL_percentage", "treatment_groupSoup"))) 
 
@@ -436,7 +473,8 @@ p4 <- ggplot(lm_state, aes(x = term,y =estimate)) +
   theme(plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) +
   geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) + 
-  ggtitle('Post-Test State Outcome (conditioned on pre-test)')
+    coord_cartesian(ylim=c(-.75, .75)) + 
+  ggtitle('Post-Test State Outcome w/ controls (conditioned on pre-test)')
 
 # for the national level
 
@@ -453,7 +491,7 @@ p5 <- ggplot(lm_national, aes(x = term,y =estimate)) +
         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
   geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
   coord_cartesian(ylim=c(-.75, .75)) + 
-  ggtitle('Post-Test National Outcome (conditioned on pre-test)')
+  ggtitle('Post-Test National Outcome w/ controls (conditioned on pre-test)')
 
 # ggsave("state_treat.png", plot = p4)
 # ggsave("national_treat.png", plot = p5)
