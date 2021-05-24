@@ -349,19 +349,19 @@ reg1 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = df)
 reg2 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf, data = df)
 
 # run the regression with controls for state level
-reg3 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg3 <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 # run the regression with controls for national level
-reg4 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg4 <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 # compare with those who did not fail attention check
 reg1_att <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf, data = atten_check_df)
 
 reg2_att <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf, data = atten_check_df)
 
-reg3_att <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = atten_check_df)
+reg3_att <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = atten_check_df)
 
-reg4_att <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = atten_check_df)
+reg4_att <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = atten_check_df)
 
 # results do not vary by including those who did or did not fail the attention check
 
@@ -376,12 +376,12 @@ reg2_att_con <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + 
 # results look different, treatment is statistic sig with control for attention pass
 
 # run the regression with controls for state level
-reg3_att_con <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass, data = df)
+reg3_att_con <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_state, data = df)
 
 # results look the same for state level w/ and w/out attention pass
 
 # run the regression with controls for national level
-reg4_att_con <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass, data = df)
+reg4_att_con <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_federal, data = df)
 
 # results look the same here too
 ```
@@ -391,30 +391,30 @@ reg4_att_con <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + 
 df$treatment_group <- relevel(factor(df$treatment_group), ref = "Control")
 
 #state level with treatment groups
-reg5 <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg5 <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 # national with treatment groups
-reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 # compared with those who did not fail the attention check
 
-reg5_att <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = atten_check_df)
+reg5_att <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = atten_check_df)
 
 # results are not different for those did and did not fail the attention check at state level 
 
-reg6_att <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg6_att <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 # results do not vary much at the national level for those who fail the attention check
 
 # compare controlling for the attention check
 
 #state level with treatment groups
-reg5_att_con <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass, data = df)
+reg5_att_con <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_state, data = df)
 
 # looks the same at the state level
 
 # national with treatment groups
-reg6_att_con <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass, data = df)
+reg6_att_con <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_federal, data = df)
 
 # looks the same at the national level
 
@@ -525,13 +525,13 @@ estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = d
 # GENDER
 
 #state level interaction for gender
-reg_state_fem <- lm(dv_post_state_conf ~ treatment_group*gender_female + dv_pre_state_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_state_fem <- lm(dv_post_state_conf ~ treatment_group*gender_female + dv_pre_state_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 plot_model(reg_state_fem, type = "pred", terms = c("gender_female","treatment_group"))
 plot_model(reg_state_fem, type = "int", terms = c("gender_female","treatment_group"))
 
 # national level interaction for gender
-reg_natl_fem <- lm(dv_post_national_conf ~ treatment_group*gender_female + dv_pre_national_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_natl_fem <- lm(dv_post_national_conf ~ treatment_group*gender_female + dv_pre_national_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 plot_model(reg_natl_fem, type = "pred", terms = c("gender_female", "treatment_group"))
 plot_model(reg_natl_fem, type = "int", terms = c("treatment_group", "gender_female"))
@@ -541,7 +541,7 @@ plot_model(reg_natl_fem, type = "int", terms = c("treatment_group", "gender_fema
 # AGE 
 
 #state level 
-reg_state_age <- lm(dv_post_state_conf ~ treatment_group*age + gender_female + dv_pre_state_conf + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_state_age <- lm(dv_post_state_conf ~ treatment_group*age + gender_female + dv_pre_state_conf + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 summary(reg_state_age)
 
@@ -549,7 +549,7 @@ plot_model(reg_state_age, type = "pred", terms = "age")
 
 
 # national level 
-reg_natl_age <- lm(dv_post_national_conf ~ treatment_group*age + gender_female + dv_pre_national_conf + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_natl_age <- lm(dv_post_national_conf ~ treatment_group*age + gender_female + dv_pre_national_conf + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 summary(reg_natl_age)
 
@@ -564,25 +564,25 @@ plot_model(reg_natl_age, type = "pred", terms = c("age", "treatment_group [Bipar
 # education
 
 # state only HS 
-reg_state_edu_hs <- lm(dv_post_state_conf ~ treatment_group*edu_hs + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + party, data = df)
+reg_state_edu_hs <- lm(dv_post_state_conf ~ treatment_group*edu_hs + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + party + trust_state, data = df)
 
 # plot_model(reg_state_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
 # plot_model(reg_state_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
 
 # national only HS
-reg_natl_edu_hs <- lm(dv_post_national_conf ~ treatment_group*edu_hs + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + party, data = df)
+reg_natl_edu_hs <- lm(dv_post_national_conf ~ treatment_group*edu_hs + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + party + trust_federal, data = df)
 
 # plot_model(reg_natl_edu_hs, type = "int", terms = c("treatment_group", "edu_4college"))
 # plot_model(reg_natl_edu_hs, type = "pred", terms = c("edu_4college","treatment_group"))
 
 # state college or above
-reg_state_edu <- lm(dv_post_state_conf ~ treatment_group*edu_4college + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_hs + party, data = df)
+reg_state_edu <- lm(dv_post_state_conf ~ treatment_group*edu_4college + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_hs + party + trust_state, data = df)
 
 # plot_model(reg_state_edu, type = "int", terms = c("treatment_group", "edu_4college"))
 # plot_model(reg_state_edu, type = "pred", terms = c("edu_4college","treatment_group"))
 
 # national college or above
-reg_natl_edu <- lm(dv_post_national_conf ~ treatment_group*edu_4college + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_hs + party, data = df)
+reg_natl_edu <- lm(dv_post_national_conf ~ treatment_group*edu_4college + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_hs + party + trust_federal, data = df)
 
 # plot_model(reg_natl_edu, type = "int", terms = c("treatment_group", "edu_4college"))
 # plot_model(reg_natl_edu, type = "pred", terms = c("edu_4college","treatment_group"))
@@ -594,7 +594,7 @@ reg_natl_edu <- lm(dv_post_national_conf ~ treatment_group*edu_4college + dv_pre
 # income - figure out better way to visualize
 
 # state 
-reg_state_inc <- lm(dv_post_state_conf ~ treatment_group*income_num +  dv_pre_state_conf + age + gender_female + parent_yes + state + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_state_inc <- lm(dv_post_state_conf ~ treatment_group*income_num +  dv_pre_state_conf + age + gender_female + parent_yes + state + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 summary(reg_state_inc)
 
@@ -602,7 +602,7 @@ plot_model(reg_state_inc, type = "int", terms = c("treatment_group", "income_num
 plot_model(reg_state_inc, type = "pred", terms = c("income_num", "treatment_group"))
 
 # national
-reg_natl_inc <- lm(dv_post_national_conf ~ treatment_group*income_num + dv_pre_national_conf + age + gender_female + parent_yes + state + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_natl_inc <- lm(dv_post_national_conf ~ treatment_group*income_num + dv_pre_national_conf + age + gender_female + parent_yes + state + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 summary(reg_natl_inc)
 
@@ -658,7 +658,7 @@ df$always_believer <- to_factor(df$always_believer)
 df$never_believer <- to_factor(df$never_believer)
 
 # state never believer
-reg_state_never <- lm(dv_post_state_conf ~ treatment_group*never_believer + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_state_never <- lm(dv_post_state_conf ~ treatment_group*never_believer + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 summary(reg_state_never)
 
@@ -666,7 +666,7 @@ plot_model(reg_state_never, type = "int", terms = c("treatment_group", "never_be
 plot_model(reg_state_never, type = "pred", terms = c("never_believer", "treatment_group"))
 
 # national never believer
-reg_natl_never <- lm(dv_post_national_conf ~ treatment_group*never_believer + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_natl_never <- lm(dv_post_national_conf ~ treatment_group*never_believer + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 summary(reg_natl_never)
 
@@ -674,13 +674,13 @@ plot_model(reg_natl_never, type = "int", terms = c("treatment_group", "never_bel
 plot_model(reg_natl_never, type = "pred", terms = c("treatment_group", "never_believer"))
 
 # state always believer
-reg_state_always <- lm(dv_post_state_conf ~ treatment_group*always_believer + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_state_always <- lm(dv_post_state_conf ~ treatment_group*always_believer + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + trust_state, data = df)
 
 plot_model(reg_state_always, type = "int", terms = c("treatment_group", "always_believer"))
 plot_model(reg_state_always, type = "pred", terms = c("always_believer", "treatment_group"))
 
 # national always believer
-reg_natl_always <- lm(dv_post_national_conf ~ treatment_group*always_believer + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_natl_always <- lm(dv_post_national_conf ~ treatment_group*always_believer + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 plot_model(reg_natl_always, type = "int", terms = c("treatment_group", "always_believer"))
 plot_model(reg_natl_always, type = "pred", terms = c("always_believer", "treatment_group"))
@@ -690,13 +690,13 @@ plot_model(reg_natl_always, type = "pred", terms = c("always_believer", "treatme
 # state level
 df$party <- to_factor(df$party)
 
-reg_state_party <- lm(dv_post_state_conf ~ treatment_group*party + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs, data = df)
+reg_state_party <- lm(dv_post_state_conf ~ treatment_group*party + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + trust_state, data = df)
 
 plot_model(reg_state_party, type = "int", terms = c("treatment_group", "party"))
 plot_model(reg_state_party, type = "pred", terms = c("party", "treatment_group"))
 
 # national level
-reg_natl_party <- lm(dv_post_national_conf ~ treatment_group*party +  dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs, data = df)
+reg_natl_party <- lm(dv_post_national_conf ~ treatment_group*party +  dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + trust_federal, data = df)
 
 plot_model(reg_natl_party, type = "int", terms = c("treatment_group", "party"))
 plot_model(reg_natl_party, type = "pred", terms = c("party", "treatment_group"))
@@ -706,7 +706,7 @@ plot_model(reg_natl_party, type = "pred", terms = c("party", "treatment_group"))
 # race 
 # state level race_hispanic Y/N
 
-reg_state_hisp <- lm(dv_post_state_conf ~ treatment_group*race_hispanic + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean +  + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_state_hisp <- lm(dv_post_state_conf ~ treatment_group*race_hispanic + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean +  + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 #summary(reg_state_race)
 
@@ -714,7 +714,7 @@ plot_model(reg_state_hisp, type = "int", terms = c("treatment_group", "race_hisp
 plot_model(reg_state_hisp, type = "pred", terms = c("race_hispanic", "treatment_group"))
 
 # national level race_hispanic Y/N
-reg_natl_hisp <- lm(dv_post_national_conf ~ treatment_group*race_hispanic + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean +  + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df)
+reg_natl_hisp <- lm(dv_post_national_conf ~ treatment_group*race_hispanic + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean +  + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 #summary(reg_natl_race)
 
