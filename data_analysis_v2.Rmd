@@ -566,7 +566,7 @@ estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = d
 reg_state_fem <- lm(dv_post_state_conf ~ treatment_group*gender_female + dv_pre_state_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 plot_model(reg_state_fem, type = "pred", terms = c("gender_female","treatment_group"))
-plot_model(reg_state_fem, type = "int", terms = c("gender_female","treatment_group"))
+plot_model(reg_state_fem, type = "int", terms = c("gender_female","treatment_group"), axis.title = c("Treatment Group", "Post Treatment Confidence"), title = "Marginal Treatment Effects by Gender", legend.title = "Gender") + scale_color_manual(labels = c("Men", "Women"), values = c("black", "red"))
 
 # national level interaction for gender
 reg_natl_fem <- lm(dv_post_national_conf ~ treatment_group*gender_female + dv_pre_national_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
@@ -860,3 +860,261 @@ summary(reg_middle_views_natl)
 #   scale_fill_colorblind() +
 #   theme(legend.position = "top") # legend position
 ```
+
+
+```{r visuals on party politics}
+
+# Visual on trust in state government broken down by political party
+
+state_trust = df %>% group_by(trust_state, party) %>% summarise(number = n())
+state_trust = subset(state_trust, state_trust$party == "Democrat" | state_trust$party == "Republican")
+state_trust = state_trust[-c(11,12),]
+
+state_trust$percent = ifelse(state_trust$party == "Democrat", (state_trust$number/nrow(df[df$party == "Democrat", ])*100), state_trust$number/nrow(df[df$party == "Republican",])*100)
+
+state_trust$percent = round(state_trust$percent, 0)
+
+ggplot(state_trust, aes(x=trust_state, y = percent, fill = party))+
+  geom_bar(position = "Dodge", stat = "identity", width = 0.5) +
+  ggtitle("Trust in State Government by Political Party")+
+  theme_bw(base_size =16)+
+  geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
+  theme(axis.text=element_text(size=16, family="serif"),
+        axis.title=element_text(size=16, family="serif"),
+        legend.title = element_blank(),
+        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
+  ylim(0,100)+
+  ylab("Percentage")+
+  xlab("Trust")+
+  scale_fill_manual(breaks = c("Democrat","Republican"), values = c("blue", "red"))
+
+# Visual for trust in federal government based on political party
+
+federal_trust = df %>% group_by(trust_federal, party) %>% summarise(number = n())
+federal_trust = subset(federal_trust, federal_trust$party == "Democrat" | federal_trust$party == "Republican")
+federal_trust = federal_trust[-c(11,12),]
+
+federal_trust$percent = ifelse(federal_trust$party == "Democrat", federal_trust$number/nrow(df[df$party == "Democrat", ])*100, federal_trust$number/nrow(df[df$party == "Republican",])*100)
+
+federal_trust$percent = round(federal_trust$percent, 0)
+
+ggplot(federal_trust, aes(x=trust_federal, y = percent, fill = party))+
+  geom_bar(position = "Dodge", stat = "identity", width = 0.5) +
+  ggtitle("Trust in Federal Government by Political Party")+
+  theme_bw(base_size =16)+
+  geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
+  theme(axis.text=element_text(size=16, family="serif"),
+        axis.title=element_text(size=16, family="serif"),
+        legend.title = element_blank(),
+        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
+  ylim(0,100)+
+  ylab("Percentage")+
+  xlab("Trust")+
+  scale_fill_manual(breaks = c("Democrat","Republican"), values = c("blue", "red"))
+
+```
+```{r visuals on always/never believer confidence}
+
+# Build visual for always believers confidence
+
+always_state_pre_df = df %>% group_by(always_believer, dv_pre_state_conf) %>% summarise(number = n())
+always_state_post_df = df %>% group_by(always_believer, dv_post_state_conf) %>% summarise(number = n())
+
+always_state_pre_df = always_state_pre_df[-c(1:10),]
+always_state_post_df = always_state_post_df[-c(1:10),]
+colnames(always_state_pre_df)[2] = c("confidence")
+colnames(always_state_post_df)[2] = c("confidence")
+
+
+always_state_pre_df$percent = round(always_state_pre_df$number/nrow(df[df$always_believer == 1,])*100,2)
+always_state_post_df$percent = round(always_state_post_df$number/nrow(df[df$always_believer == 1,])*100,2)
+
+ggplot(mapping = aes(x = confidence))+
+  geom_bar(data = always_state_pre_df, aes(x = confidence-0.2, y = percent, fill = "Confidence Pre-Treatment"), stat = "identity", width = 0.2) +
+  geom_bar(data = always_state_post_df, aes(x = confidence, y = percent, fill = "Confidence Post-Treatment"), stat = "identity", width = 0.2) +
+  ggtitle("Distribution of Confidence in Always Believers")+
+  theme_bw(base_size =16)+
+  #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
+  theme(axis.text=element_text(size=16, family="serif"),
+        axis.title=element_text(size=16, family="serif"),
+        legend.title = element_blank(),
+        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
+  ylim(0,50)+
+  ylab("Percentage")+
+  xlab("Confidence in Vote Count")+
+  scale_fill_manual(values = c("black", "red"))
+
+# Build visual for never believers confidence
+
+never_state_pre_df = df %>% group_by(never_believer, dv_pre_state_conf) %>% summarise(number = n())
+never_state_post_df = df %>% group_by(never_believer, dv_post_state_conf) %>% summarise(number = n())
+
+never_state_pre_df = never_state_pre_df[-c(1:10),]
+never_state_post_df = never_state_post_df[-c(1:10),]
+colnames(never_state_pre_df)[2] = c("confidence")
+colnames(never_state_post_df)[2] = c("confidence")
+
+
+never_state_pre_df$percent = round(never_state_pre_df$number/nrow(df[df$never_believer == 1,])*100,2)
+never_state_post_df$percent = round(never_state_post_df$number/nrow(df[df$never_believer == 1,])*100,2)
+
+ggplot(mapping = aes(x = confidence))+
+  geom_bar(data = never_state_pre_df, aes(x = confidence-0.2, y = percent, fill = "Confidence Pre-Treatment"), stat = "identity", width = 0.2) +
+  geom_bar(data = never_state_post_df, aes(x = confidence, y = percent, fill = "Confidence Post-Treatment"), stat = "identity", width = 0.2) +
+  ggtitle("Distribution of Confidence in Never Believers")+
+  theme_bw(base_size =16)+
+  #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
+  theme(axis.text=element_text(size=16, family="serif"),
+        axis.title=element_text(size=16, family="serif"),
+        legend.title = element_blank(),
+        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
+  ylim(0,50)+
+  ylab("Percentage")+
+  xlab("Confidence in Vote Count")+
+  scale_fill_manual(values = c("black", "red"))
+```
+
+```{r visuals on always/never beleiver and party}
+
+belief_by_party_df = df %>% group_by(accuracy_2016, party) %>% summarise(number2016 = n())
+belief_party_2 = df %>% group_by(accuracy_2020, party) %>% summarise(number2020 = n())
+belief_party_2 = belief_party_2[-c(1:3), ]
+
+belief_by_party_df = merge(belief_by_party_df, belief_party_2, by = "party")
+belief_by_party_df = subset(belief_by_party_df, belief_by_party_df$party == "Democrat" | belief_by_party_df$party == "Republican")
+  
+state_trust = df %>% group_by(trust_state, party) %>% summarise(number = n())
+state_trust = subset(state_trust, state_trust$party == "Democrat" | state_trust$party == "Republican")
+state_trust = state_trust[-c(11,12),]
+
+state_trust$percent = ifelse(state_trust$party == "Democrat", (state_trust$number/nrow(df[df$party == "Democrat", ])*100), state_trust$number/nrow(df[df$party == "Republican",])*100)
+
+state_trust$percent = round(state_trust$percent, 0)
+
+```
+
+```{r histograms of confidence for overall population}
+# state confidence levels
+
+ggplot()+
+  geom_histogram(data = df, aes(x = dv_pre_state_conf-0.2, color = "Confidence Pre-Treatment"), alpha = 0.2, binwidth = 0.2) +
+  geom_histogram(data = df, aes(x = dv_post_state_conf, color = "Confidence Post-Treatment"),  alpha = 0.2, binwidth = 0.2) +
+  ggtitle("Confidence in Vote Count (State Level - 2024)")+
+  theme_bw(base_size =16)+
+  #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
+  theme(axis.text=element_text(size=16, family="serif"),
+        axis.title=element_text(size=16, family="serif"),
+        legend.title = element_blank(),
+        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
+  ylab("Frequency")+
+  xlab("Confidence")+
+  scale_color_manual(values = c("black", "orange"))
+
+# national confidence levels
+
+ggplot()+
+  geom_histogram(data = df, aes(x = dv_pre_national_conf-0.2, color = "Confidence Pre-Treatment"), alpha = 0.2, binwidth = 0.2) +
+  geom_histogram(data = df, aes(x = dv_post_national_conf, color = "Confidence Post-Treatment"),  alpha = 0.2, binwidth = 0.2) +
+  ggtitle("Confidence in Vote Count (National Level - 2024)")+
+  theme_bw(base_size =16)+
+  #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
+  theme(axis.text=element_text(size=16, family="serif"),
+        axis.title=element_text(size=16, family="serif"),
+        legend.title = element_blank(),
+        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
+  ylab("Frequency")+
+  xlab("Confidence")+
+  scale_color_manual(values = c("black", "orange"))
+
+```
+
+```{r summary table of treatment effects}
+
+# create subsets for each treatment
+
+control_df = subset(df, df$treatment_group == "Control")
+bipartisan_df = subset(df, df$treatment_group == "Bipartisan")
+handcount_df = subset(df, df$treatment_group == "Handcount")
+local_df = subset(df, df$treatment_group == "Local")
+loser_df = subset(df, df$treatment_group == "Loser")
+rla_df = subset(df, df$treatment_group == "RL_percentage")
+soup_df = subset(df, df$treatment_group == "Soup")
+
+# get average treatment effect for each treatment group for state elections
+avg_state_control = round(mean(control_df$dv_state_treatment_diff), 2)
+avg_state_bipartisan = round(mean(bipartisan_df$dv_state_treatment_diff), 2)
+avg_state_handcount = round(mean(handcount_df$dv_state_treatment_diff), 2)
+avg_state_local = round(mean(local_df$dv_state_treatment_diff), 2)
+avg_state_loser = round(mean(loser_df$dv_state_treatment_diff), 2)
+avg_state_rla = round(mean(rla_df$dv_state_treatment_diff), 2)
+avg_state_soup = round(mean(soup_df$dv_state_treatment_diff), 2)
+
+# get average treatment effect for each treatment group for national elections
+avg_national_control = round(mean(control_df$dv_national_treatment_diff),2)
+avg_national_bipartisan = round(mean(bipartisan_df$dv_national_treatment_diff) ,2)
+avg_national_handcount = round(mean(handcount_df$dv_national_treatment_diff),2)
+avg_national_local = round(mean(local_df$dv_national_treatment_diff),2)
+avg_national_loser = round(mean(loser_df$dv_national_treatment_diff),2)
+avg_national_rla = round(mean(rla_df$dv_national_treatment_diff),2)
+avg_national_soup = round(mean(soup_df$dv_national_treatment_diff),2)
+
+# get percent increase for each treatment group for state elections
+
+inc_state_control = round(nrow(control_df[control_df$dv_state_treatment_diff > 0, ])/nrow(control_df)*100, 2)
+inc_state_bipartisan = round(nrow(bipartisan_df[bipartisan_df$dv_state_treatment_diff > 0, ])/nrow(bipartisan_df)*100, 2)
+inc_state_handcount = round(nrow(handcount_df[handcount_df$dv_state_treatment_diff > 0, ])/nrow(handcount_df)*100, 2)
+inc_state_local = round(nrow(local_df[local_df$dv_state_treatment_diff > 0, ])/nrow(local_df)*100, 2)
+inc_state_loser = round(nrow(loser_df[loser_df$dv_state_treatment_diff > 0, ])/nrow(loser_df)*100, 2)
+inc_state_rla = round(nrow(rla_df[rla_df$dv_state_treatment_diff > 0, ])/nrow(rla_df)*100, 2)
+inc_state_soup = round(nrow(soup_df[soup_df$dv_state_treatment_diff > 0, ])/nrow(soup_df)*100, 2)
+
+# get percent increase for each treatment group for national elections
+
+inc_national_control = round(nrow(control_df[control_df$dv_national_treatment_diff > 0, ])/nrow(control_df)*100, 2)
+inc_national_bipartisan = round(nrow(bipartisan_df[bipartisan_df$dv_national_treatment_diff > 0, ])/nrow(bipartisan_df)*100, 2)
+inc_national_handcount = round(nrow(handcount_df[handcount_df$dv_national_treatment_diff > 0, ])/nrow(handcount_df)*100, 2)
+inc_national_local = round(nrow(local_df[local_df$dv_national_treatment_diff > 0, ])/nrow(local_df)*100, 2)
+inc_national_loser = round(nrow(loser_df[loser_df$dv_national_treatment_diff > 0, ])/nrow(loser_df)*100, 2)
+inc_national_rla = round(nrow(rla_df[rla_df$dv_national_treatment_diff > 0, ])/nrow(rla_df)*100, 2)
+inc_national_soup = round(nrow(soup_df[soup_df$dv_national_treatment_diff > 0, ])/nrow(soup_df)*100, 2)
+
+# get percent decrease for each treatment group for state elections
+
+dec_state_control = round(nrow(control_df[control_df$dv_state_treatment_diff < 0, ])/nrow(control_df)*100, 2)
+dec_state_bipartisan = round(nrow(bipartisan_df[bipartisan_df$dv_state_treatment_diff < 0, ])/nrow(bipartisan_df)*100, 2)
+dec_state_handcount = round(nrow(handcount_df[handcount_df$dv_state_treatment_diff < 0, ])/nrow(handcount_df)*100, 2)
+dec_state_local = round(nrow(local_df[local_df$dv_state_treatment_diff < 0, ])/nrow(local_df)*100, 2)
+dec_state_loser = round(nrow(loser_df[loser_df$dv_state_treatment_diff < 0, ])/nrow(loser_df)*100, 2)
+dec_state_rla = round(nrow(rla_df[rla_df$dv_state_treatment_diff < 0, ])/nrow(rla_df)*100, 2)
+dec_state_soup = round(nrow(soup_df[soup_df$dv_state_treatment_diff < 0, ])/nrow(soup_df)*100, 2)
+
+# get percent decrease for each treatment group for national elections
+
+dec_national_control = round(nrow(control_df[control_df$dv_national_treatment_diff < 0, ])/nrow(control_df)*100, 2)
+dec_national_bipartisan = round(nrow(bipartisan_df[bipartisan_df$dv_national_treatment_diff < 0, ])/nrow(bipartisan_df)*100, 2)
+dec_national_handcount = round(nrow(handcount_df[handcount_df$dv_national_treatment_diff < 0, ])/nrow(handcount_df)*100, 2)
+dec_national_local = round(nrow(local_df[local_df$dv_national_treatment_diff < 0, ])/nrow(local_df)*100, 2)
+dec_national_loser = round(nrow(loser_df[loser_df$dv_national_treatment_diff < 0, ])/nrow(loser_df)*100, 2)
+dec_national_rla = round(nrow(rla_df[rla_df$dv_national_treatment_diff < 0, ])/nrow(rla_df)*100, 2)
+dec_national_soup = round(nrow(soup_df[soup_df$dv_national_treatment_diff < 0, ])/nrow(soup_df)*100, 2)
+
+Treatment = c("Number Treated", "Average State Effect", "Percent Increase for State", "Percent Decrease for State", "Average National Effect", "Percent Increase for National", "Percent Decrease for National")
+
+Control = c(nrow(control_df), avg_state_control, inc_state_control, dec_state_control, avg_national_control, inc_national_control, dec_national_control)
+
+Bipartisan = c(nrow(bipartisan_df), avg_state_bipartisan, inc_state_bipartisan, dec_state_bipartisan, avg_national_bipartisan, inc_national_bipartisan, dec_national_bipartisan)
+
+Handcount = c(nrow(handcount_df), avg_state_handcount, inc_state_handcount, dec_state_handcount, avg_national_handcount, inc_national_handcount, dec_national_handcount)
+
+Local = c(nrow(local_df), avg_state_local, inc_state_local, dec_state_local, avg_national_local, inc_national_local, dec_national_local)
+
+Loser = c(nrow(loser_df), avg_state_loser, inc_state_loser, dec_state_loser, avg_national_loser, inc_national_loser, dec_national_loser)
+
+Risk_Limit = c(nrow(rla_df), avg_state_rla, inc_state_rla, dec_state_rla, avg_national_rla, inc_national_rla, dec_national_rla)
+
+Soup = c(nrow(soup_df), avg_state_soup, inc_state_soup, dec_state_soup, avg_national_soup, inc_national_soup, dec_national_soup)
+
+summary_table_df = rbind(Treatment, Control, Bipartisan, Local, Loser, Risk_Limit, Soup)
+stargazer(summary_table_df, summary = FALSE )
+```
+
