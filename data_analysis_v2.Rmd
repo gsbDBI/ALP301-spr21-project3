@@ -86,7 +86,7 @@ df %>%
 
 ```{r graph of income}
 # make bar graph of income
-p2 <- ggplot(data = subset(df, income != ""), aes(income)) + 
+p2 <- ggplot(data = subset(df, income_clean != "NA"), aes(income_clean)) + 
   geom_bar(binwidth=3, fill="#1c3ca8cf", color="#e9ecef", alpha=0.9) +
   ggtitle("Income of respondents") +
 theme(
@@ -874,7 +874,7 @@ state_trust$percent = ifelse(state_trust$party == "Democrat", (state_trust$numbe
 
 state_trust$percent = round(state_trust$percent, 0)
 
-ggplot(state_trust, aes(x=trust_state, y = percent, fill = party))+
+p6 <- ggplot(state_trust, aes(x=trust_state, y = percent, fill = party))+
   geom_bar(position = "Dodge", stat = "identity", width = 0.5) +
   ggtitle("Trust in State Government by Political Party")+
   theme_bw(base_size =16)+
@@ -898,7 +898,7 @@ federal_trust$percent = ifelse(federal_trust$party == "Democrat", federal_trust$
 
 federal_trust$percent = round(federal_trust$percent, 0)
 
-ggplot(federal_trust, aes(x=trust_federal, y = percent, fill = party))+
+p7 <- ggplot(federal_trust, aes(x=trust_federal, y = percent, fill = party))+
   geom_bar(position = "Dodge", stat = "identity", width = 0.5) +
   ggtitle("Trust in Federal Government by Political Party")+
   theme_bw(base_size =16)+
@@ -913,6 +913,7 @@ ggplot(federal_trust, aes(x=trust_federal, y = percent, fill = party))+
   scale_fill_manual(breaks = c("Democrat","Republican"), values = c("blue", "red"))
 
 ```
+
 ```{r visuals on always/never believer confidence}
 
 # Build visual for always believers confidence
@@ -929,7 +930,7 @@ colnames(always_state_post_df)[2] = c("confidence")
 always_state_pre_df$percent = round(always_state_pre_df$number/nrow(df[df$always_believer == 1,])*100,2)
 always_state_post_df$percent = round(always_state_post_df$number/nrow(df[df$always_believer == 1,])*100,2)
 
-ggplot(mapping = aes(x = confidence))+
+p8 <- ggplot(mapping = aes(x = confidence))+
   geom_bar(data = always_state_pre_df, aes(x = confidence-0.2, y = percent, fill = "Confidence Pre-Treatment"), stat = "identity", width = 0.2) +
   geom_bar(data = always_state_post_df, aes(x = confidence, y = percent, fill = "Confidence Post-Treatment"), stat = "identity", width = 0.2) +
   ggtitle("Distribution of Confidence in Always Believers")+
@@ -958,7 +959,7 @@ colnames(never_state_post_df)[2] = c("confidence")
 never_state_pre_df$percent = round(never_state_pre_df$number/nrow(df[df$never_believer == 1,])*100,2)
 never_state_post_df$percent = round(never_state_post_df$number/nrow(df[df$never_believer == 1,])*100,2)
 
-ggplot(mapping = aes(x = confidence))+
+p9 <- ggplot(mapping = aes(x = confidence))+
   geom_bar(data = never_state_pre_df, aes(x = confidence-0.2, y = percent, fill = "Confidence Pre-Treatment"), stat = "identity", width = 0.2) +
   geom_bar(data = never_state_post_df, aes(x = confidence, y = percent, fill = "Confidence Post-Treatment"), stat = "identity", width = 0.2) +
   ggtitle("Distribution of Confidence in Never Believers")+
@@ -996,7 +997,7 @@ state_trust$percent = round(state_trust$percent, 0)
 ```{r histograms of confidence for overall population}
 # state confidence levels
 
-ggplot()+
+p10 <- ggplot()+
   geom_histogram(data = df, aes(x = dv_pre_state_conf-0.2, color = "Confidence Pre-Treatment"), alpha = 0.2, binwidth = 0.2) +
   geom_histogram(data = df, aes(x = dv_post_state_conf, color = "Confidence Post-Treatment"),  alpha = 0.2, binwidth = 0.2) +
   ggtitle("Confidence in Vote Count (State Level)")+
@@ -1012,7 +1013,7 @@ ggplot()+
 
 # national confidence levels
 
-ggplot()+
+p11 <- ggplot()+
   geom_histogram(data = df, aes(x = dv_pre_national_conf-0.2, color = "Confidence Pre-Treatment"), alpha = 0.2, binwidth = 0.2) +
   geom_histogram(data = df, aes(x = dv_post_national_conf, color = "Confidence Post-Treatment"),  alpha = 0.2, binwidth = 0.2) +
   ggtitle("Confidence in Vote Count (National Level)")+
@@ -1120,17 +1121,19 @@ stargazer(summary_table_df, summary = FALSE )
 
 ```{r age visualization}
 
-ggplot()+
-  geom_histogram(data = df, aes(x = age), binwidth = 0.7, fill = "white", color = "blue") +
-  ggtitle("Age of Voters")+
-  theme_bw(base_size =16)+
-  #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
-  theme(axis.text=element_text(size=16, family="serif"),
-        axis.title=element_text(size=16, family="serif"),
-        legend.title = element_blank(),
-        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
-  ylab("Count")+
+p10 <- ggplot()+
+  geom_histogram(data = df, aes(x = age), binwidth = 1, fill = "#1c3ca8cf") +
+  #ggtitle("Age of Respondents") +
+theme(
+  plot.background = element_rect(fill = "white"),
+  panel.background = element_rect(fill = "white"),
+  axis.line.x = element_line(color = "grey")
+  ) +
+  theme(axis.text.x = element_text(vjust = 0.5, hjust=1), plot.title = element_text(size=10)) +
   xlab("Age")
+
+
+#ggsave("age.png", plot = p10, width = 3, height = 2, units = "in")
 
 ```
 
