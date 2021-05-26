@@ -999,7 +999,7 @@ state_trust$percent = round(state_trust$percent, 0)
 ggplot()+
   geom_histogram(data = df, aes(x = dv_pre_state_conf-0.2, color = "Confidence Pre-Treatment"), alpha = 0.2, binwidth = 0.2) +
   geom_histogram(data = df, aes(x = dv_post_state_conf, color = "Confidence Post-Treatment"),  alpha = 0.2, binwidth = 0.2) +
-  ggtitle("Confidence in Vote Count (State Level - 2024)")+
+  ggtitle("Confidence in Vote Count (State Level)")+
   theme_bw(base_size =16)+
   #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
   theme(axis.text=element_text(size=16, family="serif"),
@@ -1015,7 +1015,7 @@ ggplot()+
 ggplot()+
   geom_histogram(data = df, aes(x = dv_pre_national_conf-0.2, color = "Confidence Pre-Treatment"), alpha = 0.2, binwidth = 0.2) +
   geom_histogram(data = df, aes(x = dv_post_national_conf, color = "Confidence Post-Treatment"),  alpha = 0.2, binwidth = 0.2) +
-  ggtitle("Confidence in Vote Count (National Level - 2024)")+
+  ggtitle("Confidence in Vote Count (National Level)")+
   theme_bw(base_size =16)+
   #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
   theme(axis.text=element_text(size=16, family="serif"),
