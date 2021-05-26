@@ -1115,7 +1115,23 @@ Risk_Limit = c(nrow(rla_df), avg_state_rla, inc_state_rla, dec_state_rla, avg_na
 
 Soup = c(nrow(soup_df), avg_state_soup, inc_state_soup, dec_state_soup, avg_national_soup, inc_national_soup, dec_national_soup)
 
-summary_table_df = rbind(Treatment, Control, Bipartisan, Local, Loser, Risk_Limit, Soup)
+summary_table_df = rbind(Treatment, Control, Bipartisan, Handcount, Local, Loser, Risk_Limit, Soup)
 stargazer(summary_table_df, summary = FALSE )
+```
+
+```{r age visualization}
+
+ggplot()+
+  geom_histogram(data = df, aes(x = age), binwidth = 0.7, fill = "white", color = "blue") +
+  ggtitle("Age of Voters")+
+  theme_bw(base_size =16)+
+  #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
+  theme(axis.text=element_text(size=16, family="serif"),
+        axis.title=element_text(size=16, family="serif"),
+        legend.title = element_blank(),
+        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
+  ylab("Count")+
+  xlab("Age")
+
 ```
 
