@@ -1121,17 +1121,19 @@ stargazer(summary_table_df, summary = FALSE )
 
 ```{r age visualization}
 
-ggplot()+
-  geom_histogram(data = df, aes(x = age), binwidth = 0.7, fill = "white", color = "blue") +
-  ggtitle("Age of Voters")+
-  theme_bw(base_size =16)+
-  #geom_text(aes(label=percent), family="serif", position= position_dodge(.5),vjust=-1.25, size=6)+
-  theme(axis.text=element_text(size=16, family="serif"),
-        axis.title=element_text(size=16, family="serif"),
-        legend.title = element_blank(),
-        legend.text= element_text(size=16, family="serif"), legend.position = "bottom")+
-  ylab("Count")+
+p10 <- ggplot()+
+  geom_histogram(data = df, aes(x = age), binwidth = 1, fill = "#1c3ca8cf") +
+  #ggtitle("Age of Respondents") +
+theme(
+  plot.background = element_rect(fill = "white"),
+  panel.background = element_rect(fill = "white"),
+  axis.line.x = element_line(color = "grey")
+  ) +
+  theme(axis.text.x = element_text(vjust = 0.5, hjust=1), plot.title = element_text(size=10)) +
   xlab("Age")
+
+
+#ggsave("age.png", plot = p10, width = 3, height = 2, units = "in")
 
 ```
 
