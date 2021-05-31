@@ -245,7 +245,7 @@ df <- df %>%
 df[, c(1,3,4,5,14:17)] <- sapply(df[, c(1,3,4,5,14:17)], as.numeric)
 
 # Now the columns that make sense to be structured as factors
-df[c(6:10,12,19:21,23,27,29,30,32,35:42,44)] <- lapply(df[c(6:10,12,19:21,23,27,29,30,32,35:42,44)], factor)
+df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44)] <- lapply(df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44)], factor)
 
 df$treatment_group_num <- as.numeric(as.factor(df$treatment_group))
 
