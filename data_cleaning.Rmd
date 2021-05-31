@@ -198,9 +198,9 @@ df$parent_yes <- ifelse(df$parent == "Yes", 1, 0)
 
 df$race_hispanic <- ifelse(grepl("Latino or Hispanic", df$race), 1, 0)
 
-df$edu_4college <- ifelse(df$edu == "edu4-year college degree", 1, 0)
-
 df$edu_hs <- ifelse(df$edu == "High school graduate (high school diploma or equivalent including GED)", 1, 0)
+
+df$edu_4college <- ifelse(df$edu == "4-year college degree" | df$edu == "Postgraduate degree (MA, MBA, JD, PhD, etc.)", 1, 0)
 
 df$race_white = ifelse(grepl("White", df$race), 1, 0)
 
@@ -242,10 +242,10 @@ df <- df %>%
 # All columns are currently structured as characters. Not super useful, so let's change that, allowing us to run descriptive statistics and perform mathematical operations, as needed. 
 
 # Start with the columns that need to be numeric
-df[, c(1,4,5,16,17,14,15)] <- sapply(df[, c(1,4,5,16,17,14,15)], as.numeric)
+df[, c(1,3,4,5,14:17)] <- sapply(df[, c(1,3,4,5,14:17)], as.numeric)
 
 # Now the columns that make sense to be structured as factors
-df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)] <- lapply(df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)], factor)
+df[c(6:10,12,19:21,23,27,29,30,32,35:42,44)] <- lapply(df[c(6:10,12,19:21,23,27,29,30,32,35:42,44)], factor)
 
 df$treatment_group_num <- as.numeric(as.factor(df$treatment_group))
 
@@ -257,8 +257,8 @@ df <- df %>% drop_na("dv_pre_state_conf", "dv_post_state_conf", "dv_pre_national
 
 # Finally, let's create a column that measures the treatment difference for the state and national DVs and check the summary stats
 
-df$dv_state_treatment_diff <- df$dv_post_state_conf - df$dv_pre_state_conf
-df$dv_national_treatment_diff <- df$dv_post_national_conf - df$dv_pre_national_conf
+df$dv_state_treatment_diff = df$dv_post_state_conf - df$dv_pre_state_conf
+df$dv_national_treatment_diff = df$dv_post_national_conf - df$dv_pre_national_conf
 
 summary(df$dv_state_treatment_diff)
 summary(df$dv_national_treatment_diff)
@@ -270,7 +270,7 @@ df$never_believer <-  to_factor(ifelse(df$accuracy_2016 == "No", ifelse(df$accur
 
 # Save new CSV file as "clean"
 
-write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
+#write.csv(df, "rla_clean_5_12.csv", row.names = FALSE)
 ```
 
 
