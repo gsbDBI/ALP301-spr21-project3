@@ -424,6 +424,11 @@ rm(atten_check_df)
 
 ```
 
+```{r secondary effect}
+reg_state_seceffect <- lm(seceffect ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
+
+```
+
 ```{r treatment plot dummy_treat}
 # for the state level no controls
 lm_state_dummy1 <- bind_rows(list(tidy(reg1))) %>% 
@@ -460,6 +465,7 @@ ggplot(combined_te, aes(x = term,y =estimate)) +
 ```
 
 ```{r treatment plot treatment_group}
+labs <- c("Bipartisan", "Hand Count", "Local", "Loser", "RLA Percentage", "Soup")
 
 # for the state level with controls
 lm_state <- bind_rows(list(tidy(reg5))) %>% 
@@ -474,7 +480,9 @@ p4 <- ggplot(lm_state, aes(x = term,y =estimate)) +
         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) +
   geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) + 
     coord_cartesian(ylim=c(-.75, .75)) + 
-  ggtitle('Post-Test State Outcome w/ controls (conditioned on pre-test)')
+  ggtitle('Post-Test State Outcome w/ controls (conditioned on pre-test)') +
+    scale_x_discrete(labels = labs)
+
 
 # for the national level
 
@@ -491,10 +499,29 @@ p5 <- ggplot(lm_national, aes(x = term,y =estimate)) +
         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
   geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
   coord_cartesian(ylim=c(-.75, .75)) + 
-  ggtitle('Post-Test National Outcome w/ controls (conditioned on pre-test)')
+  ggtitle('Post-Test National Outcome w/ controls (conditioned on pre-test)') +
+    scale_x_discrete(labels = labs)
+
+
+# for the state level secondary effect with controls
+lm_state_sec <- bind_rows(list(tidy(reg_state_seceffect))) %>% 
+  filter((term %in% c("treatment_groupControl", "treatment_groupBipartisan", "treatment_groupHandcount", "treatment_groupLocal", "treatment_groupLoser", "treatment_groupRL_percentage", "treatment_groupSoup"))) 
+
+sec_effect <- ggplot(lm_state_sec, aes(x = term,y =estimate)) +
+  geom_point(position=position_dodge(width=0.5)) +
+  geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5), color = "steelblue2") + 
+  xlab('Treatment') +
+  ylab('Estimate') +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) +
+  geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) + 
+    coord_cartesian(ylim=c(-.5, 1)) + 
+  ggtitle('Secondary Effect State Outcome w/ controls (conditioned on pre-test)') +
+  scale_x_discrete(labels = labs)
 
 # ggsave("state_treat.png", plot = p4)
 # ggsave("national_treat.png", plot = p5)
+# ggsave("sec_effect.png", plot = sec_effect)
 ```
 
 ```{r regression table, echo=FALSE, message=TRUE, warning=FALSE, results='asis'}
@@ -508,7 +535,6 @@ stargazer(reg5, reg6,
           column.labels=c("state treatment with controls", "national treatment with controls"),
           title = "Basic Regression Results for Treatment Effect")
 ```
-
 
 ```{r difference_in_means_simple}
 # simple difference in means for those treated with a message
@@ -565,14 +591,14 @@ estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = d
 #state level interaction for gender
 reg_state_fem <- lm(dv_post_state_conf ~ treatment_group*gender_female + dv_pre_state_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
-plot_model(reg_state_fem, type = "pred", terms = c("gender_female","treatment_group"))
-plot_model(reg_state_fem, type = "int", terms = c("gender_female","treatment_group"), axis.title = c("Treatment Group", "Post Treatment Confidence"), title = "Marginal Treatment Effects by Gender", legend.title = "Gender") + scale_color_manual(labels = c("Men", "Women"), values = c("black", "red"))
+# plot_model(reg_state_fem, type = "pred", terms = c("gender_female","treatment_group"))
+# plot_model(reg_state_fem, type = "int", terms = c("gender_female","treatment_group"), axis.title = c("Treatment Group", "Post Treatment Confidence"), title = "Marginal Treatment Effects by Gender", legend.title = "Gender") + scale_color_manual(labels = c("Men", "Women"), values = c("black", "red"))
 
 # national level interaction for gender
 reg_natl_fem <- lm(dv_post_national_conf ~ treatment_group*gender_female + dv_pre_national_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
-plot_model(reg_natl_fem, type = "pred", terms = c("gender_female", "treatment_group"))
-plot_model(reg_natl_fem, type = "int", terms = c("treatment_group", "gender_female"))
+# plot_model(reg_natl_fem, type = "pred", terms = c("gender_female", "treatment_group"))
+# plot_model(reg_natl_fem, type = "int", terms = c("treatment_group", "gender_female"))
 ```
 
 ```{r age interaction}
@@ -1123,6 +1149,7 @@ stargazer(summary_table_df, summary = FALSE )
 
 p10 <- ggplot()+
   geom_histogram(data = df, aes(x = age), binwidth = 1, fill = "#1c3ca8cf") +
+  scale_fill_viridis() +
   #ggtitle("Age of Respondents") +
 theme(
   plot.background = element_rect(fill = "white"),
@@ -1130,8 +1157,9 @@ theme(
   axis.line.x = element_line(color = "grey")
   ) +
   theme(axis.text.x = element_text(vjust = 0.5, hjust=1), plot.title = element_text(size=10)) +
-  xlab("Age")
-
+  xlab("Age") +
+  geom_vline(color="red",linetype=2, xintercept = mean(df$age,na.rm=T)) + 
+  geom_text(aes(x = 50, y = 140, label = "Mean = 44", color = ))
 
 #ggsave("age.png", plot = p10, width = 3, height = 2, units = "in")
 
