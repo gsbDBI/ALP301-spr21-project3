@@ -1,0 +1,65 @@
+---
+title: "Trust_Prediction"
+author: "Jake"
+date: "5/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r load_dep}
+# loading relevant packages
+# if you need to install a new package, 
+# use e.g., install.packages("grf")
+library(grf)
+library(rpart)
+library(glmnet)
+library(splines)
+library(lmtest)
+library(MASS)
+library(sandwich)
+library(ggplot2)
+library(reshape2)
+```
+
+```{r load_dep}
+# loading relevant packages
+# if you need to install a new package, 
+# use e.g., install.packages("grf")
+library(grf)
+library(rpart)
+library(glmnet)
+library(splines)
+library(lmtest)
+library(MASS)
+library(sandwich)
+library(ggplot2)
+library(reshape2)
+```
+
+``` {r prep_data}
+data <-'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/rla_clean_5_12.csv'
+df <- read.csv(data, strip.white = TRUE)
+rm(data) #remove data csv file
+#Trsut group : never = 0, sometimes = 1 , always = 2
+df$trust_group <- ifelse(df$never_believer == 1, 0, 1)
+df$trust_group <- ifelse(df$always_believer == 1, 2, 1)
+
+outcome <- "trust_group"
+
+# covariates
+true.covariates <- c()
+#My question is are these all numeric? 
+p.true <- length(true.covariates)
+
+
+```
+
