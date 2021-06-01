@@ -166,6 +166,23 @@ p <- ggplot(data = us_states_df,
         panel.grid=element_blank(),
         text = element_text(size=14))
 
+#alternate map
+p2 <- ggplot(data = us_states_df,
+             mapping = aes(x = long, y = lat,
+                           group = group, fill = numbperstate))+
+  geom_polygon(color = "gray90", size = 0.1) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  scale_fill_continuous(type = "viridis", name = "Number of respondents per state") +
+  theme_map() +
+  theme(legend.position="bottom",
+        axis.line=element_blank(),
+        axis.text=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title=element_blank(),
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid=element_blank(),
+        text = element_text(size=14))
 #ggsave("map.png", plot = p)
 
 ```
@@ -336,7 +353,7 @@ add_header_above(x, c('', 'Democrats'=3, 'Republicans'=3, 'Other and Independent
 ```
 
 ```{r basic regression with dummy treat}
-df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)] <- lapply(df[c(2,6:10,12,19:21,23,27,29,30,32,35:42,44,45)], factor)
+df[c(6:10,12,19:21,23,27,29,30,32,35:42,44,45)] <- lapply(df[c(6:10,12,19:21,23,27,29,30,32,35:42,44,45)], factor)
 
 atten_check_df$treatment_group <- relevel(factor(atten_check_df$treatment_group), ref = "Control")
 
@@ -430,37 +447,37 @@ reg_state_seceffect <- lm(seceffect ~ treatment_group + dv_pre_state_conf + age 
 ```
 
 ```{r treatment plot dummy_treat}
-# for the state level no controls
-lm_state_dummy1 <- bind_rows(list(tidy(reg1))) %>% 
-  filter((term %in% c("dummy_treat"))) 
-
-lm_natl_dummy1 <- bind_rows(list(tidy(reg2))) %>% 
-  filter((term %in% c("dummy_treat"))) 
-
-lm_state_dummy2 <- bind_rows(list(tidy(reg3))) %>% 
-  filter((term %in% c("dummy_treat"))) 
-
-lm_natl_dummy2 <- bind_rows(list(tidy(reg4))) %>% 
-  filter((term %in% c("dummy_treat"))) 
-
-combined_te <- bind_rows(lm_state_dummy1, lm_natl_dummy1, lm_state_dummy2, lm_natl_dummy2)
-
-combined_te$intervention <- c("State Effect", "National Effect", "State Effect w/controls", "National effects w/controls")
-
-ggplot(combined_te, aes(x = term,y =estimate)) +
-  facet_grid(cols = vars(intervention), scales = 'free_x', space = 'free_x') + # transform into facet grid by intervention
-  geom_point(position=position_dodge(width=0.5)) +
-  geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5)) + 
-  xlab('Treatment Effect') +
-  ylab('Estimate') +
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
-  geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
-  coord_cartesian(ylim=c(-0.5, 0.5)) + 
-  ggtitle('Post-Test Treatment Effect (conditioned on pre-test)') +
-  theme(legend.position = "none",
-        panel.grid = element_blank(),
-        axis.text.x = element_blank())
+# # for the state level no controls
+# lm_state_dummy1 <- bind_rows(list(tidy(reg1))) %>% 
+#   filter((term %in% c("dummy_treat"))) 
+# 
+# lm_natl_dummy1 <- bind_rows(list(tidy(reg2))) %>% 
+#   filter((term %in% c("dummy_treat"))) 
+# 
+# lm_state_dummy2 <- bind_rows(list(tidy(reg3))) %>% 
+#   filter((term %in% c("dummy_treat"))) 
+# 
+# lm_natl_dummy2 <- bind_rows(list(tidy(reg4))) %>% 
+#   filter((term %in% c("dummy_treat"))) 
+# 
+# combined_te <- bind_rows(lm_state_dummy1, lm_natl_dummy1, lm_state_dummy2, lm_natl_dummy2)
+# 
+# combined_te$intervention <- c("State Effect", "National Effect", "State Effect w/controls", "National effects w/controls")
+# 
+# ggplot(combined_te, aes(x = term,y =estimate)) +
+#   facet_grid(cols = vars(intervention), scales = 'free_x', space = 'free_x') + # transform into facet grid by intervention
+#   geom_point(position=position_dodge(width=0.5)) +
+#   geom_errorbar(aes(x=term,ymin = estimate - 1.96 * std.error,ymax = estimate + 1.96 * std.error),width = .1,position=position_dodge(width=0.5)) + 
+#   xlab('Treatment Effect') +
+#   ylab('Estimate') +
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1)) + 
+#   geom_hline(yintercept = 0, colour = 'grey60', linetype = 2) +
+#   coord_cartesian(ylim=c(-0.5, 0.5)) + 
+#   ggtitle('Post-Test Treatment Effect (conditioned on pre-test)') +
+#   theme(legend.position = "none",
+#         panel.grid = element_blank(),
+#         axis.text.x = element_blank())
 
 ```
 

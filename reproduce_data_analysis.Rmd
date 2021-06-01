@@ -55,14 +55,8 @@ library(here)
 ```
 
 ```{r download data}
-
 df <- read.csv(here('', 'rla_clean_5_12.csv'))
 dim(df)
-
-#download the data from GitHub
-#data <-'https://raw.githubusercontent.com/gsbDBI/ALP301-spr21-project3/main/rla_clean_5_12.csv'
-#df <- read.csv(data, strip.white = TRUE)
-#rm(data) #remove data csv file
 
 ```
 
