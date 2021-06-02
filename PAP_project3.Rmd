@@ -1,7 +1,7 @@
 ---
 title: "PAP Template for Experiment Projects - Project 3"
 author: "Project 3 - Voter Confidence"
-date: "April 2021"
+date: "April-June 2021"
 output:
   html_document:
     highlight: haddock
@@ -53,7 +53,7 @@ While many academics, NGOs, and election officials view RLAs as an ideal way to 
 
 The partners for this project are the Colorado State government office and a cross-disciplinary group at Stanford, including researchers and policy experts at the Stanford Internet Observatory, that studies abuse of information technologies and develops a curriculum on trust and safety.
 
-The goal of this project is to learn about the effective means to communicate the RLA technology to the public, and improve public trust in the election process. To achieve this goal, the project team will design an experiment with experts on RLAs. This project would directly inform election policy across the country, enabling election officials to rebuild voter confidence in the integrity of elections. The group will test the effectivness of several interventions to increase confidence in using RLAs to verify election results, including different messages to convey why RLAs ensure integrity in the election from different credible messengers (e.g. teacher, judges). Our outcome of interest will be trust in the individual's State election results from learning about RLAs. Individuals do not need to understand or know about RLAs already.
+The goal of this project is to learn about the effective means to communicate the RLA technology to the public, and improve public trust in the election process. To achieve this goal, the project team will design an experiment with experts on RLAs. This project would directly inform election policy across the country, enabling election officials to rebuild voter confidence in the integrity of elections. The group will test the effectiveness of several interventions to increase confidence in using RLAs to verify election results, including different messages to convey why RLAs ensure integrity in the election. Our outcome of interest will be the resulting change in confidence in state and federal vote count as a result of learning about RLAs. Individuals do not need to understand or have any previous knowledge of RLAs.
 
 We believe that the insights gleaned from this experiment will both contribute to generalized knowledge about how to increase confidence in elections, and RLAs in Colorado, and provide a path for other states besides Colorado to implement, and market, RLAs to their constituents.
 
@@ -69,19 +69,21 @@ We believe that the insights gleaned from this experiment will both contribute t
 
 ---
 
-## Experimental Setup *UPDATE*
+## Experimental Setup *(Updated by Nate)*
 
 _Describe how the research question can be answered with an experiment, comment on the methodology used. For example, argue why a randomized experiment is useful to answer the research question._
 
 _This section should be a "how-to" guide for executing your experiment. In theory, someone should be able to execute your experiment after reading this section._
 
-The research question can be answered using an experiment to test the efficacy of different messages on increasing confidence in election systems by providing information about RLAs through a series of survey questions.
+To answer our research questions, we will use a multi-treatment survey experiment, that tests the efficacy of different messages at the state and federal levels. 
 
-We will use seven different messages with a pre- and post-test question to gauge the effect of the message. We will have one control group and six different messages to use on different treatment groups. The control group will receive a message about election integrity, with no mention of RLAs. The three treatment groups will each receive a different message about RLAs of similar length and reading level.
+Specifically, we will use seven different messages with questions on confidence (the dependent variable) both pre and post test. We will have one control group and six different messages to use on treatment groups. The control group will receive a message about election integrity, with no mention of RLAs. The six treatment groups will each receive a different message about RLAs of similar length and reading level.
 
-Our pre-test questions will gather covariates to get a sense of participant's trust in government and civic engagement. Participants will first answer survey questions about confidence in elections for our pre-test dependent variables. Next, we will gather covariates around the participant's level of trust in government at the state and federal levels, and trust in recent presidential elections. After a page break, there will be basic demographic questions for covariates (race, gender, income, etc.). On the following page, participants receiving one of the six treatment messages will view a page explaining how RLAs work to ensure everyone receives the same information. The participant will then be presented with one of the seven messages (Control or treatment message). 
+Our pre-test questions will gather covariates to get a sense of participant's trust in government and civic engagement. Participants will first answer survey questions about their confidence in the accurarcy of vote count elections for our pre-test dependent variables (state and federal levels). Next, we will gather covariates around the participant's level of trust in government at the state and federal levels, and trust in recent presidential elections. Then, we will gather demographic information on age, gender, parenthood, and state of residence.
 
-After receiving the treatment, all participants will be asked post-test questions on their confidence in state and national elections. This will be followed by additional questions on covariates like political ideology, citizenship, education, civic engagement. These will be useful covariates to analyze our data, gauge political attitudes, and measure the effect of messages for subgroups. By asking these questions after the treatment, we aim to reduce the influence of asking questions about an individual's ideology on the pre-test. This design is a between-subject design, where interventions are implemented at the respondent level.
+After gathering information on the aforementioned covariates, respondents will receive different information based on their treatment group. Those in the control group will receive an information about the importance of elections. No information on RLAs will be present. The remaining six groups will move from the covariate questions to a screen giving a general overview on RLAs. From that point, they will move to another page, which will contain their actual treatment message. 
+
+After receiving the treatment, all participants will be asked post-test questions on their confidence in state and national elections. They will then be asked a question on how the information received in the survey changed their confidence on the accuracy of the vote count. Of note, this will be a secondary variable that will be used as a robustness check on our primary dependent variable. After asking information on the dependent variable and secondary dependent variable, we will ask additional questions on covariates like political ideology, race, citizenship, education, civic engagement. These will be useful covariates to analyze our data, gauge political attitudes, and measure the effect of messages for subgroups. By asking these questions after the treatment, we aim to reduce the potential priming that could occur by associating with a particular political ideology or party. This design is a between-subject design, where interventions are implemented at the respondent level.
 
 ### Sample recruitment
 
@@ -97,7 +99,7 @@ _You should provide details for each treatment arm here. Remember, visuals help!
 
 _You should also provide the rationale for choosing the treatment arms._
 
-Drawing on the literature on experimental interventions around election processes, we use a treatment message designed to explain how RLAs work at the respondent level. This will allow us to measure if receiving information increases confidence in elections. The treatment message use rational and emotional appeals, grounded in real-world analysis around trust in elections (e.g. that voters trust their local election officials). The treatments are presented in Table 1.
+Drawing on the literature on experimental interventions around election processes, we use a treatment message designed to explain how RLAs work at the respondent level. This will allow us to measure if receiving information increases confidence in elections. The treatment messages use rational and emotional appeals, grounded in real-world analysis around trust in elections (e.g. that voters trust their local election officials). The treatments are presented in Table 1.
 
 All respondents are assigned either the Control message or one of the six treatment messages. The messages are all of similar length and reading level. The treatment process is detailed in Figure 1. 
 
@@ -108,11 +110,11 @@ All respondents are assigned either the Control message or one of the six treatm
 | Shorthand Name | Treatment Level | Treatment 
 |:----:|:----:|:----:|
 | 1. Bipartisan Auditors | Respondent | Prompt: Did you know? The RLA process is balanced. Republican and Democrat representatives audit your state's election system. This means that, when a random sample of votes is being checked for any miscounts, representatives from both parties review the process and sign the final results.  | 
-| 2. Risk Limit as a Percentage | Respondent | Prompt: Did you know? Before starting an audit, election officials agree on a risk limit. The lower the risk limit, the more ballots need to get recounted to verify the election result. If the originally reported election result is wrong, then, a risk limit of 5% means that there's a 95% chance the risk-limit audit will find the mismatches and correct the result.  | 
-| 3. Risk Limit as a Guarantee Beyond a Reasonable Doubt | Respondent | Prompt: Did you know? Before starting an audit, election officials agree on a risk limit. The lower the risk limit, the more ballots need to get recounted to verify the election result. If the originally reported election result is wrong, then the risk limit we recount enough ballots to verify, beyond a reasonable doubt, the outcome of the election. |
-| 4. Emotional - Politicians are Bad Losers | Respondent | Prompt: Did you know? Every four years, the losing politician only has one move left to make – cast doubt on the election process.  We are tired of this bullshit! Don’t confuse election officials with politicians, and don’t fall for politician’s snake-tongued tricks. Our election system is safe, respected, and triple-checked. | 
-| 5. Random Sample (Soup Analogy) | Respondent | Prompt: Did you know? A small sample of ballots can be used to confirm election results for the entire state. How? Well, it's similar to tasting a giant pot of soup to see if it's too salty. All you need to do is stir the pot thoroughly and take a random sample — a spoonful of soup. Similarly, election officials keep records of every single vote cast. To verify the election results, they randomly select certain ballot and recount each vote. |
-| 6. RLAs are Run by Local Election Officials | Respondent | Prompt: Did you know? Local election officials are your neighbors; they are the people you see at the store, soccer games, and church. How dare politicians insult the heroes of our election process? Local election officials are the ones counting votes, not some distant politician. We built the election system this way on purpose - to throw out politicians when we have had enough of them. |
+| 2. Risk Limit as a Percentage | Respondent | Prompt: Did you know? Before starting an audit, election officials agree on a risk limit (9% in this case). The lower the risk limit, the more ballots need to get recounted to verify the election result. If the originally reported election result is wrong, then, a risk limit of 9% means that there's a \textbf{91% chance} the RLA will find the mismatches and correct the result.  | 
+| 3. Hand-Counted Votes | Respondent | Prompt: Did you know? The RLA consists of auditors examining a random sample of ballots \textbf{by hand} and comparing them to how the machine counted those ballots. \textbf{This hand recount} ensures that the machine accurately captured every voters intent. Examining a random selection of ballots \textbf{by hand} allows election officials and the public to be confident that the election results reflect the will of the people.  |
+| 4. Emotional - Politicians are Bad Losers | Respondent | Prompt: Did you know? Every four years, the losing politician has only one move left to make – cast doubt on the election process.  The American people are tired of this bullshit! Your state election officials use RLAs to ensure that the lies spewed by losing politicians are just that - empty words spoken by losers.  | 
+| 5. Random Sample (Soup Analogy) | Respondent | Prompt: Did you know? Election officials use a random sample of ballots when they audit election results. But, \textbf{how can a random sample of ballots confirm the results for the entire state?} Well, it's similar to tasting a giant pot of soup to see if it's too salty. You stir the pot thoroughly and take a random sample. You don't have to eat the whole bowl to know if it is good or not - just a random spoonful of soup. |
+| 6. RLAs are Run by Local Election Officials | Respondent | Prompt: Did you know? The people who run the RLAs - the local election officials - are people like you; they can be your neighbors, friends, those you see at the store, soccer games, church, etc. \textbf{These officials are the ones responsible for auditing the election results.} The election system was designed to be run by local communities with multiple security checks and audits.  |
 | 7. Control  | Respondent | Prompt: Did you know? Elections are at the heart of democracy. Voting in an election gives the people a way to choose who governs them. The election process provides a way for power to be transferred peacefully. It is important that people who work in elections serve the American people to protect our democracy.
 
 <center>Table 1. Description of interventions included in the experiment</center>
@@ -158,14 +160,14 @@ By running a two-sided T-test, we will be able to determine if talking about RLA
 The survey questions that will allow us to measure this change are two-fold to account for differences in confidence at the state versus national level, all measured on a scale (1-10).
 
 *Pre-Treatment Questions*
-(1) How confident are you that votes in your state will be counted accurately in the upcoming 2024 presidential election?
+(1) How confident are you that votes \textbf{in your state} will be counted accurately in the upcoming 2024 presidential election?
 
-(2) How confident are you that votes across all states will be counted accurately in the upcoming 2024 presidential election?
+(2) How confident are you that votes \textbf{across all states} will be counted accurately in the upcoming 2024 presidential election?
 
 *Post-Treatment Questions*
-(1) Given what you know about election processes, how confident are you that votes in your state will be counted accurately in the upcoming 2024 presidential election?
+(1) Given what you know about election processes, how confident are you that votes \textbf{in your state} will be counted accurately in the upcoming 2024 presidential election?
 
-(2) Given what you know about election processes, how confident are you that votes across all states will be counted accurately in the upcoming 2024 presidential election?
+(2) Given what you know about election processes, how confident are you that votes \textbf{across all states} will be counted accurately in the upcoming 2024 presidential election?
 
 The pre-test/post-test design will allow us to measure the average treatment effect compared to the Control, whether positive or negative.
 
@@ -239,7 +241,7 @@ Covariates:
   + High school education
   + College education and above
 * Political party
-* Parents
+* Parenthood
 * Trust in state and federal government
 * State of residency
 
@@ -267,7 +269,7 @@ Given that testing these treatment-covariate combinations will result in a large
 ## Power Calculations
 _A crucial function of the PAP is to help you calculate the sample size you would need to detect a hypothesized treatment effect. Depending on your experimental design, please use the relevant tutorial for power calculation code._
 
-To determine the sample size required to detect a treatment effect for our multiple arm experimental design, we will require ~1600 participants to achieve a minimum of 80% power with the False Discovery Rate (FDR) method. We will use the FDR method instead of Bonferroni or Family Wise Error Rate to reject both null hypotheses (two-tailed test), given that there have been no similar studies conducted previously on RLAs for us to base the estimated effect on. The minimum detectable effect is a change of 0.1 on a scale of 1-10. (ADD MORE TO THIS??)
+To determine the sample size required to detect a treatment effect for our multiple arm experimental design, we will require ~1600 participants to achieve a minimum of 80% power with the False Discovery Rate (FDR) method. We will use the FDR method instead of Bonferroni or Family Wise Error Rate to reject both null hypotheses (two-tailed test), given that there have been no similar studies conducted previously on RLAs for us to base the estimated effect on. The minimum detectable effect is a change of 0.1 on a scale of 1-10. 
 
 ### Load required packages
 
