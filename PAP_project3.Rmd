@@ -1,7 +1,7 @@
 ---
 title: "PAP Template for Experiment Projects - Project 3"
 author: "Project 3 - Voter Confidence"
-date: "April-June 2021"
+date: "April 2021"
 output:
   html_document:
     highlight: haddock
@@ -81,7 +81,7 @@ Specifically, we will use seven different messages with questions on confidence 
 
 Our pre-test questions will gather covariates to get a sense of participant's trust in government and civic engagement. Participants will first answer survey questions about their confidence in the accurarcy of vote count elections for our pre-test dependent variables (state and federal levels). Next, we will gather covariates around the participant's level of trust in government at the state and federal levels, and trust in recent presidential elections. Then, we will gather demographic information on age, gender, parenthood, and state of residence.
 
-After gathering information on the aforementioned covariates, respondents will receive different information based on their treatment group. Those in the control group will receive an information about the importance of elections. No information on RLAs will be present. The remaining six groups will move from the covariate questions to a screen giving a general overview on RLAs. From that point, they will move to another page, which will contain their actual treatment message. 
+After gathering information on the aforementioned covariates, respondents will receive different information based on their treatment group. Those in the control group will receive information about the importance of elections. No information on RLAs will be present. The remaining six groups will move from the covariate questions to a screen giving a general overview on RLAs. From that point, they will move to another page, which will contain their actual treatment message. 
 
 After receiving the treatment, all participants will be asked post-test questions on their confidence in state and national elections. They will then be asked a question on how the information received in the survey changed their confidence on the accuracy of the vote count. Of note, this will be a secondary variable that will be used as a robustness check on our primary dependent variable. After asking information on the dependent variable and secondary dependent variable, we will ask additional questions on covariates like political ideology, race, citizenship, education, civic engagement. These will be useful covariates to analyze our data, gauge political attitudes, and measure the effect of messages for subgroups. By asking these questions after the treatment, we aim to reduce the potential priming that could occur by associating with a particular political ideology or party. This design is a between-subject design, where interventions are implemented at the respondent level.
 
@@ -132,7 +132,7 @@ img4 <- readPNG("Figures/treat_3.png")
 img5 <- readPNG("Figures/treat_4.png")
 img6 <- readPNG("Figures/treat_5.png")
 img7 <- readPNG("Figures/treat_6.png")
-grid.arrange(img, img1, img2, img3, img4, img5, img6, img7, ncol = 4)
+grid.arrange(img, img1, img2, img3, img4, img5, img6, img7, ncol = 4, nrow = 2)
 ```
 
 
@@ -155,7 +155,7 @@ Prior to treatment, respondents will be asked to rate on a scale (1-10) their co
 
 The primary outcome we are interested in is determining a change in confidence in election processes after being treated. We will measure the dependent variables by taking the difference in means between the pre- and post-test dependent variables, measured on a scale of 1-10, to see if there is a noticeable change between the Control and treatment messages. 
 
-By running a two-sided T-test, we will be able to determine if talking about RLAs positively or negatively impacts voter confidence. Through this, we will be able to compare the treatment groups to the Control based on the average change in pre- and post-test ranking about confidence in voting at the state and national level.
+By running a two-sided T-test, we will be able to determine if talking about RLAs positively or negatively impacts voter confidence. Through this, we will be able to compare the treatment groups to the Control based on the average change in pre- and post-test ranking about confidence in voting at the state and national level. For a more thorough analysis, we will run a linear regression, controlling for covariates, and analyze the effect of of being treated versus being in the control group. 
 
 The survey questions that will allow us to measure this change are two-fold to account for differences in confidence at the state versus national level, all measured on a scale (1-10).
 
@@ -185,9 +185,9 @@ To explore this question, we will compare the treatment groups to each other to 
  
 Finally, after receiving the treatment or Control, respondents will be asked the following question measured on a scale (1-5):
 
-(3) Given what you know about election processes, how confident are you that votes across all states will be counted accurately in the upcoming 2024 presidential election?
+(3) To what extent did receiving the information on election processes change your trust in your State's ability to count ballots?
 
-This question is intended to capture a secondary effect from being treated (or not treated). We will use this secondary effect as the outcome variable in a linear regression to determine respondents self-reported change in trust.
+This question is intended to capture a secondary effect from being treated (or not treated). We will use this secondary effect as the outcome variable in a linear regression to determine respondents self-reported change in confidence.
 
 ### Covariates
 
@@ -255,21 +255,18 @@ _Label and index your data: outcomes, treatments, covariates. Formally describe 
 
 For the primary and secondary outcomes discussed above, we will examine and compare the average treatment effect as the movement on the scale between the pre- and post-treatment.
 
-To test our hypotheses, we will conduct a one-sided T-test to examine the average treatment effect as we believe the treatment will have a positive effect in one direction on the outcome variable. We will compare the average effect for each treatment to the control average, and then compare each treatment average to each other to determine which message is most effective.
+To test our hypotheses, we will conduct a two-sided T-test to examine the average treatment effect. We will compare the average effect for each treatment to the control average, and then compare each treatment average to each other to determine which message is most effective.
 
-We will also analyze the effect of the treatments listed above by sub-groups. 
+We will also analyze the effect of the treatments listed above by sub-groups to assess whether or not heterogeneous treatment effects exist. 
 
-*UPDATE*
-We expect that...
-
-Given that testing these treatment-covariate combinations will result in a large number of unique tests, we will adjust for multiple hypothesis testing using the Bonferroni correction method to eliminate Type I errors (false positive discoveries). This is a result of our objective to test multiple treatments against the control and each other.
+Given that testing these treatment-covariate combinations will result in a large number of unique tests, we will adjust for multiple hypothesis testing using the FDR correction method to eliminate Type I errors (false positive discoveries). This is a result of our objective to test multiple treatments against the control group and between each other. 
 
 ---
 
 ## Power Calculations
 _A crucial function of the PAP is to help you calculate the sample size you would need to detect a hypothesized treatment effect. Depending on your experimental design, please use the relevant tutorial for power calculation code._
 
-To determine the sample size required to detect a treatment effect for our multiple arm experimental design, we will require ~1600 participants to achieve a minimum of 80% power with the False Discovery Rate (FDR) method. We will use the FDR method instead of Bonferroni or Family Wise Error Rate to reject both null hypotheses (two-tailed test), given that there have been no similar studies conducted previously on RLAs for us to base the estimated effect on. The minimum detectable effect is a change of 0.1 on a scale of 1-10. 
+To determine the sample size required to detect a treatment effect for our multiple arm experimental design, we will require ~1600 participants to achieve a minimum of 80% power with the False Discovery Rate (FDR) method. We will use the FDR method instead of Bonferroni or Family Wise Error Rate to reject the null hypotheses (two-tailed test), given that there have been no similar studies conducted previously on RLAs for us to base the estimated effect on. The minimum detectable effect is a change of 0.1 on a scale of 1-10. 
 
 ### Load required packages
 
@@ -476,8 +473,8 @@ m.out <- matchit(dummy_treat ~ age + gender_female + parent_yes + state + income
 love.plot(m.out, binary = "std", thresholds = c(m = .1))
 
 ```
-
-```{r compare tests with attention check failures and 2SD of duration}
+The above code will test our treatment groups to ensure they are balanced. In effect this means...
+```{r compare tests with attention check failures and 2SD of duration, eval = FALSE, echo = T, results = 'hide'}
 # people within 2 SD of duration
 sd2 = sd(df$duration_sec)*2
 
@@ -506,7 +503,7 @@ love.plot(m.out, binary = "std", thresholds = c(m = .1))
 # results look pretty similar for those who failed and did not fail the attention check
 ```
 
-```{r lm_ftest_balance}
+```{r lm_ftest_balance, eval = FALSE, echo = T, results = 'hide'}
 # regression of covariates on treatment assignment variable
 balance_lm <- lm(treatment_group_num ~ age + gender_female + parent_yes + state + income_clean + race_hispanic + edu_4college + edu_hs + party + dv_pre_state_conf + dv_pre_national_conf, data = no_na_df) # factor(region) encodes the string variable as a factor for analysis
 
@@ -519,7 +516,7 @@ car::linearHypothesis(balance_lm, c("gender_female = 0", "age = 0", "parent_yes 
 summary(balance_lm)
 ```
 
-```{r balance_table}
+```{r balance_table, eval = FALSE, echo = T, results = 'hide'}
 # Define a function to generate a balance check table using two-sample t-test 
 # Parameters: "cov_list" includes covariates, "treat" indicates the treatment, "alpha" is the significance level
 t_table <- function(data, cov_list, treat,
@@ -559,7 +556,7 @@ balance_table %>%
   kableExtra::kable_styling(bootstrap_options = "striped")
 ```
 
-```{r region_balance}
+```{r region_balance, eval = FALSE, echo = T, results = 'hide'}
 # balance table for Democrats
 balance_dems <- t_table(
   data = subset(df, party=="Democrat"), # subsetting data to those with "party" equal to "Democrat"
@@ -591,7 +588,7 @@ add_header_above(x, c('', 'Democrats'=3, 'Republicans'=3, 'Other and Independent
 
 ```
 
-```{r basic regression with dummy treat}
+```{r basic regression with dummy treat, eval = FALSE, echo = T, results = 'hide'}
 df[c(6:10,12,19:21,23,27,29,30,32,35:42,44,45)] <- lapply(df[c(6:10,12,19:21,23,27,29,30,32,35:42,44,45)], factor)
 
 atten_check_df$treatment_group <- relevel(factor(atten_check_df$treatment_group), ref = "Control")
@@ -642,7 +639,7 @@ reg4_att_con <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + 
 # results look the same here too
 ```
 
-```{r regression with treatment groups}
+```{r regression with treatment groups, eval = FALSE, echo = T, results = 'hide'}
 # run the regression with treatment groups
 df$treatment_group <- relevel(factor(df$treatment_group), ref = "Control")
 
@@ -680,13 +677,13 @@ rm(atten_check_df)
 
 ```
 
-```{r secondary effect}
+```{r secondary effect, eval = FALSE, echo = T, results = 'hide'}
 # run a linear regression to measure the effect of treatments on the secondary effect question
 reg_state_seceffect <- lm(seceffect ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 ```
 
-```{r treatment plot treatment_group}
+```{r treatment plot treatment_group, eval = FALSE, echo = T, results = 'hide'}
 labs <- c("Bipartisan", "Hand Count", "Local", "Loser", "RLA Percentage", "Soup")
 
 # for the state level with controls
@@ -746,14 +743,14 @@ sec_effect
 
 ```
 
-```{r difference_in_means_simple}
+```{r difference_in_means_simple, eval = FALSE, echo = T, results = 'hide'}
 # simple difference in means for those treated with a message
 with(df, mean(dv_post_state_conf[dummy_treat == 1]) - mean(dv_post_state_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
 
 with(df, mean(dv_post_national_conf[dummy_treat == 1]) - mean(dv_post_national_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
 ```
 
-```{r difference_in_means}
+```{r difference_in_means, eval = FALSE, echo = T, results = 'hide'}
 # Use the estimatr package for difference in means estimates
 estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df) 
 # difference_in_means(y ~ x, data) computes mean(y when x==1) - mean(y when x==0) in data, along with standard errors and p-values from two-sided t-tests
@@ -762,7 +759,7 @@ estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = d
 
 ```
 
-```{r difference_in_means_subsample}
+```{r difference_in_means_subsample, eval = FALSE, echo = T, results = 'hide'}
 # difference in means for women at state level
 
 df$gender_female <- to_factor(df$gender_female)
@@ -797,7 +794,7 @@ estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = d
 
 ```
 
-```{r gender interaction}
+```{r gender interaction, eval = FALSE, echo = T, results = 'hide'}
 # Gender interaction
 
 #state level interaction for gender
@@ -808,7 +805,7 @@ reg_natl_fem <- lm(dv_post_national_conf ~ treatment_group*gender_female + dv_pr
 
 ```
 
-```{r age interaction}
+```{r age interaction, eval = FALSE, echo = T, results = 'hide'}
 # Age interaction
 
 #state level 
@@ -819,7 +816,7 @@ reg_natl_age <- lm(dv_post_national_conf ~ treatment_group*age + gender_female +
 
 ```
 
-```{r educ interaction}
+```{r educ interaction, eval = FALSE, echo = T, results = 'hide'}
 # Education interaction
 
 # state only HS 
@@ -836,7 +833,7 @@ reg_natl_edu <- lm(dv_post_national_conf ~ treatment_group*edu_4college + dv_pre
 
 ```
 
-```{r income interaction}
+```{r income interaction, eval = FALSE, echo = T, results = 'hide'}
 # income interaction
 
 # state 
@@ -848,7 +845,7 @@ reg_natl_inc <- lm(dv_post_national_conf ~ treatment_group*income_num + dv_pre_n
 
 ```
 
-```{r always_never believer interaction}
+```{r always_never believer interaction, eval = FALSE, echo = T, results = 'hide'}
 # always vs never believer interaction
 df$always_believer <- to_factor(df$always_believer)
 df$never_believer <- to_factor(df$never_believer)
@@ -866,7 +863,7 @@ reg_state_always <- lm(dv_post_state_conf ~ treatment_group*always_believer + dv
 reg_natl_always <- lm(dv_post_national_conf ~ treatment_group*always_believer + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 ```
 
-```{r political party interaction}
+```{r political party interaction, eval = FALSE, echo = T, results = 'hide'}
 # political party interaction
 
 # state level
@@ -879,7 +876,7 @@ reg_natl_party <- lm(dv_post_national_conf ~ treatment_group*party +  dv_pre_nat
 
 ```
 
-```{r race interaction terms}
+```{r race interaction terms, eval = FALSE, echo = T, results = 'hide'}
 # race interaction
 # state level race_hispanic Y/N
 
@@ -902,7 +899,7 @@ reg_natl_black <- lm(dv_post_national_conf ~ treatment_group*race_black + race_h
 
 ```
 
-```{r filter out extreme views pre test}
+```{r filter out extreme views pre test, eval = FALSE, echo = T, results = 'hide'}
 # state level middle views ( > 1 and < 10)
 reg_middle_views_state <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df, subset = (dv_pre_state_conf < 10 & dv_pre_state_conf > 1))
 
