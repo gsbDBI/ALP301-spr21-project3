@@ -69,11 +69,8 @@ We believe that the insights gleaned from this experiment will both contribute t
 
 ---
 
-## Experimental Setup *(Updated by Nate)*
+## Experimental Setup
 
-_Describe how the research question can be answered with an experiment, comment on the methodology used. For example, argue why a randomized experiment is useful to answer the research question._
-
-_This section should be a "how-to" guide for executing your experiment. In theory, someone should be able to execute your experiment after reading this section._
 
 To answer our research questions, we will use a multi-treatment survey experiment, that tests the efficacy of different messages at the state and federal levels. 
 
@@ -91,13 +88,7 @@ Participants will be recruited through Lucid during the first half of May 2021, 
 
 Apart from Colorado, several other states have recently or are planning to use RLAs in the future and the goal of using a nationally representative sample is to gain generalizable insights about the potential benefits of well-communicated information about RLAs on voter confidence in the election.
 
-### Treatment (Nate is going to fill this in)
-
-_Please explain your experimental interventions in detail here. Please include a flow chart/diagram that helps explain to readers your experimental setup and procedure._
-
-_You should provide details for each treatment arm here. Remember, visuals help! You can provide images or screenshots of what the actual experiment will look like to participants._
-
-_You should also provide the rationale for choosing the treatment arms._
+### Treatment
 
 Drawing on the literature on experimental interventions around election processes, we use a treatment message designed to explain how RLAs work at the respondent level. This will allow us to measure if receiving information increases confidence in elections. The treatment messages use rational and emotional appeals, grounded in real-world analysis around trust in elections (e.g. that voters trust their local election officials). The treatments are presented in Table 1.
 
@@ -134,15 +125,6 @@ img6 <- readPNG("Figures/treat_5.png")
 img7 <- readPNG("Figures/treat_6.png")
 grid.arrange(img, img1, img2, img3, img4, img5, img6, img7, ncol = 4, nrow = 2)
 ```
-
-
-### Outcomes
-
-_How will you measure and analyze both primary and secondary outcomes of interest? How do they help you address the research questions?_
-We use a pre-test / post-test design. Prior to treatment, we show respondents four media posts from their country (two true and two false in random order) randomly sourced from our stimuli set. For each stimulus, we ask the above self-reported sharing intention questions. Respondents are then asked a series of questions about their media consumption, and are then randomly assigned treatment according to the experimental design. If assigned to one of the respondent level treatments, they are administered the relevant treatment. 
-
-They are then shown four additional stimuli (two true and two false), selected from the remaining stimuli that they were not shown pre-treatment. If the respondent is assigned a headline-level treatment, this treatment is applied only to the misinformation stimuli, as flags and fact-checking labels are not generally applied to true information from verified sources. For each of the stimuli
-we again ask the same self-reported sharing intention questions.
 
 
 #### Primary Outcomes
@@ -202,10 +184,6 @@ to RLAs and election integrity: age, education, religious views, and political i
 
 ## Hypotheses
 
-_Discuss how you would map the research questions into testable hypotheses. For example, if your goal is to find some prototypes for further exploration, which kind of test would you want to conduct? If your goal is to figure out if an intervention works better for one specific group, how would you formulate the hypothesis?_
-
-_How do you plan to address the problem of multiple hypotheses testing? If you are making a final recommendation rather than selecting some for future exploration, you might want to choose the more conservative correction methods._
-
 **Primary:**
 
 The primary hypothesis that we are interested in testing the change in voter confidence after the intervention to measure whether any of the treatments to communicate about RLAs are effective in increasing voter trust in election systems. This compares the treatment to the Control group.
@@ -215,7 +193,7 @@ We hypothesize that being treated with any of the six messages will have a posit
 **Secondary (Hypotheses to inform industry practice)**
 Our secondary hypothesis will measure which of the six messages were most effective, comparing the treatments to each other. We expect that learning about RLAs will have at least a small positive effect on trust in election systems, and that the Bipartisan message and Bad Loser, the emotional appeal, will have the largest effects compared to the other treatments. In addition, we anticipate the message about RLA as a percentage will have a neutral or negative effect on confidence in election processes.
 
-We care about the outcome (increasing voter confidence) and understanding which types of people are nudged toward this outcome by particular treatments. Therefore, we plan to examine how a few select treatments interact with particular covariates of interest, namely age, gender, party affiliation, income, and education.
+We care about the outcome (increasing voter confidence) and understanding which types of people are nudged toward this outcome by particular treatments. Therefore, we plan to examine how a few select treatments interact with particular covariates of interest, namely age, gender, party affiliation, income, and education. 
 
 For low-income and low-educated participants, we expect the message about RLAs with the percentage will have a negative effect. For those that identify as Republicans, the message "Bad Losers" will be less effective. Respondents that identify as Republicans will be less affected overall by the treatments than those identifying as Democrats. In addition, respondents with low trust in the government (state or national) will be effected less than those with high trust in the government. 
 
@@ -249,22 +227,17 @@ Covariates:
 
 ## Analysis
 
-_Label and index your data: outcomes, treatments, covariates. Formally describe how you test the hypotheses described earlier._
-
-**Source: Analysis should also follow your hypotheses. For each of your hypotheses, what analysis will allow you to test the hypotheses?**
-
 For the primary and secondary outcomes discussed above, we will examine and compare the average treatment effect as the movement on the scale between the pre- and post-treatment.
 
-To test our hypotheses, we will conduct a two-sided T-test to examine the average treatment effect. We will compare the average effect for each treatment to the control average, and then compare each treatment average to each other to determine which message is most effective.
+To test our hypotheses, we will conduct a two-sided T-test to examine the average treatment effect. We will compare the average effect for each treatment to the control average, and then compare each treatment average to each other to determine which message is most effective. After we analyze the results from this naive approach, we will further our analysis through the use of a linear regression. Using a linear regression will allow us to control for characteristics we believe may have an impact on pre and post test confidence. 
 
-We will also analyze the effect of the treatments listed above by sub-groups to assess whether or not heterogeneous treatment effects exist. 
+We will also analyze the effect of the treatments listed above by sub-groups to assess whether or not heterogeneous treatment effects exist. To test these heterogeneous effects, we will use a linear regression with an interaction between treatment and subgroup (i.e. gender and treatments).
 
 Given that testing these treatment-covariate combinations will result in a large number of unique tests, we will adjust for multiple hypothesis testing using the FDR correction method to eliminate Type I errors (false positive discoveries). This is a result of our objective to test multiple treatments against the control group and between each other. 
 
 ---
 
 ## Power Calculations
-_A crucial function of the PAP is to help you calculate the sample size you would need to detect a hypothesized treatment effect. Depending on your experimental design, please use the relevant tutorial for power calculation code._
 
 To determine the sample size required to detect a treatment effect for our multiple arm experimental design, we will require ~1600 participants to achieve a minimum of 80% power with the False Discovery Rate (FDR) method. We will use the FDR method instead of Bonferroni or Family Wise Error Rate to reject the null hypotheses (two-tailed test), given that there have been no similar studies conducted previously on RLAs for us to base the estimated effect on. The minimum detectable effect is a change of 0.1 on a scale of 1-10. 
 
@@ -400,9 +373,7 @@ Based on the power calculations above, we can achieve 80% power using FDR with ~
 ---
 
 ## Analysis Scripts
-_Importantly, please include analysis scripts that can be directly applied to your experimental data. The data engineers should work to extract and organize experimental data so that the data scripts can be applied. Remember to always comment the code and add explanation after the code output._
 
-**Source: The experimental design tutorials contain code for analyzing a dataset, including coding up the outcome variables, treatment variables, covariates, checking balance in treatment assignment and analyzing using regression models. **
 
 ```{r load libraries}
 # # Ensure that pacman is installed for package management and loading.
@@ -454,7 +425,7 @@ library(here)
 df <- read.csv(here('', 'rla_clean_5_12.csv'))
 
 ```
-
+The above code will read in our dataset. 
 ```{r balance_plots, eval = FALSE, echo = T, results = 'hide'}
 df$age <- as.numeric(df$age)
 # exclude data with missing covariates
@@ -473,7 +444,7 @@ m.out <- matchit(dummy_treat ~ age + gender_female + parent_yes + state + income
 love.plot(m.out, binary = "std", thresholds = c(m = .1))
 
 ```
-The above code will test our treatment groups to ensure they are balanced. In effect this means...
+The above code will test our treatment groups to ensure they are balanced. Here, we are testing to ensure there is no statisical bias between groups. In other words, we want to make sure that men and women were approximately equally distributed amongst our treatment groups. 
 ```{r compare tests with attention check failures and 2SD of duration, eval = FALSE, echo = T, results = 'hide'}
 # people within 2 SD of duration
 sd2 = sd(df$duration_sec)*2
@@ -481,7 +452,7 @@ sd2 = sd(df$duration_sec)*2
 duration_sd2_df <- no_na_df %>% 
   filter(abs(duration_sec - mean(duration_sec)) < sd2)
 
-# only removes 15 people so would not sig affect results
+# check to see how many people are removed
 rm(duration_sd2_df)
 
 # people who passed attention check
@@ -500,9 +471,9 @@ m.out <- matchit(dummy_treat ~ age + gender_female + parent_yes + state + income
 # plot covariate balance with and without matching
 love.plot(m.out, binary = "std", thresholds = c(m = .1))
 
-# results look pretty similar for those who failed and did not fail the attention check
-```
 
+```
+The above code will analyze the impact of keeping those respondents who failed the attention check in our data frame. If the impact is negligible, we plan to keep the attention check failures in the dataset to allow for a larger sample size. 
 ```{r lm_ftest_balance, eval = FALSE, echo = T, results = 'hide'}
 # regression of covariates on treatment assignment variable
 balance_lm <- lm(treatment_group_num ~ age + gender_female + parent_yes + state + income_clean + race_hispanic + edu_4college + edu_hs + party + dv_pre_state_conf + dv_pre_national_conf, data = no_na_df) # factor(region) encodes the string variable as a factor for analysis
@@ -515,7 +486,7 @@ car::linearHypothesis(balance_lm, c("gender_female = 0", "age = 0", "parent_yes 
 
 summary(balance_lm)
 ```
-
+The above code uses a linear regression to conduct similar balance checks to those above. This is used as a robustness check. 
 ```{r balance_table, eval = FALSE, echo = T, results = 'hide'}
 # Define a function to generate a balance check table using two-sample t-test 
 # Parameters: "cov_list" includes covariates, "treat" indicates the treatment, "alpha" is the significance level
@@ -532,7 +503,7 @@ t_table <- function(data, cov_list, treat,
   out <- as.data.frame(do.call(rbind, out))
   # combine covaraite names and results by column (cbind)
   out <- cbind(covariate = cov_list, out)
-  # get ride of non-important strings in the names
+  # get rid of non-important strings in the names
   names(out) <- gsub("[^0-9A-Za-z_]", "", names(out)) # gsub(pattern, replacement, x) replaces pattern in x with replacement
   
   # code presentation of p-value according to whether they are below a threshold, for e.g., 0.001
@@ -555,7 +526,7 @@ balance_table %>%
   knitr::kable() %>%
   kableExtra::kable_styling(bootstrap_options = "striped")
 ```
-
+The above code is also looking at the balance between treatment groups, using a two sample t-test. 
 ```{r region_balance, eval = FALSE, echo = T, results = 'hide'}
 # balance table for Democrats
 balance_dems <- t_table(
@@ -587,7 +558,7 @@ add_header_above(x, c('', 'Democrats'=3, 'Republicans'=3, 'Other and Independent
 
 
 ```
-
+Above, we check for balance among political parties. 
 ```{r basic regression with dummy treat, eval = FALSE, echo = T, results = 'hide'}
 df[c(6:10,12,19:21,23,27,29,30,32,35:42,44,45)] <- lapply(df[c(6:10,12,19:21,23,27,29,30,32,35:42,44,45)], factor)
 
@@ -616,29 +587,29 @@ reg3_att <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gend
 
 reg4_att <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = atten_check_df)
 
-# results do not vary by including those who did or did not fail the attention check
+# do results vary by those who failed the attention check?
 
 # compare by controlling for attention check
 reg1_att_con <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + attention_pass, data = df)
 
-# results look the same
+# do results look the same? 
 
 # run the regression for national confidence level
 reg2_att_con <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + attention_pass, data = df)
 
-# results look different, treatment is statistic sig with control for attention pass
+# do the results look the same? 
 
 # run the regression with controls for state level
 reg3_att_con <- lm(dv_post_state_conf ~ dummy_treat + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_state, data = df)
 
-# results look the same for state level w/ and w/out attention pass
+# do results look the same?
 
 # run the regression with controls for national level
 reg4_att_con <- lm(dv_post_national_conf ~ dummy_treat + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_federal, data = df)
 
-# results look the same here too
+# do the results look the same?
 ```
-
+The code above contains important elements of our analysis. First, it will run the state and national level regressions to determine the effect of being treated versus controlled. The initial regressions do not control for any covariates. Then it will run a similar regression, this time with controls in place. These initial regressions do not include respondents that fail the attention check. Then, it runs these same regressions including the group that failed the attention check and will assess whether or not there is a statistically significant difference. This chunk of code will test our first hypothesis, determining whether being treated (despite treatment message) is different than not being treated. 
 ```{r regression with treatment groups, eval = FALSE, echo = T, results = 'hide'}
 # run the regression with treatment groups
 df$treatment_group <- relevel(factor(df$treatment_group), ref = "Control")
@@ -653,36 +624,36 @@ reg6 <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age 
 
 reg5_att <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = atten_check_df)
 
-# results are not different for those did and did not fail the attention check at state level 
+# are results different? 
 
 reg6_att <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
-# results do not vary much at the national level for those who fail the attention check
+# are results different?
 
 # compare controlling for the attention check
 
 #state level with treatment groups
 reg5_att_con <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_state, data = df)
 
-# looks the same at the state level
+# are results different?
 
 # national with treatment groups
 reg6_att_con <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + attention_pass + trust_federal, data = df)
 
-# looks the same at the national level
+# are results different?
 
 # we can get rid of the extra regressions now
 rm(reg1_att, reg1_att_con,reg2_att, reg2_att_con,reg3_att, reg3_att_con, reg4_att, reg4_att_con,reg5_att, reg5_att_con,reg6_att, reg6_att_con)
 rm(atten_check_df)
 
 ```
-
+Like the previous block of code, this code contains analysis important to our experiment. Namely, it tests our second hypothesis for differences in treatment effects by message. The regressions are run at the state and national level with controls. Again, we plan to compare the respondents with and without attention check failures. 
 ```{r secondary effect, eval = FALSE, echo = T, results = 'hide'}
 # run a linear regression to measure the effect of treatments on the secondary effect question
 reg_state_seceffect <- lm(seceffect ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_state, data = df)
 
 ```
-
+The above code is the linear regression for our secondary dependent variable, which will be used as a robustness check. 
 ```{r treatment plot treatment_group, eval = FALSE, echo = T, results = 'hide'}
 labs <- c("Bipartisan", "Hand Count", "Local", "Loser", "RLA Percentage", "Soup")
 
@@ -742,14 +713,14 @@ p5
 sec_effect
 
 ```
-
+The code above will plot the treatment effects.
 ```{r difference_in_means_simple, eval = FALSE, echo = T, results = 'hide'}
 # simple difference in means for those treated with a message
 with(df, mean(dv_post_state_conf[dummy_treat == 1]) - mean(dv_post_state_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
 
 with(df, mean(dv_post_national_conf[dummy_treat == 1]) - mean(dv_post_national_conf[dummy_treat == 0])) #with(data, expr, …) evaluates the expr on the data
 ```
-
+The code above will run a simple t-test to determine whether or not being treated has an effect. 
 ```{r difference_in_means, eval = FALSE, echo = T, results = 'hide'}
 # Use the estimatr package for difference in means estimates
 estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df) 
@@ -758,7 +729,7 @@ estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df)
 estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = df) 
 
 ```
-
+This code will also run a t-test to determine whether or not being treated has an effect. 
 ```{r difference_in_means_subsample, eval = FALSE, echo = T, results = 'hide'}
 # difference in means for women at state level
 
@@ -793,7 +764,7 @@ estimatr::difference_in_means(dv_state_treatment_diff ~ dummy_treat, data = df, 
 estimatr::difference_in_means(dv_national_treatment_diff ~ dummy_treat, data = df, subset = edu_4college == "1")
 
 ```
-
+The code above will run a t-test for many of the heterogeneous treatment effects for which we have interest. 
 ```{r gender interaction, eval = FALSE, echo = T, results = 'hide'}
 # Gender interaction
 
@@ -804,7 +775,7 @@ reg_state_fem <- lm(dv_post_state_conf ~ treatment_group*gender_female + dv_pre_
 reg_natl_fem <- lm(dv_post_national_conf ~ treatment_group*gender_female + dv_pre_national_conf + age + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 ```
-
+The code above will create a linear regression with interaction between gender and treatement effect, which will be used to determine heterogeneous treatment effects based on gender. 
 ```{r age interaction, eval = FALSE, echo = T, results = 'hide'}
 # Age interaction
 
@@ -815,7 +786,7 @@ reg_state_age <- lm(dv_post_state_conf ~ treatment_group*age + gender_female + d
 reg_natl_age <- lm(dv_post_national_conf ~ treatment_group*age + gender_female + dv_pre_national_conf + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 ```
-
+The code above will create a linear regression with interaction between age and treatement effect, which will be used to determine heterogeneous treatment effects based on age. 
 ```{r educ interaction, eval = FALSE, echo = T, results = 'hide'}
 # Education interaction
 
@@ -832,7 +803,7 @@ reg_state_edu <- lm(dv_post_state_conf ~ treatment_group*edu_4college + dv_pre_s
 reg_natl_edu <- lm(dv_post_national_conf ~ treatment_group*edu_4college + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_hs + party + trust_federal, data = df)
 
 ```
-
+The code above will create a linear regression with interaction between education and treatement effect, which will be used to determine heterogeneous treatment effects based on education. 
 ```{r income interaction, eval = FALSE, echo = T, results = 'hide'}
 # income interaction
 
@@ -844,7 +815,7 @@ reg_state_inc <- lm(dv_post_state_conf ~ treatment_group*income_num +  dv_pre_st
 reg_natl_inc <- lm(dv_post_national_conf ~ treatment_group*income_num + dv_pre_national_conf + age + gender_female + parent_yes + state + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 ```
-
+The code above will create a linear regression with interaction between income and treatement effect, which will be used to determine heterogeneous treatment effects based on income. 
 ```{r always_never believer interaction, eval = FALSE, echo = T, results = 'hide'}
 # always vs never believer interaction
 df$always_believer <- to_factor(df$always_believer)
@@ -862,7 +833,7 @@ reg_state_always <- lm(dv_post_state_conf ~ treatment_group*always_believer + dv
 # national always believer
 reg_natl_always <- lm(dv_post_national_conf ~ treatment_group*always_believer + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 ```
-
+The code above will create a linear regression with interaction between 'always believers & never believers' and treatement effect, which will be used to determine heterogeneous treatment effects based on belief in the government. 
 ```{r political party interaction, eval = FALSE, echo = T, results = 'hide'}
 # political party interaction
 
@@ -875,7 +846,7 @@ reg_state_party <- lm(dv_post_state_conf ~ treatment_group*party + dv_pre_state_
 reg_natl_party <- lm(dv_post_national_conf ~ treatment_group*party +  dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + trust_federal, data = df)
 
 ```
-
+The code above will create a linear regression with interaction between political party and treatement effect, which will be used to determine heterogeneous treatment effects based on political party. 
 ```{r race interaction terms, eval = FALSE, echo = T, results = 'hide'}
 # race interaction
 # state level race_hispanic Y/N
@@ -898,7 +869,7 @@ reg_state_black <- lm(dv_post_state_conf ~ treatment_group*race_black + race_his
 reg_natl_black <- lm(dv_post_national_conf ~ treatment_group*race_black + race_hispanic + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_white + race_asian + edu_4college + edu_hs + party + trust_federal, data = df)
 
 ```
-
+The code above will create a linear regression with interaction between race and treatement effect, which will be used to determine heterogeneous treatment effects based on race. 
 ```{r filter out extreme views pre test, eval = FALSE, echo = T, results = 'hide'}
 # state level middle views ( > 1 and < 10)
 reg_middle_views_state <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df, subset = (dv_pre_state_conf < 10 & dv_pre_state_conf > 1))
@@ -907,5 +878,6 @@ reg_middle_views_state <- lm(dv_post_state_conf ~ treatment_group + dv_pre_state
 reg_middle_views_natl <- lm(dv_post_national_conf ~ treatment_group + dv_pre_national_conf + age + gender_female + parent_yes + state + income_clean + race_hispanic + race_white + race_black + race_asian + edu_4college + edu_hs + party, data = df, subset = (dv_pre_state_conf < 10 & dv_pre_state_conf > 1))
 
 ```
+The code above will create a linear regression without including those respondents in the extremes (respondents who answered either a 1 or 10). We can use this regression to analyze whether or not those respondents not in the extremes have different treatment effects than those in the extremes. 
 
 ## References
