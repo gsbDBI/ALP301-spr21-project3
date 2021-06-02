@@ -115,7 +115,7 @@ All respondents are assigned either the Control message or one of the six treatm
 
 ```{r treatment_message_images, echo=FALSE, out.width="49%", out.height="20%",fig.cap="Figure 2. Treatment Messages",fig.show='hold'}
 
-knitr::include_graphics(c("Figures/rlaintro.png","Figures/control.png","Figures/treat_1.png","Figures/treat_2.png", "Figures/treat_3.png", "Figures/treat_4.png","Figures/treat_5.png","Figures/treat_6.png"))
+knitr::include_graphics(c("Figures/rla_intro.png","Figures/control.png","Figures/treat_1.png","Figures/treat_2.png", "Figures/treat_3.png", "Figures/treat_4.png","Figures/treat_5.png","Figures/treat_6.png"))
 
 ```
 
