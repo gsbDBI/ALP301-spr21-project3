@@ -115,7 +115,7 @@ All respondents are assigned either the Control message or one of the six treatm
 
 ```{r treatment_message_images, echo=FALSE, out.width="49%", out.height="20%",fig.cap="Figure 2. Treatment Messages",fig.show='hold'}
 
-knitr::include_graphics(c("Figures/rlaintro.png","Figures/control.png","Figures/treat_1.png","Figures/treat_2.png", "Figures/treat_3.png", "Figures/treat_4.png","Figures/treat_5.png","Figures/treat_6.png"))
+knitr::include_graphics(c("Figures/rla_intro.png","Figures/control.png","Figures/treat_1.png","Figures/treat_2.png", "Figures/treat_3.png", "Figures/treat_4.png","Figures/treat_5.png","Figures/treat_6.png"))
 
 ```
 
@@ -142,7 +142,7 @@ The survey questions that will allow us to measure this change are two-fold to a
 
 *Post-Treatment Questions*
 
-(1) Given what you know about election processes, how confident are you that votes \textbf{in your state} will be counted accurately in the upcoming 2024 presidential election?
+(1) Given what you know about election processes, how confident are you that votes **in your state** will be counted accurately in the upcoming 2024 presidential election?
 
 (2) Given what you know about election processes, how confident are you that votes **across all states** will be counted accurately in the upcoming 2024 presidential election?
 
@@ -876,3 +876,10 @@ reg_middle_views_natl <- lm(dv_post_national_conf ~ treatment_group + dv_pre_nat
 The code above will create a linear regression without including those respondents in the extremes (respondents who answered either a 1 or 10). We can use this regression to analyze whether or not those respondents not in the extremes have different treatment effects than those in the extremes. 
 
 ## References
+
+Atkeson, Lonna & Alvarez, R. & Hall, Thad. (2015). "Voter Confidence: How to Measure It and How It Differs from Government Support." Election Law Journal: Rules, Politics, and Policy. 14. 10.1089/elj.2014.0293. 
+
+  Hall, Thad E., et al. “The Human Dimension of Elections: How Poll Workers Shape Public Confidence in Elections.” Political Research Quarterly, vol. 62, no. 3, Sept. 2009, pp. 507–522, doi:10.1177/1065912908324870.
+
+
+Sances, Michael & Stewart, Charles. (2015). "Partisanship and confidence in the vote count: Evidence from U.S. national elections since 2000." Electoral Studies. vol 40. pp. 176-188 https://doi.org/10.1016/j.electstud.2015.08.004
