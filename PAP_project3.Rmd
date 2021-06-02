@@ -123,16 +123,8 @@ All respondents are assigned either the Control message or one of the six treatm
 
 
 ```{r treatment message images, echo=FALSE}
-library(gridExtra)
-img <- readPNG("Figures/rla_intro.png")
-img1 <- readPNG("Figures/control.png")
-img2 <- readPNG("Figures/treat_1.png")
-img3 <- readPNG("Figures/treat_2.png")
-img4 <- readPNG("Figures/treat_3.png")
-img5 <- readPNG("Figures/treat_4.png")
-img6 <- readPNG("Figures/treat_5.png")
-img7 <- readPNG("Figures/treat_6.png")
-grid.arrange(img, img1, img2, img3, img4, img5, img6, img7, ncol = 4)
+knitr::include_graphics(c("Figures/rla_intro.png","Figures/control.png","Figures/treat_1.png","Figures/treat_2.png", "Figures/treat_3.png", "Figures/treat_4.png","Figures/treat_5.png","Figures/treat_6.png"))
+
 ```
 
 
