@@ -1,7 +1,7 @@
 ---
-title: "PAP Template for Experiment Projects - Project 3"
-author: "Project 3 - Voter Confidence"
-date: "April 2021"
+title: "Pre-Analysis Plan Experimental Design"
+author: "Project 3: Voter Confidence"
+date: "June 2021"
 output:
   html_document:
     highlight: haddock
@@ -101,11 +101,11 @@ All respondents are assigned either the Control message or one of the six treatm
 | Shorthand Name | Treatment Level | Treatment 
 |:----:|:----:|:----:|
 | 1. Bipartisan Auditors | Respondent | Prompt: Did you know? The RLA process is balanced. Republican and Democrat representatives audit your state's election system. This means that, when a random sample of votes is being checked for any miscounts, representatives from both parties review the process and sign the final results.  | 
-| 2. Risk Limit as a Percentage | Respondent | Prompt: Did you know? Before starting an audit, election officials agree on a risk limit (9% in this case). The lower the risk limit, the more ballots need to get recounted to verify the election result. If the originally reported election result is wrong, then, a risk limit of 9% means that there's a \textbf{91% chance} the RLA will find the mismatches and correct the result.  | 
-| 3. Hand-Counted Votes | Respondent | Prompt: Did you know? The RLA consists of auditors examining a random sample of ballots \textbf{by hand} and comparing them to how the machine counted those ballots. \textbf{This hand recount} ensures that the machine accurately captured every voters intent. Examining a random selection of ballots \textbf{by hand} allows election officials and the public to be confident that the election results reflect the will of the people.  |
+| 2. Risk Limit as a Percentage | Respondent | Prompt: Did you know? Before starting an audit, election officials agree on a risk limit (9% in this case). The lower the risk limit, the more ballots need to get recounted to verify the election result. If the originally reported election result is wrong, then, a risk limit of 9% means that there's a **91% chance** the RLA will find the mismatches and correct the result.  | 
+| 3. Hand-Counted Votes | Respondent | Prompt: Did you know? The RLA consists of auditors examining a random sample of ballots **by hand** and comparing them to how the machine counted those ballots. **This hand recount** ensures that the machine accurately captured every voters intent. Examining a random selection of ballots **by hand** allows election officials and the public to be confident that the election results reflect the will of the people.  |
 | 4. Emotional - Politicians are Bad Losers | Respondent | Prompt: Did you know? Every four years, the losing politician has only one move left to make – cast doubt on the election process.  The American people are tired of this bullshit! Your state election officials use RLAs to ensure that the lies spewed by losing politicians are just that - empty words spoken by losers.  | 
-| 5. Random Sample (Soup Analogy) | Respondent | Prompt: Did you know? Election officials use a random sample of ballots when they audit election results. But, \textbf{how can a random sample of ballots confirm the results for the entire state?} Well, it's similar to tasting a giant pot of soup to see if it's too salty. You stir the pot thoroughly and take a random sample. You don't have to eat the whole bowl to know if it is good or not - just a random spoonful of soup. |
-| 6. RLAs are Run by Local Election Officials | Respondent | Prompt: Did you know? The people who run the RLAs - the local election officials - are people like you; they can be your neighbors, friends, those you see at the store, soccer games, church, etc. \textbf{These officials are the ones responsible for auditing the election results.} The election system was designed to be run by local communities with multiple security checks and audits.  |
+| 5. Random Sample (Soup Analogy) | Respondent | Prompt: Did you know? Election officials use a random sample of ballots when they audit election results. But, **how can a random sample of ballots confirm the results for the entire state?** Well, it's similar to tasting a giant pot of soup to see if it's too salty. You stir the pot thoroughly and take a random sample. You don't have to eat the whole bowl to know if it is good or not - just a random spoonful of soup. |
+| 6. RLAs are Run by Local Election Officials | Respondent | Prompt: Did you know? The people who run the RLAs - the local election officials - are people like you; they can be your neighbors, friends, those you see at the store, soccer games, church, etc. **These officials are the ones responsible for auditing the election results.** The election system was designed to be run by local communities with multiple security checks and audits.  |
 | 7. Control  | Respondent | Prompt: Did you know? Elections are at the heart of democracy. Voting in an election gives the people a way to choose who governs them. The election process provides a way for power to be transferred peacefully. It is important that people who work in elections serve the American people to protect our democracy.
 
 <center>Table 1. Description of interventions included in the experiment</center>
@@ -113,25 +113,14 @@ All respondents are assigned either the Control message or one of the six treatm
 <center>![Figure 1. Experimental Design Process.](Figures/experiment.png)
 
 
-```{r treatment message images, echo=FALSE}
-knitr::include_graphics(c("Figures/rla_intro.png","Figures/control.png","Figures/treat_1.png","Figures/treat_2.png", "Figures/treat_3.png", "Figures/treat_4.png","Figures/treat_5.png","Figures/treat_6.png"))
+```{r treatment_message_images, echo=FALSE, out.width="49%", out.height="20%",fig.cap="Figure 2. Treatment Messages",fig.show='hold'}
 
-
-library(gridExtra)
-img <- readPNG("Figures/rla_intro.png")
-img1 <- readPNG("Figures/control.png")
-img2 <- readPNG("Figures/treat_1.png")
-img3 <- readPNG("Figures/treat_2.png")
-img4 <- readPNG("Figures/treat_3.png")
-img5 <- readPNG("Figures/treat_4.png")
-img6 <- readPNG("Figures/treat_5.png")
-img7 <- readPNG("Figures/treat_6.png")
-grid.arrange(img, img1, img2, img3, img4, img5, img6, img7, ncol = 4, nrow = 2)
+knitr::include_graphics(c("Figures/rlaintro.png","Figures/control.png","Figures/treat_1.png","Figures/treat_2.png", "Figures/treat_3.png", "Figures/treat_4.png","Figures/treat_5.png","Figures/treat_6.png"))
 
 ```
 
 
-#### Primary Outcomes
+## Primary Outcomes
 
 We will use a pre-test/post-test design to address our primary research question:
 
@@ -146,14 +135,16 @@ By running a two-sided T-test, we will be able to determine if talking about RLA
 The survey questions that will allow us to measure this change are two-fold to account for differences in confidence at the state versus national level, all measured on a scale (1-10).
 
 *Pre-Treatment Questions*
-(1) How confident are you that votes \textbf{in your state} will be counted accurately in the upcoming 2024 presidential election?
 
-(2) How confident are you that votes \textbf{across all states} will be counted accurately in the upcoming 2024 presidential election?
+(1) How confident are you that votes **in your state** will be counted accurately in the upcoming 2024 presidential election?
+
+(2) How confident are you that votes **across all states** will be counted accurately in the upcoming 2024 presidential election?
 
 *Post-Treatment Questions*
+
 (1) Given what you know about election processes, how confident are you that votes \textbf{in your state} will be counted accurately in the upcoming 2024 presidential election?
 
-(2) Given what you know about election processes, how confident are you that votes \textbf{across all states} will be counted accurately in the upcoming 2024 presidential election?
+(2) Given what you know about election processes, how confident are you that votes **across all states** will be counted accurately in the upcoming 2024 presidential election?
 
 The pre-test/post-test design will allow us to measure the average treatment effect compared to the Control, whether positive or negative.
 
